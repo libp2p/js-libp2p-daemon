@@ -1,6 +1,13 @@
 const net = require('net')
 const path = require('path')
 const Libp2p = require('./libp2p')
+const PeerInfo = require('peer-info')
+const PeerId = require('peer-id')
+const multiaddr = require('multiaddr')
+const {
+  Request,
+  Response
+} = require('./protocol')
 
 const log = console.log
 
@@ -11,8 +18,36 @@ class Daemon {
   }) {
     this.socketPath = socketPath
     this.libp2p = libp2pNode
-    this.server = net.createServer(this.handleConnection.bind(this))
+    this.server = net.createServer({
+      allowHalfOpen: true
+    }, this.handleConnection.bind(this))
     this.listen()
+  }
+
+
+  /**
+   * Connects the daemons libp2p node to the peer provided
+   * in the ConnectRequest
+   * @param {ConnectRequest} connectRequest
+   * @returns {Promise}
+   */
+  connect (connectRequest) {
+    return new Promise((resolve, reject) => {
+      const peer = connectRequest.connect.peer
+      const addrs = connectRequest.connect.addrs
+      const peerInfo = new PeerInfo(
+        PeerId.createFromB58String(peer)
+      )
+      addrs.forEach((a) => {
+        peerInfo.multiaddrs.add(multiaddr(a))
+      })
+
+      this.libp2p.dial(peerInfo, (err) => {
+        if (err) return reject(err)
+
+        resolve()
+      })
+    })
   }
 
   listen () {
@@ -38,6 +73,9 @@ class Daemon {
 
   /**
    * Stops the daemon
+   * @param {object} options
+   * @param {boolean} options.exit If the daemon process should exit
+   * @returns {Promise}
    */
   stop (options = { exit: false }) {
     return new Promise(async (resolve) => {
@@ -53,14 +91,49 @@ class Daemon {
   }
 
   async handleConnection (conn) {
-    let data = ''
+    let message = Buffer.alloc(0)
     for await (const chunk of conn) {
-      data += chunk
+      message = Buffer.concat([message, chunk])
     }
 
     // Handle the message here
-    console.log('Data:', data)
+    let request
+    try {
+      request = Request.decode(Buffer.from(message))
+    } catch (err) {
+      return conn.end(ErrorResponse('ERR_INVALID_MESSAGE'))
+    }
+
+    switch (request.type) {
+      case Request.Type.CONNECT:
+        console.log('connect to:', request.connect.peer)
+        try {
+          await this.connect(request)
+        } catch (err) {
+          return conn.end(ErrorResponse(err.message))
+        }
+        conn.end(OkResponse())
+        break
+      default:
+        conn.end(ErrorResponse('ERR_INVALID_REQUEST_TYPE'))
+        break
+    }
   }
+}
+
+function OkResponse () {
+  return Response.encode({
+    type: Response.Type.OK
+  })
+}
+
+function ErrorResponse (message) {
+  return Response.encode({
+    type: Response.Type.ERROR,
+    error: {
+      msg: message
+    }
+  })
 }
 
 const createDaemon = async (options) => {
