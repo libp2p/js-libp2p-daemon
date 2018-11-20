@@ -105,14 +105,28 @@ class Daemon {
     }
 
     switch (request.type) {
+      // Connect to another peer
       case Request.Type.CONNECT:
-        console.log('connect to:', request.connect.peer)
         try {
           await this.connect(request)
         } catch (err) {
           return conn.end(ErrorResponse(err.message))
         }
         conn.end(OkResponse())
+        break
+      // Get a list of our current peers
+      case Request.Type.LIST_PEERS:
+        const peers = this.libp2p.peerBook.getAllArray().map((pi) => {
+          const addr = pi.isConnected()
+          return {
+            id: pi.id.toBytes(),
+            addrs: [addr ? addr.buffer : null]
+          }
+        })
+        conn.end(Response.encode({
+          type: Response.Type.OK,
+          peers
+        }))
         break
       default:
         conn.end(ErrorResponse('ERR_INVALID_REQUEST_TYPE'))

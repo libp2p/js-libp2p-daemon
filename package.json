@@ -33,7 +33,8 @@
   "devDependencies": {
     "aegir": "^17.0.1",
     "chai": "^4.2.0",
-    "mocha": "^5.2.0"
+    "mocha": "^5.2.0",
+    "multihashes": "^0.4.14"
   },
   "dependencies": {
     "libp2p": "~0.24.0",

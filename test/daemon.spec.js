@@ -2,8 +2,8 @@ const chai = require('chai')
 const expect = chai.expect
 const { createDaemon } = require('../src/daemon')
 const { Request, Response } = require('../src/protocol')
-
-const fs = require('fs')
+const mh = require('multihashes')
+const multiaddr = require('multiaddr')
 const net = require('net')
 const path = require('path')
 
@@ -112,6 +112,45 @@ describe('daemon', () => {
         }
 
         expect(response.type).to.eql(Response.Type.OK)
+        done()
+      })
+    })
+
+    it('should be able to list peers', (done) => {
+      const client = new net.Socket({
+        readable: true,
+        writable: true,
+        allowHalfOpen: true
+      })
+
+      client.connect(path.resolve('/tmp/p2pd.sock'), async (err) => {
+        if (err) return done(err)
+
+        const request = {
+          type: Request.Type.LIST_PEERS,
+          connect: null,
+          streamOpen: null,
+          streamHandler: null,
+          dht: null,
+          connManager: null
+        }
+
+        client.end(Request.encode(request))
+
+        let message = Buffer.alloc(0)
+        for await (const chunk of client) {
+          message = Buffer.concat([message, chunk])
+        }
+
+        let response
+        try {
+          response = Response.decode(message)
+        } catch (err) {
+          return done(err)
+        }
+
+        expect(response.type).to.eql(Response.Type.OK)
+        expect(response.peers).to.have.length(1)
         done()
       })
     })
