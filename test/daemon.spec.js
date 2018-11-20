@@ -67,11 +67,13 @@ describe('daemon', () => {
       })
     })
 
-    after(() => {
-      return Promise.all([
-        daemon1.stop(),
-        daemon2.stop()
-      ])
+    after(async () => {
+      try {
+        await daemon1.stop()
+      } catch (err) {}
+      try {
+        await daemon2.stop()
+      } catch (err) {}
     })
 
     it('should be able to connect to another node', (done) => {
@@ -151,6 +153,48 @@ describe('daemon', () => {
 
         expect(response.type).to.eql(Response.Type.OK)
         expect(response.peers).to.have.length(1)
+        done()
+      })
+    })
+
+    it('should be able to identify', (done) => {
+      const client = new net.Socket({
+        readable: true,
+        writable: true,
+        allowHalfOpen: true
+      })
+
+      client.connect(path.resolve('/tmp/p2pd.sock'), async (err) => {
+        if (err) return done(err)
+
+        const request = {
+          type: Request.Type.IDENTIFY,
+          connect: null,
+          streamOpen: null,
+          streamHandler: null,
+          dht: null,
+          connManager: null
+        }
+
+        client.end(Request.encode(request))
+
+        let message = Buffer.alloc(0)
+        for await (const chunk of client) {
+          message = Buffer.concat([message, chunk])
+        }
+
+        let response
+        try {
+          response = Response.decode(message)
+        } catch (err) {
+          return done(err)
+        }
+
+        expect(response.type).to.eql(Response.Type.OK)
+        expect(response.identify).to.eql({
+          id: daemon1.libp2p.peerInfo.id.toBytes(),
+          addrs: daemon1.libp2p.peerInfo.multiaddrs.toArray().map(m => m.buffer)
+        })
         done()
       })
     })

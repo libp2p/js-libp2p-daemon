@@ -114,6 +114,16 @@ class Daemon {
         }
         conn.end(OkResponse())
         break
+      // Get the daemon peer id and addresses
+      case Request.Type.IDENTIFY:
+        conn.end(Response.encode({
+          type: Response.Type.OK,
+          identify: {
+            id: this.libp2p.peerInfo.id.toBytes(),
+            addrs: this.libp2p.peerInfo.multiaddrs.toArray().map(m => m.buffer)
+          }
+        }))
+        break
       // Get a list of our current peers
       case Request.Type.LIST_PEERS:
         const peers = this.libp2p.peerBook.getAllArray().map((pi) => {
