@@ -2,35 +2,19 @@ const chai = require('chai')
 const expect = chai.expect
 const { createDaemon } = require('../src/daemon')
 const { Request, Response } = require('../src/protocol')
-const mh = require('multihashes')
-const multiaddr = require('multiaddr')
 const net = require('net')
 const path = require('path')
+const { encode, decode } = require('length-prefixed-stream')
+const LIMIT = 1 << 22 // 4MB
 
 describe('daemon', () => {
-  it('should be able to start and stop the daemon', async () => {
-    const daemon = await createDaemon({
-      quiet: false,
-      q: false,
-      bootstrap: false,
-      b: false,
-      dht: false,
-      dhtClient: false,
-      connMgr: false,
-      sock: '/tmp/p2pd.sock',
-      id: '',
-      bootstrapPeers: ''
-    })
-
-    await daemon.start()
-    await daemon.stop()
-  })
-
   describe('connections', () => {
     let daemon1
     let daemon2
+    let client
 
-    before(() => {
+    before(function () {
+      this.timeout(20e3)
       return Promise.all([
         createDaemon({
           quiet: false,
@@ -57,8 +41,8 @@ describe('daemon', () => {
           bootstrapPeers: ''
         })
       ]).then((daemons) => {
-        daemon1 = daemons[0]
-        daemon2 = daemons[1]
+        daemon1 = daemons.shift()
+        daemon2 = daemons.shift()
 
         return Promise.all([
           daemon1.start(),
@@ -67,17 +51,17 @@ describe('daemon', () => {
       })
     })
 
-    after(async () => {
-      try {
-        await daemon1.stop()
-      } catch (err) {}
-      try {
-        await daemon2.stop()
-      } catch (err) {}
+    after(() => {
+      daemon1.stop()
+      daemon2.stop()
+    })
+
+    afterEach(() => {
+      client && client.destroy()
     })
 
     it('should be able to connect to another node', (done) => {
-      const client = new net.Socket({
+      client = new net.Socket({
         readable: true,
         writable: true,
         allowHalfOpen: true
@@ -99,27 +83,30 @@ describe('daemon', () => {
           connManager: null
         }
 
-        client.end(Request.encode(request))
+        // Decode and pipe the response
+        const dec = decode({ limit: LIMIT })
+        client.pipe(dec)
 
-        let message = Buffer.alloc(0)
-        for await (const chunk of client) {
-          message = Buffer.concat([message, chunk])
+        // Encode and pipe the request
+        const enc = encode()
+        enc.write(Request.encode(request))
+        enc.pipe(client)
+
+        for await (const message of dec) {
+          let response
+          try {
+            response = Response.decode(message)
+          } catch (err) {
+            return done(err)
+          }
+          expect(response.type).to.eql(Response.Type.OK)
+          done()
         }
-
-        let response
-        try {
-          response = Response.decode(message)
-        } catch (err) {
-          return done(err)
-        }
-
-        expect(response.type).to.eql(Response.Type.OK)
-        done()
       })
     })
 
     it('should be able to list peers', (done) => {
-      const client = new net.Socket({
+      client = new net.Socket({
         readable: true,
         writable: true,
         allowHalfOpen: true
@@ -137,28 +124,31 @@ describe('daemon', () => {
           connManager: null
         }
 
-        client.end(Request.encode(request))
+        // Decode and pipe the response
+        const dec = decode({ limit: LIMIT })
+        client.pipe(dec)
 
-        let message = Buffer.alloc(0)
-        for await (const chunk of client) {
-          message = Buffer.concat([message, chunk])
+        // Encode and pipe the request
+        const enc = encode()
+        enc.end(Request.encode(request))
+        enc.pipe(client)
+
+        for await (const message of dec) {
+          let response
+          try {
+            response = Response.decode(message)
+          } catch (err) {
+            return done(err)
+          }
+          expect(response.type).to.eql(Response.Type.OK)
+          expect(response.peers).to.have.length(1)
+          done()
         }
-
-        let response
-        try {
-          response = Response.decode(message)
-        } catch (err) {
-          return done(err)
-        }
-
-        expect(response.type).to.eql(Response.Type.OK)
-        expect(response.peers).to.have.length(1)
-        done()
       })
     })
 
     it('should be able to identify', (done) => {
-      const client = new net.Socket({
+      client = new net.Socket({
         readable: true,
         writable: true,
         allowHalfOpen: true
@@ -176,26 +166,29 @@ describe('daemon', () => {
           connManager: null
         }
 
-        client.end(Request.encode(request))
+        // Decode and pipe the response
+        const dec = decode({ limit: LIMIT })
+        client.pipe(dec)
 
-        let message = Buffer.alloc(0)
-        for await (const chunk of client) {
-          message = Buffer.concat([message, chunk])
+        // Encode and pipe the request
+        const enc = encode()
+        enc.end(Request.encode(request))
+        enc.pipe(client)
+
+        for await (const message of dec) {
+          let response
+          try {
+            response = Response.decode(message)
+          } catch (err) {
+            return done(err)
+          }
+          expect(response.type).to.eql(Response.Type.OK)
+          expect(response.identify).to.eql({
+            id: daemon1.libp2p.peerInfo.id.toBytes(),
+            addrs: daemon1.libp2p.peerInfo.multiaddrs.toArray().map(m => m.buffer)
+          })
+          done()
         }
-
-        let response
-        try {
-          response = Response.decode(message)
-        } catch (err) {
-          return done(err)
-        }
-
-        expect(response.type).to.eql(Response.Type.OK)
-        expect(response.identify).to.eql({
-          id: daemon1.libp2p.peerInfo.id.toBytes(),
-          addrs: daemon1.libp2p.peerInfo.multiaddrs.toArray().map(m => m.buffer)
-        })
-        done()
       })
     })
   })

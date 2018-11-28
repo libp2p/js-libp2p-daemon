@@ -4,10 +4,12 @@ const Libp2p = require('./libp2p')
 const PeerInfo = require('peer-info')
 const PeerId = require('peer-id')
 const multiaddr = require('multiaddr')
+const { encode, decode } = require('length-prefixed-stream')
 const {
   Request,
   Response
 } = require('./protocol')
+const LIMIT = 1 << 22 // 4MB
 
 const log = console.log
 
@@ -82,65 +84,76 @@ class Daemon {
       await this.libp2p.stop()
       this.server.close(() => {
         if (options.exit) {
+          console.log('Shut it down!')
           log('server closed, exiting')
-          return process.exit(0)
+          // return process.exit(0)
         }
         resolve()
       })
     })
   }
 
+  /**
+   * Handles requests for the given connection
+   * @private
+   * @param {Stream} conn
+   */
   async handleConnection (conn) {
-    let message = Buffer.alloc(0)
-    for await (const chunk of conn) {
-      message = Buffer.concat([message, chunk])
-    }
+    const dec = decode({ limit: LIMIT })
+    const enc = encode()
+    enc.pipe(conn)
+    conn.pipe(dec)
 
-    // Handle the message here
-    let request
-    try {
-      request = Request.decode(Buffer.from(message))
-    } catch (err) {
-      return conn.end(ErrorResponse('ERR_INVALID_MESSAGE'))
-    }
+    for await (const message of dec) {
+      let request
+      try {
+        request = Request.decode(Buffer.from(message))
+      } catch (err) {
+        return enc.write(ErrorResponse('ERR_INVALID_MESSAGE'))
+      }
 
-    switch (request.type) {
-      // Connect to another peer
-      case Request.Type.CONNECT:
-        try {
-          await this.connect(request)
-        } catch (err) {
-          return conn.end(ErrorResponse(err.message))
-        }
-        conn.end(OkResponse())
-        break
-      // Get the daemon peer id and addresses
-      case Request.Type.IDENTIFY:
-        conn.end(Response.encode({
-          type: Response.Type.OK,
-          identify: {
-            id: this.libp2p.peerInfo.id.toBytes(),
-            addrs: this.libp2p.peerInfo.multiaddrs.toArray().map(m => m.buffer)
+      switch (request.type) {
+        // Connect to another peer
+        case Request.Type.CONNECT:
+          try {
+            await this.connect(request)
+          } catch (err) {
+            return enc.write(ErrorResponse(err.message))
           }
-        }))
-        break
-      // Get a list of our current peers
-      case Request.Type.LIST_PEERS:
-        const peers = this.libp2p.peerBook.getAllArray().map((pi) => {
-          const addr = pi.isConnected()
-          return {
-            id: pi.id.toBytes(),
-            addrs: [addr ? addr.buffer : null]
-          }
-        })
-        conn.end(Response.encode({
-          type: Response.Type.OK,
-          peers
-        }))
-        break
-      default:
-        conn.end(ErrorResponse('ERR_INVALID_REQUEST_TYPE'))
-        break
+          enc.write(OkResponse())
+          break
+
+        // Get the daemon peer id and addresses
+        case Request.Type.IDENTIFY:
+          enc.write(Response.encode({
+            type: Response.Type.OK,
+            identify: {
+              id: this.libp2p.peerInfo.id.toBytes(),
+              addrs: this.libp2p.peerInfo.multiaddrs.toArray().map(m => m.buffer)
+            }
+          }))
+          break
+
+        // Get a list of our current peers
+        case Request.Type.LIST_PEERS:
+          const peers = this.libp2p.peerBook.getAllArray().map((pi) => {
+            const addr = pi.isConnected()
+            return {
+              id: pi.id.toBytes(),
+              addrs: [addr ? addr.buffer : null]
+            }
+          })
+          enc.write(Response.encode({
+            type: Response.Type.OK,
+            peers
+          }))
+          break
+
+        // Not yet support or doesn't exist
+        default:
+          enc.write(ErrorResponse('ERR_INVALID_REQUEST_TYPE'))
+          break
+      }
     }
   }
 }
