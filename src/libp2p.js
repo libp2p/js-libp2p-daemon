@@ -87,10 +87,10 @@ const createLibp2p = async ({
   connMgrHi,
   sock,
   id
-}) => {
+} = {}) => {
   const peerInfo = await getPeerInfo(id)
   const peerBook = new PeerBook()
-  const bootstrapList = bootstrapPeers.split(',').filter(s => s != '')
+  const bootstrapList = bootstrapPeers ? bootstrapPeers.split(',').filter(s => s != '') : null
 
   // TODO: Add multiaddrs
   peerInfo.multiaddrs.add(multiaddr('/ip4/0.0.0.0/tcp/0'))

@@ -84,7 +84,6 @@ class Daemon {
       await this.libp2p.stop()
       this.server.close(() => {
         if (options.exit) {
-          console.log('Shut it down!')
           log('server closed, exiting')
           // return process.exit(0)
         }
@@ -155,6 +154,9 @@ class Daemon {
           break
       }
     }
+
+    // The other end hung up, let's also do that
+    conn.end()
   }
 }
 
