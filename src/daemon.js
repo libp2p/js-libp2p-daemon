@@ -35,60 +35,55 @@ class Daemon {
    * @returns {Promise}
    */
   connect (connectRequest) {
-    return new Promise((resolve, reject) => {
-      const peer = connectRequest.connect.peer
-      const addrs = connectRequest.connect.addrs
-      const peerInfo = new PeerInfo(
-        PeerId.createFromB58String(peer)
-      )
-      addrs.forEach((a) => {
-        peerInfo.multiaddrs.add(multiaddr(a))
-      })
-
-      this.libp2p.dial(peerInfo)
-        .then(resolve)
-        .catch(reject)
+    const peer = connectRequest.connect.peer
+    const addrs = connectRequest.connect.addrs
+    const peerInfo = new PeerInfo(
+      PeerId.createFromB58String(peer)
+    )
+    addrs.forEach((a) => {
+      peerInfo.multiaddrs.add(multiaddr(a))
     })
+
+    return this.libp2p.dial(peerInfo)
   }
 
   /**
    * Opens a stream on one of the given protocols to the given peer
    * @param {StreamOpenRequest} request
-   * @returns {Promise}
+   * @throws {Error}
+   * @returns {StreamInfo, Stream}
    */
-  openStream (request) {
-    return new Promise(async (resolve, reject) => {
-      const { peer, proto } = request.streamOpen
-      const peerInfo = new PeerInfo(
-        PeerId.createFromB58String(peer)
-      )
+  async openStream (request) {
+    const { peer, proto } = request.streamOpen
+    const peerInfo = new PeerInfo(
+      PeerId.createFromB58String(peer)
+    )
 
-      let results
-      let successfulProto
-      for (const protocol of proto) {
-        try {
-          results = await this.libp2p.dial(peerInfo, protocol)
-          successfulProto = protocol
-          break
-        } catch (err) {
-          console.log(err)
-          // We can ignore this, and try other protos
-        }
+    let results
+    let successfulProto
+    for (const protocol of proto) {
+      try {
+        results = await this.libp2p.dial(peerInfo, protocol)
+        successfulProto = protocol
+        break
+      } catch (err) {
+        console.log(err)
+        // We can ignore this, and try other protos
       }
+    }
 
-      if (!results) {
-        return reject(new Error('no protocols could be dialed'))
-      }
+    if (!results) {
+      throw new Error('no protocols could be dialed')
+    }
 
-      resolve({
-        streamInfo: {
-          peer: peerInfo.id.toBytes(),
-          addr: results.peerInfo.isConnected().buffer,
-          proto: successfulProto
-        },
-        connection: results.connection
-      })
-    })
+    return {
+      streamInfo: {
+        peer: peerInfo.id.toBytes(),
+        addr: results.peerInfo.isConnected().buffer,
+        proto: successfulProto
+      },
+      connection: results.connection
+    }
   }
 
   listen () {

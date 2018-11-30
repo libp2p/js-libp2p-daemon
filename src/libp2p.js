@@ -91,11 +91,11 @@ class DaemonLibp2p extends Libp2p {
   /**
    * Overrides the default `handle` to convert pull streams to streams
    * @param {string} protocol
-   * @param {*} callback
+   * @param {function(Stream)} handler
    */
-  handle (protocol, callback) {
+  handle (protocol, handler) {
     super.handle(protocol, (_, conn) => {
-      callback(pullToStream(conn))
+      handler(pullToStream(conn))
     })
   }
 }
