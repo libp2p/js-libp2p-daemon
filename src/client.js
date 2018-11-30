@@ -1,14 +1,16 @@
 'use strict'
 
-const { Socket } = require('net')
-const Path = require('path')
+const net = require('net')
+const Socket = net.Socket
+const path = require('path')
 const { encode, decode } = require('length-prefixed-stream')
 const { Request } = require('./protocol')
 const LIMIT = 1 << 22 // 4MB
 
 class Client {
-  constructor (path) {
-    this.path = Path.resolve(path)
+  constructor (socketPath) {
+    this.path = path.resolve(socketPath)
+    this.server = null
     this.socket = new Socket({
       readable: true,
       writable: true,
@@ -31,11 +33,50 @@ class Client {
   }
 
   /**
+   * Starts a server listening at `socketPath`. New connections
+   * will be sent to the `connectionHandler`.
+   * @param {string} socketPath
+   * @param {function(Stream)} connectionHandler
+   * @returns {Promise}
+   */
+  startServer (socketPath, connectionHandler) {
+    return new Promise(async (resolve, reject) => {
+      if (this.server) {
+        await this.stopServer()
+      }
+
+      this.server = net.createServer({
+        allowHalfOpen: true
+      }, connectionHandler)
+
+      this.server.listen(path.resolve(socketPath), (err) => {
+        if (err) return reject(err)
+        resolve()
+      })
+    })
+  }
+
+  /**
+   * Closes the net Server if it's running
+   * @returns {Promise}
+   */
+  stopServer () {
+    return new Promise((resolve) => {
+      if (!this.server) return resolve()
+      this.server.close(() => {
+        this.server = null
+        resolve()
+      })
+    })
+  }
+
+  /**
    * Closes the socket
    * @returns {Promise}
    */
   close () {
-    return new Promise((resolve) => {
+    return new Promise(async (resolve) => {
+      await this.stopServer()
       this.socket.end(resolve)
     })
   }

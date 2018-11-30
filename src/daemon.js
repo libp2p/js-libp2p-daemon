@@ -25,6 +25,7 @@ class Daemon {
     this.server = net.createServer({
       allowHalfOpen: true
     }, this.handleConnection.bind(this))
+    this.streamHandlers = {}
     this.listen()
   }
 
@@ -84,6 +85,43 @@ class Daemon {
       },
       connection: results.connection
     }
+  }
+
+  /**
+   * Sends inbound requests for the given protocol
+   * to the unix socket path provided. If an existing handler
+   * is registered at the path, it will be overridden.
+   * @param {StreamHandlerRequest} request
+   * @returns {Promise}
+   */
+  registerStreamHandler (request) {
+    return new Promise((resolve, reject) => {
+      const proto = request.streamHandler.proto
+      const socketPath = path.resolve(request.streamHandler.path)
+
+      // If we have a handler, end it
+      if (this.streamHandlers[socketPath]) {
+        this.streamHandlers[socketPath].end()
+        delete this.streamHandlers[socketPath]
+      }
+
+      const socket = this.streamHandlers[socketPath] = new net.Socket({
+        readable: true,
+        writable: true,
+        allowHalfOpen: true
+      })
+
+      // Connect the client socket with the libp2p connection
+      this.libp2p.handle(proto, async (conn) => {
+        conn.pipe(socket)
+        socket.pipe(conn)
+      })
+
+      socket.connect(socketPath, (err) => {
+        if (err) return reject(err)
+        resolve()
+      })
+    })
   }
 
   listen () {
@@ -200,6 +238,18 @@ class Daemon {
           // then pipe the connection to the client
           response.connection.pipe(conn)
           conn.pipe(response.connection)
+          break
+        }
+        case Request.Type.STREAM_HANDLER: {
+          try {
+            await this.registerStreamHandler(request)
+          } catch (err) {
+            enc.write(ErrorResponse(err.message))
+            break
+          }
+
+          // write the response
+          enc.write(OkResponse())
           break
         }
         // Not yet support or doesn't exist

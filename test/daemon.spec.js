@@ -7,6 +7,7 @@ const { createDaemon } = require('../src/daemon')
 const Client = require('../src/client')
 const { Request, Response } = require('../src/protocol')
 const { createLibp2p } = require('../src/libp2p')
+const toIterator = require('pull-stream-to-async-iterator')
 
 describe('daemon', () => {
   let daemon
@@ -129,7 +130,7 @@ describe('daemon', () => {
   })
 
   describe('streams', () => {
-    it('should be able to open a stream', async () => {
+    it('should be able to open a stream and echo with it', async () => {
       // Have the peer echo our messages back
       libp2pPeer.handle('/echo/1.0.0', async (conn) => {
         conn.pipe(conn)
@@ -152,7 +153,7 @@ describe('daemon', () => {
 
       const stream = client.send(request)
 
-      // TODO: Get the response, then read the next stream stuff
+      // Verify the response then break
       for await (const message of stream) {
         const response = Response.decode(message)
         expect(response.type).to.eql(Response.Type.OK)
@@ -170,6 +171,48 @@ describe('daemon', () => {
         expect(message).to.eql(hello)
         peerStream.end()
       }
+    })
+
+    it('should be able to register a stream handler and echo with it', async () => {
+      client = new Client('/tmp/p2pd.sock')
+      const socketPath = '/tmp/p2p-echo-handler.sock'
+
+      await client.attach()
+      // Start an echo server
+      await client.startServer(socketPath, (conn) => {
+        conn.pipe(conn)
+      })
+
+      const request = {
+        type: Request.Type.STREAM_HANDLER,
+        connect: null,
+        streamOpen: null,
+        streamHandler: {
+          path: socketPath,
+          proto: ['/echo/1.0.0']
+        },
+        dht: null,
+        connManager: null
+      }
+
+      const stream = client.send(request)
+
+      for await (const message of stream) {
+        const response = Response.decode(message)
+        expect(response.type).to.eql(Response.Type.OK)
+        break
+      }
+
+      const { connection } = await libp2pPeer.dial(daemon.libp2p.peerInfo, '/echo/1.0.0')
+
+      const hello = Buffer.from('hello, peer')
+      connection.write(hello)
+
+      // TODO: make this an iterator
+      connection.on('data', (message) => {
+        expect(message).to.eql(hello)
+        connection.end()
+      })
     })
   })
 })
