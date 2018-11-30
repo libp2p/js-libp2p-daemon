@@ -1,11 +1,13 @@
+'use strict'
+
 const { Socket } = require('net')
 const Path = require('path')
 const { encode, decode } = require('length-prefixed-stream')
-const { Request, Response } = require('./protocol')
+const { Request } = require('./protocol')
 const LIMIT = 1 << 22 // 4MB
 
 class Client {
-  constructor(path) {
+  constructor (path) {
     this.path = Path.resolve(path)
     this.socket = new Socket({
       readable: true,

@@ -1,3 +1,5 @@
+'use strict'
+
 const Libp2p = require('libp2p')
 const TCP = require('libp2p-tcp')
 const Bootstrap = require('libp2p-bootstrap')
@@ -111,6 +113,7 @@ class DaemonLibp2p extends Libp2p {
  * @param {string} opts.sock
  * @param {string} opts.id
  * @param {string} opts.bootstrapPeers
+ * @returns {Libp2p}
  */
 const createLibp2p = async ({
   bootstrap,
@@ -125,7 +128,7 @@ const createLibp2p = async ({
 } = {}) => {
   const peerInfo = await getPeerInfo(id)
   const peerBook = new PeerBook()
-  const bootstrapList = bootstrapPeers ? bootstrapPeers.split(',').filter(s => s != '') : null
+  const bootstrapList = bootstrapPeers ? bootstrapPeers.split(',').filter(s => s !== '') : null
 
   // TODO: Add multiaddrs
   peerInfo.multiaddrs.add(multiaddr('/ip4/0.0.0.0/tcp/0'))

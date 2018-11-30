@@ -1,4 +1,5 @@
 #! /usr/bin/env node
+'use strict'
 
 const yargs = require('yargs')
 const YargsPromise = require('yargs-promise')
@@ -65,7 +66,8 @@ const main = async (processArgs) => {
       }
 
       if (args.length > 0) {
-        print(msg)
+        // eslint-disable-next-line
+        console.log(msg)
       }
 
       yargs.showHelp()
@@ -73,11 +75,13 @@ const main = async (processArgs) => {
 
   try {
     const { data, argv } = await parser.parse(processArgs)
+    // eslint-disable-next-line
     if (data) console.log(data)
     const daemon = await createDaemon(argv)
     await daemon.start()
+    // eslint-disable-next-line
     console.log('daemon has started')
-  } catch(err) {
+  } catch (err) {
     throw err
   }
 }

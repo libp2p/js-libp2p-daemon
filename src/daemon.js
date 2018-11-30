@@ -1,3 +1,5 @@
+'use strict'
+
 const net = require('net')
 const path = require('path')
 const Libp2p = require('./libp2p')
@@ -14,7 +16,7 @@ const LIMIT = 1 << 22 // 4MB
 const log = console.log
 
 class Daemon {
-  constructor({
+  constructor ({
     socketPath,
     libp2pNode
   }) {
@@ -25,7 +27,6 @@ class Daemon {
     }, this.handleConnection.bind(this))
     this.listen()
   }
-
 
   /**
    * Connects the daemons libp2p node to the peer provided
@@ -151,7 +152,7 @@ class Daemon {
 
       switch (request.type) {
         // Connect to another peer
-        case Request.Type.CONNECT:
+        case Request.Type.CONNECT: {
           try {
             await this.connect(request)
           } catch (err) {
@@ -160,9 +161,9 @@ class Daemon {
           }
           enc.write(OkResponse())
           break
-
+        }
         // Get the daemon peer id and addresses
-        case Request.Type.IDENTIFY:
+        case Request.Type.IDENTIFY: {
           enc.write(OkResponse({
             identify: {
               id: this.libp2p.peerInfo.id.toBytes(),
@@ -170,9 +171,9 @@ class Daemon {
             }
           }))
           break
-
+        }
         // Get a list of our current peers
-        case Request.Type.LIST_PEERS:
+        case Request.Type.LIST_PEERS: {
           const peers = this.libp2p.peerBook.getAllArray().map((pi) => {
             const addr = pi.isConnected()
             return {
@@ -184,8 +185,8 @@ class Daemon {
             peers
           }))
           break
-
-        case Request.Type.STREAM_OPEN:
+        }
+        case Request.Type.STREAM_OPEN: {
           let response
           try {
             response = await this.openStream(request)
@@ -205,7 +206,7 @@ class Daemon {
           response.connection.pipe(conn)
           conn.pipe(response.connection)
           break
-
+        }
         // Not yet support or doesn't exist
         default:
           enc.write(ErrorResponse('ERR_INVALID_REQUEST_TYPE'))
