@@ -39,7 +39,8 @@ class Client {
   }
 
   /**
-   * Sends the request to the daemon and returns a stream
+   * Sends the request to the daemon and returns a stream. This
+   * should only be used when sending daemon requests.
    * @param {Request} request A plain request object that will be protobuf encoded
    * @returns {Stream}
    */
@@ -54,6 +55,18 @@ class Client {
     enc.pipe(this.socket)
 
     return dec
+  }
+
+  /**
+   * A convenience method for writing data to the socket. This
+   * also returns the socket. This should be used when opening
+   * a stream, in order to read data from the peer libp2p node.
+   * @param {Buffer} data
+   * @returns {Socket}
+   */
+  write (data) {
+    this.socket.write(data)
+    return this.socket
   }
 }
 

@@ -4,6 +4,7 @@ const Bootstrap = require('libp2p-bootstrap')
 const MPLEX = require('libp2p-mplex')
 const SECIO = require('libp2p-secio')
 const KadDHT = require('libp2p-kad-dht')
+const pullToStream = require('pull-stream-to-stream')
 const PeerBook = require('peer-book')
 const PeerInfo = require('peer-info')
 const PeerID = require('peer-id')
@@ -59,6 +60,40 @@ class DaemonLibp2p extends Libp2p {
         if (err) return reject(err)
         resolve()
       })
+    })
+  }
+
+  /**
+   * Dials the given peer on protocol. The promise will resolve with the connection
+   * @param {PeerInfo} peerInfo
+   * @param {string} protocol
+   * @returns {Promise}
+   */
+  dial (peerInfo, protocol) {
+    return new Promise((resolve, reject) => {
+      this.dialProtocol(peerInfo, protocol, (err, conn) => {
+        if (err) return reject(err)
+        if (!conn) return resolve()
+
+        // Convert the pull stream to a node stream
+        let connection = pullToStream(conn)
+        connection.peerInfo = conn.peerInfo
+        resolve({
+          connection,
+          peerInfo: conn.peerInfo
+        })
+      })
+    })
+  }
+
+  /**
+   * Overrides the default `handle` to convert pull streams to streams
+   * @param {string} protocol
+   * @param {*} callback
+   */
+  handle (protocol, callback) {
+    super.handle(protocol, (_, conn) => {
+      callback(pullToStream(conn))
     })
   }
 }
@@ -121,7 +156,7 @@ const createLibp2p = async ({
       peerDiscovery: {
         bootstrap: {
           interval: 10000,
-          enabled: bootstrap,
+          enabled: bootstrap || false,
           list: bootstrapList
         }
       },

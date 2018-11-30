@@ -44,10 +44,48 @@ class Daemon {
         peerInfo.multiaddrs.add(multiaddr(a))
       })
 
-      this.libp2p.dial(peerInfo, (err) => {
-        if (err) return reject(err)
+      this.libp2p.dial(peerInfo)
+        .then(resolve)
+        .catch(reject)
+    })
+  }
 
-        resolve()
+  /**
+   * Opens a stream on one of the given protocols to the given peer
+   * @param {StreamOpenRequest} request
+   * @returns {Promise}
+   */
+  openStream (request) {
+    return new Promise(async (resolve, reject) => {
+      const { peer, proto } = request.streamOpen
+      const peerInfo = new PeerInfo(
+        PeerId.createFromB58String(peer)
+      )
+
+      let results
+      let successfulProto
+      for (const protocol of proto) {
+        try {
+          results = await this.libp2p.dial(peerInfo, protocol)
+          successfulProto = protocol
+          break
+        } catch (err) {
+          console.log(err)
+          // We can ignore this, and try other protos
+        }
+      }
+
+      if (!results) {
+        return reject(new Error('no protocols could be dialed'))
+      }
+
+      resolve({
+        streamInfo: {
+          peer: peerInfo.id.toBytes(),
+          addr: results.peerInfo.isConnected().buffer,
+          proto: successfulProto
+        },
+        connection: results.connection
       })
     })
   }
@@ -117,15 +155,15 @@ class Daemon {
           try {
             await this.connect(request)
           } catch (err) {
-            return enc.write(ErrorResponse(err.message))
+            enc.write(ErrorResponse(err.message))
+            break
           }
           enc.write(OkResponse())
           break
 
         // Get the daemon peer id and addresses
         case Request.Type.IDENTIFY:
-          enc.write(Response.encode({
-            type: Response.Type.OK,
+          enc.write(OkResponse({
             identify: {
               id: this.libp2p.peerInfo.id.toBytes(),
               addrs: this.libp2p.peerInfo.multiaddrs.toArray().map(m => m.buffer)
@@ -142,10 +180,30 @@ class Daemon {
               addrs: [addr ? addr.buffer : null]
             }
           })
-          enc.write(Response.encode({
-            type: Response.Type.OK,
+          enc.write(OkResponse({
             peers
           }))
+          break
+
+        case Request.Type.STREAM_OPEN:
+          let response
+          try {
+            response = await this.openStream(request)
+          } catch (err) {
+            enc.write(ErrorResponse(err.message))
+            break
+          }
+
+          // write the response
+          enc.write(OkResponse({
+            streamInfo: response.streamInfo
+          }))
+          enc.unpipe(conn)
+          conn.unpipe(dec)
+
+          // then pipe the connection to the client
+          response.connection.pipe(conn)
+          conn.pipe(response.connection)
           break
 
         // Not yet support or doesn't exist
@@ -160,9 +218,15 @@ class Daemon {
   }
 }
 
-function OkResponse () {
+/**
+ * Creates and encodes an OK response
+ * @param {Object} data an optional map of values to be assigned to the response
+ * @returns {Response}
+ */
+function OkResponse (data) {
   return Response.encode({
-    type: Response.Type.OK
+    type: Response.Type.OK,
+    ...data
   })
 }
 

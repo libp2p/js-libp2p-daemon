@@ -39,8 +39,8 @@ describe('daemon', () => {
 
   after(() => {
     return Promise.all([
-      daemon.stop().then(() => console.log('daemon stopped')),
-      libp2pPeer.stop().then(() => console.log('libp2p stopped'))
+      daemon.stop(),
+      libp2pPeer.stop()
     ])
   })
 
@@ -48,113 +48,89 @@ describe('daemon', () => {
     await client && client.close()
   })
 
-  describe('connections', () => {
-    it('should be able to connect to another node', async () => {
-      client = new Client('/tmp/p2pd.sock')
+  it('should be able to connect to another node', async () => {
+    client = new Client('/tmp/p2pd.sock')
 
-      await client.attach()
+    await client.attach()
 
-      const request = {
-        type: Request.Type.CONNECT,
-        connect: {
-          peer: Buffer.from(libp2pPeer.peerInfo.id.toB58String()),
-          addrs: libp2pPeer.peerInfo.multiaddrs.toArray().map(addr => addr.buffer)
-        },
-        streamOpen: null,
-        streamHandler: null,
-        dht: null,
-        connManager: null
-      }
+    const request = {
+      type: Request.Type.CONNECT,
+      connect: {
+        peer: Buffer.from(libp2pPeer.peerInfo.id.toB58String()),
+        addrs: libp2pPeer.peerInfo.multiaddrs.toArray().map(addr => addr.buffer)
+      },
+      streamOpen: null,
+      streamHandler: null,
+      dht: null,
+      connManager: null
+    }
 
-      const stream = client.send(request)
+    const stream = client.send(request)
 
-      for await (const message of stream) {
-        let response = Response.decode(message)
-        expect(response.type).to.eql(Response.Type.OK)
-        stream.end()
-      }
-    })
+    for await (const message of stream) {
+      let response = Response.decode(message)
+      expect(response.type).to.eql(Response.Type.OK)
+      stream.end()
+    }
+  })
 
-    it('should be able to list peers', async () => {
-      client = new Client('/tmp/p2pd.sock')
+  it('should be able to list peers', async () => {
+    client = new Client('/tmp/p2pd.sock')
 
-      await client.attach()
+    await client.attach()
 
-      const request = {
-        type: Request.Type.LIST_PEERS,
-        connect: null,
-        streamOpen: null,
-        streamHandler: null,
-        dht: null,
-        connManager: null
-      }
+    const request = {
+      type: Request.Type.LIST_PEERS,
+      connect: null,
+      streamOpen: null,
+      streamHandler: null,
+      dht: null,
+      connManager: null
+    }
 
-      const stream = client.send(request)
+    const stream = client.send(request)
 
-      for await (const message of stream) {
-        const response = Response.decode(message)
-        expect(response.type).to.eql(Response.Type.OK)
-        expect(response.peers).to.have.length(1)
-        stream.end()
-      }
-    })
+    for await (const message of stream) {
+      const response = Response.decode(message)
+      expect(response.type).to.eql(Response.Type.OK)
+      expect(response.peers).to.have.length(1)
+      stream.end()
+    }
+  })
 
-    it('should be able to identify', async () => {
-      client = new Client('/tmp/p2pd.sock')
+  it('should be able to identify', async () => {
+    client = new Client('/tmp/p2pd.sock')
 
-      await client.attach()
+    await client.attach()
 
-      const request = {
-        type: Request.Type.IDENTIFY,
-        connect: null,
-        streamOpen: null,
-        streamHandler: null,
-        dht: null,
-        connManager: null
-      }
+    const request = {
+      type: Request.Type.IDENTIFY,
+      connect: null,
+      streamOpen: null,
+      streamHandler: null,
+      dht: null,
+      connManager: null
+    }
 
-      const stream = client.send(request)
+    const stream = client.send(request)
 
-      for await (const message of stream) {
-        const response = Response.decode(message)
-        expect(response.type).to.eql(Response.Type.OK)
-        expect(response.identify).to.eql({
-          id: daemon.libp2p.peerInfo.id.toBytes(),
-          addrs: daemon.libp2p.peerInfo.multiaddrs.toArray().map(m => m.buffer)
-        })
-        stream.end()
-      }
-    })
+    for await (const message of stream) {
+      const response = Response.decode(message)
+      expect(response.type).to.eql(Response.Type.OK)
+      expect(response.identify).to.eql({
+        id: daemon.libp2p.peerInfo.id.toBytes(),
+        addrs: daemon.libp2p.peerInfo.multiaddrs.toArray().map(m => m.buffer)
+      })
+      stream.end()
+    }
   })
 
   describe('streams', () => {
-    it('should be able to connect to another node', async () => {
-      client = new Client('/tmp/p2pd.sock')
-
-      await client.attach()
-
-      const request = {
-        type: Request.Type.CONNECT,
-        connect: {
-          peer: Buffer.from(libp2pPeer.peerInfo.id.toB58String()),
-          addrs: libp2pPeer.peerInfo.multiaddrs.toArray().map(addr => addr.buffer)
-        },
-        streamOpen: null,
-        streamHandler: null,
-        dht: null,
-        connManager: null
-      }
-
-      const stream = client.send(request)
-
-      for await (const message of stream) {
-        const response = Response.decode(message)
-        expect(response.type).to.eql(Response.Type.OK)
-        stream.end()
-      }
-    })
-
     it('should be able to open a stream', async () => {
+      // Have the peer echo our messages back
+      libp2pPeer.handle('/echo/1.0.0', async (conn) => {
+        conn.pipe(conn)
+      })
       client = new Client('/tmp/p2pd.sock')
 
       await client.attach()
@@ -164,7 +140,7 @@ describe('daemon', () => {
         connect: null,
         streamOpen: {
           peer: Buffer.from(libp2pPeer.peerInfo.id.toB58String()),
-          proto: ['/hello/1.0.0']
+          proto: ['/echo/1.0.0']
         },
         streamHandler: null,
         dht: null,
@@ -173,15 +149,23 @@ describe('daemon', () => {
 
       const stream = client.send(request)
 
+      // TODO: Get the response, then read the next stream stuff
       for await (const message of stream) {
         const response = Response.decode(message)
         expect(response.type).to.eql(Response.Type.OK)
         expect(response.streamInfo).to.eql({
           peer: libp2pPeer.peerInfo.id.toBytes(),
           addr: libp2pPeer.peerInfo.multiaddrs.toArray()[0].buffer,
-          proto: '/hello/1.0.0'
+          proto: '/echo/1.0.0'
         })
-        stream.end()
+        break
+      }
+
+      const hello = Buffer.from('hello there')
+      const peerStream = client.write(hello)
+      for await (const message of peerStream) {
+        expect(message).to.eql(hello)
+        peerStream.end()
       }
     })
   })
