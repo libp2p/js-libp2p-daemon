@@ -95,7 +95,11 @@ class DaemonLibp2p extends Libp2p {
    */
   handle (protocol, handler) {
     super.handle(protocol, (_, conn) => {
-      handler(pullToStream(conn))
+      conn.getPeerInfo((_, peerInfo) => {
+        let connection = pullToStream(conn)
+        connection.peerInfo = peerInfo
+        handler(connection)
+      })
     })
   }
 }

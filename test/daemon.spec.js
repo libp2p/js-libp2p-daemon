@@ -5,9 +5,9 @@ const chai = require('chai')
 const expect = chai.expect
 const { createDaemon } = require('../src/daemon')
 const Client = require('../src/client')
-const { Request, Response } = require('../src/protocol')
+const { Request, Response, StreamInfo } = require('../src/protocol')
 const { createLibp2p } = require('../src/libp2p')
-const toIterator = require('pull-stream-to-async-iterator')
+const { decode } = require('length-prefixed-stream')
 
 describe('daemon', () => {
   let daemon
@@ -179,7 +179,24 @@ describe('daemon', () => {
 
       await client.attach()
       // Start an echo server
-      await client.startServer(socketPath, (conn) => {
+      await client.startServer(socketPath, async (conn) => {
+        // Decode the stream
+        const dec = decode()
+        conn.pipe(dec)
+
+        // Read the stream info from the daemon, then pipe to echo
+        for await (const message of dec) {
+          let response
+          expect(() => {
+            response = StreamInfo.decode(message)
+          }).to.not.throw()
+
+          expect(response.peer).to.eql(libp2pPeer.peerInfo.id.toBytes())
+          expect(response.proto).to.eql('/echo/1.0.0')
+          conn.unpipe(dec)
+          break
+        }
+
         conn.pipe(conn)
       })
 
@@ -209,9 +226,12 @@ describe('daemon', () => {
       connection.write(hello)
 
       // TODO: make this an iterator
-      connection.on('data', (message) => {
-        expect(message).to.eql(hello)
-        connection.end()
+      return new Promise((resolve) => {
+        connection.on('data', (message) => {
+          expect(message).to.eql(hello)
+          connection.end()
+          resolve()
+        })
       })
     })
   })

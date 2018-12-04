@@ -9,7 +9,8 @@ const multiaddr = require('multiaddr')
 const { encode, decode } = require('length-prefixed-stream')
 const {
   Request,
-  Response
+  Response,
+  StreamInfo
 } = require('./protocol')
 const LIMIT = 1 << 22 // 4MB
 
@@ -96,7 +97,7 @@ class Daemon {
    */
   registerStreamHandler (request) {
     return new Promise((resolve, reject) => {
-      const proto = request.streamHandler.proto
+      const protocols = request.streamHandler.proto
       const socketPath = path.resolve(request.streamHandler.path)
 
       // If we have a handler, end it
@@ -111,10 +112,27 @@ class Daemon {
         allowHalfOpen: true
       })
 
-      // Connect the client socket with the libp2p connection
-      this.libp2p.handle(proto, async (conn) => {
-        conn.pipe(socket)
-        socket.pipe(conn)
+      protocols.forEach((proto) => {
+        // Connect the client socket with the libp2p connection
+        this.libp2p.handle(proto, (conn) => {
+          const enc = encode()
+
+          const addr = conn.peerInfo.isConnected()
+          const message = StreamInfo.encode({
+            peer: conn.peerInfo.id.toBytes(),
+            addr: addr ? addr.buffer : Buffer.alloc(0),
+            proto: proto
+          })
+
+          // Write the encoded message to the client
+          enc.pipe(socket)
+          enc.write(message)
+          enc.unpipe(socket)
+
+          // And then begin piping the client and peer connection
+          conn.pipe(socket)
+          socket.pipe(conn)
+        })
       })
 
       socket.connect(socketPath, (err) => {
