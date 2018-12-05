@@ -38,7 +38,29 @@ const getPeerInfo = (privateKey) => {
   })
 }
 
+class PeerRouting {
+  constructor (routing) {
+    this._routing = routing
+  }
+
+  findPeer (id, options) {
+    return new Promise((resolve, reject) => {
+      this._routing.findPeer(id, options, (err, results) => {
+        if (err) return reject(err)
+        resolve(results)
+      })
+    })
+  }
+}
+
 class DaemonLibp2p extends Libp2p {
+  get peerRouting () {
+    return this._peerRouting
+  }
+  set peerRouting (routing) {
+    this._peerRouting = new PeerRouting(routing)
+  }
+
   /**
    * Starts the libp2p node
    * @returns {Promise}

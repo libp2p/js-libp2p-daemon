@@ -9,7 +9,9 @@ const multiaddr = require('multiaddr')
 const { encode, decode } = require('length-prefixed-stream')
 const {
   Request,
+  DHTRequest,
   Response,
+  DHTResponse,
   StreamInfo
 } = require('./protocol')
 const LIMIT = 1 << 22 // 4MB
@@ -183,6 +185,35 @@ class Daemon {
   }
 
   /**
+   *
+   * @param {Request} request
+   * @returns {DHTResponse}
+   */
+  async handleDHTRequest ({ dht }) {
+    switch (dht.type) {
+      case DHTRequest.Type.FIND_PEER: {
+        const peerId = PeerId.createFromBytes(dht.peer)
+        let peer
+        try {
+          peer = await this.libp2p.peerRouting.findPeer(peerId)
+        } catch (err) {
+          throw err
+        }
+
+        return {
+          type: DHTResponse.Type.VALUE,
+          peer: {
+            id: peer.id.toBytes(),
+            addrs: peer.multiaddrs.toArray().map(m => m.buffer)
+          }
+        }
+      }
+      default:
+        throw new Error('ERR_INVALID_REQUEST_TYPE')
+    }
+  }
+
+  /**
    * Handles requests for the given connection
    * @private
    * @param {Stream} conn
@@ -268,6 +299,21 @@ class Daemon {
 
           // write the response
           enc.write(OkResponse())
+          break
+        }
+        case Request.Type.DHT: {
+          let dhtResponse
+          try {
+            dhtResponse = await this.handleDHTRequest(request)
+          } catch (err) {
+            enc.write(ErrorResponse(err.message))
+            break
+          }
+
+          // write the response
+          enc.write(OkResponse({
+            dht: dhtResponse
+          }))
           break
         }
         // Not yet support or doesn't exist

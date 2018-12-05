@@ -5,9 +5,15 @@ const chai = require('chai')
 const expect = chai.expect
 const { createDaemon } = require('../src/daemon')
 const Client = require('../src/client')
-const { Request, Response, StreamInfo } = require('../src/protocol')
 const { createLibp2p } = require('../src/libp2p')
 const { decode } = require('length-prefixed-stream')
+const {
+  Request,
+  DHTRequest,
+  Response,
+  DHTResponse,
+  StreamInfo
+} = require('../src/protocol')
 
 describe('daemon', () => {
   let daemon
@@ -22,14 +28,16 @@ describe('daemon', () => {
         q: false,
         bootstrap: false,
         b: false,
-        dht: false,
+        dht: true,
         dhtClient: false,
         connMgr: false,
         sock: '/tmp/p2pd.sock',
         id: '',
         bootstrapPeers: ''
       }),
-      createLibp2p()
+      createLibp2p({
+        dht: true
+      })
     ]).then((results) => {
       daemon = results.shift()
       libp2pPeer = results.shift()
@@ -233,6 +241,42 @@ describe('daemon', () => {
           resolve()
         })
       })
+    })
+  })
+
+  describe('dht', () => {
+    it('should be able to find a peer', async () => {
+      client = new Client('/tmp/p2pd.sock')
+
+      await client.attach()
+
+      const request = {
+        type: Request.Type.DHT,
+        connect: null,
+        streamOpen: null,
+        streamHandler: null,
+        dht: {
+          type: DHTRequest.Type.FIND_PEER,
+          peer: libp2pPeer.peerInfo.id.toBytes()
+        },
+        connManager: null
+      }
+
+      const stream = client.send(request)
+
+      for await (const message of stream) {
+        const response = Response.decode(message)
+        expect(response.type).to.eql(Response.Type.OK)
+        expect(response.dht).to.eql({
+          type: DHTResponse.Type.VALUE,
+          peer: {
+            id: libp2pPeer.peerInfo.id.toBytes(),
+            addrs: libp2pPeer.peerInfo.multiaddrs.toArray().map(m => m.buffer)
+          },
+          value: null
+        })
+        stream.end()
+      }
     })
   })
 })
