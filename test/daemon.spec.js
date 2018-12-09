@@ -240,14 +240,10 @@ describe('daemon', () => {
       const hello = Buffer.from('hello, peer')
       connection.write(hello)
 
-      // TODO: make this an iterator
-      return new Promise((resolve) => {
-        connection.on('data', (message) => {
-          expect(message).to.eql(hello)
-          connection.end()
-          resolve()
-        })
-      })
+      for await (const message of connection) {
+        expect(message).to.eql(hello)
+        connection.end()
+      }
     })
   })
 

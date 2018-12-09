@@ -12,6 +12,7 @@ const PeerInfo = require('peer-info')
 const PeerID = require('peer-id')
 const path = require('path')
 const multiaddr = require('multiaddr')
+const { PassThrough } = require('readable-stream')
 
 /**
  * Creates a PeerInfo from scratch, or via the supplied private key
@@ -149,11 +150,15 @@ class DaemonLibp2p extends Libp2p {
         if (err) return reject(err)
         if (!conn) return resolve()
 
-        // Convert the pull stream to a node stream
-        let connection = pullToStream(conn)
-        connection.peerInfo = conn.peerInfo
+        // Convert the pull stream to an iterable node stream
+        const connection = pullToStream(conn)
+        let iterable = new PassThrough({ objectMode: true })
+        iterable.peerInfo = conn.peerInfo
+        iterable.pipe(connection)
+        connection.pipe(iterable)
+
         resolve({
-          connection,
+          connection: iterable,
           peerInfo: conn.peerInfo
         })
       })
