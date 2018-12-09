@@ -7,6 +7,7 @@ const { createDaemon } = require('../src/daemon')
 const Client = require('../src/client')
 const { createLibp2p } = require('../src/libp2p')
 const { decode } = require('length-prefixed-stream')
+const CID = require('cids')
 const {
   Request,
   DHTRequest,
@@ -74,6 +75,8 @@ describe('daemon', () => {
       streamOpen: null,
       streamHandler: null,
       dht: null,
+      disconnect: null,
+      pubsub: null,
       connManager: null
     }
 
@@ -97,6 +100,8 @@ describe('daemon', () => {
       streamOpen: null,
       streamHandler: null,
       dht: null,
+      disconnect: null,
+      pubsub: null,
       connManager: null
     }
 
@@ -121,6 +126,8 @@ describe('daemon', () => {
       streamOpen: null,
       streamHandler: null,
       dht: null,
+      disconnect: null,
+      pubsub: null,
       connManager: null
     }
 
@@ -245,6 +252,9 @@ describe('daemon', () => {
   })
 
   describe('dht', () => {
+    const cid = new CID('QmVzw6MPsF96TyXBSRs1ptLoVMWRv5FCYJZZGJSVB2Hp38')
+    const content = Buffer.from('oh hello there')
+
     it('should be able to find a peer', async () => {
       client = new Client('/tmp/p2pd.sock')
 
@@ -259,6 +269,8 @@ describe('daemon', () => {
           type: DHTRequest.Type.FIND_PEER,
           peer: libp2pPeer.peerInfo.id.toBytes()
         },
+        disconnect: null,
+        pubsub: null,
         connManager: null
       }
 
@@ -276,6 +288,95 @@ describe('daemon', () => {
           value: null
         })
         stream.end()
+      }
+    })
+
+    it('should be able to register as a provider', async () => {
+      client = new Client('/tmp/p2pd.sock')
+
+      await client.attach()
+
+      const request = {
+        type: Request.Type.DHT,
+        connect: null,
+        streamOpen: null,
+        streamHandler: null,
+        dht: {
+          type: DHTRequest.Type.PROVIDE,
+          cid: cid.buffer
+        },
+        disconnect: null,
+        pubsub: null,
+        connManager: null
+      }
+
+      const stream = client.send(request)
+
+      for await (const message of stream) {
+        const response = Response.decode(message)
+        expect(response.type).to.eql(Response.Type.OK)
+        stream.end()
+      }
+
+      // The peer should be able to find our daemon as a provider
+      const providers = await libp2pPeer.contentRouting.findProviders(cid, { maxNumProviders: 1 })
+      expect(daemon.libp2p.peerInfo.id.isEqual(providers[0].id)).to.eql(true)
+    })
+
+    it('should be able to find providers', async () => {
+      // Register the peer as a provider
+      const cid = new CID('QmaSNGNpisJ1UeuoH3WcKuia4hQVi2XkfhkszTbWak9TxB')
+      await libp2pPeer.contentRouting.provide(cid)
+
+      // Now find it as a provider
+      client = new Client('/tmp/p2pd.sock')
+
+      await client.attach()
+
+      const request = {
+        type: Request.Type.DHT,
+        connect: null,
+        streamOpen: null,
+        streamHandler: null,
+        dht: {
+          type: DHTRequest.Type.FIND_PROVIDERS,
+          cid: cid.buffer,
+          count: 1
+        },
+        disconnect: null,
+        pubsub: null,
+        connManager: null
+      }
+
+      const stream = client.send(request)
+
+      const expectedResponses = [
+        (message) => {
+          const response = Response.decode(message)
+          expect(response.type).to.eql(Response.Type.OK)
+          expect(response.dht).to.eql({
+            type: DHTResponse.Type.BEGIN,
+            peer: null,
+            value: null
+          })
+        },
+        (message) => {
+          const response = DHTResponse.decode(message)
+          expect(response.type).to.eql(DHTResponse.Type.VALUE)
+          expect(response.peer).to.eql({
+            id: libp2pPeer.peerInfo.id.toBytes(),
+            addrs: libp2pPeer.peerInfo.multiaddrs.toArray().map(m => m.buffer)
+          })
+        },
+        (message) => {
+          const response = DHTResponse.decode(message)
+          expect(response.type).to.eql(DHTResponse.Type.END)
+          stream.end()
+        }
+      ]
+
+      for await (const message of stream) {
+        expectedResponses.shift()(message)
       }
     })
   })

@@ -30,6 +30,8 @@ describe('protocol', () => {
         streamOpen: null,
         streamHandler: null,
         dht: null,
+        disconnect: null,
+        pubsub: null,
         connManager: null
       }
       const message = Request.encode(request)
@@ -48,6 +50,8 @@ describe('protocol', () => {
         streamOpen: streamOpenRequest,
         streamHandler: null,
         dht: null,
+        disconnect: null,
+        pubsub: null,
         connManager: null
       }
       const message = Request.encode(request)
@@ -66,6 +70,8 @@ describe('protocol', () => {
         streamOpen: null,
         streamHandler: streamHandlerRequest,
         dht: null,
+        disconnect: null,
+        pubsub: null,
         connManager: null
       }
       const message = Request.encode(request)
@@ -89,6 +95,8 @@ describe('protocol', () => {
         streamOpen: null,
         streamHandler: null,
         dht: dhtRequest,
+        disconnect: null,
+        pubsub: null,
         connManager: null
       }
       const message = Request.encode(request)
@@ -109,6 +117,8 @@ describe('protocol', () => {
         streamOpen: null,
         streamHandler: null,
         dht: null,
+        disconnect: null,
+        pubsub: null,
         connManager: connManagerRequest
       }
       const message = Request.encode(request)
@@ -127,6 +137,7 @@ describe('protocol', () => {
         streamInfo: null,
         identify: null,
         dht: null,
+        pubsub: null,
         peers: []
       }
       const message = Response.encode(response)

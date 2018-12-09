@@ -43,6 +43,13 @@ class PeerRouting {
     this._routing = routing
   }
 
+  /**
+   *
+   * @param {PeerID} id The peer to find
+   * @param {object} options
+   * @param {number} options.maxTimeout How long the query should run
+   * @returns {Promise}
+   */
   findPeer (id, options) {
     return new Promise((resolve, reject) => {
       this._routing.findPeer(id, options, (err, results) => {
@@ -53,7 +60,50 @@ class PeerRouting {
   }
 }
 
+class ContentRouting {
+  constructor (routing) {
+    this._routing = routing
+  }
+
+  /**
+   *
+   * @param {CID} cid The cid to find providers for
+   * @param {object} options
+   * @param {number} options.maxTimeout How long the query should run
+   * @param {number} options.maxNumProviders maximum number of providers to find
+   * @returns {Promise}
+   */
+  findProviders (cid, options) {
+    return new Promise((resolve, reject) => {
+      this._routing.findProviders(cid, options, (err, results) => {
+        if (err) return reject(err)
+        resolve(results)
+      })
+    })
+  }
+
+  /**
+   *
+   * @param {CID} cid The cid to register as a provider of
+   * @returns {Promise}
+   */
+  provide (cid) {
+    return new Promise((resolve, reject) => {
+      this._routing.provide(cid, (err, results) => {
+        if (err) return reject(err)
+        resolve(results)
+      })
+    })
+  }
+}
+
 class DaemonLibp2p extends Libp2p {
+  get contentRouting () {
+    return this._contentRouting
+  }
+  set contentRouting (routing) {
+    this._contentRouting = new ContentRouting(routing)
+  }
   get peerRouting () {
     return this._peerRouting
   }

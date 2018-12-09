@@ -6,6 +6,7 @@ const Libp2p = require('./libp2p')
 const PeerInfo = require('peer-info')
 const PeerId = require('peer-id')
 const multiaddr = require('multiaddr')
+const CID = require('cids')
 const { encode, decode } = require('length-prefixed-stream')
 const {
   Request,
@@ -187,26 +188,60 @@ class Daemon {
   /**
    *
    * @param {Request} request
-   * @returns {DHTResponse}
+   * @returns {DHTResponse[]}
    */
   async handleDHTRequest ({ dht }) {
     switch (dht.type) {
       case DHTRequest.Type.FIND_PEER: {
         const peerId = PeerId.createFromBytes(dht.peer)
-        let peer
-        try {
-          peer = await this.libp2p.peerRouting.findPeer(peerId)
-        } catch (err) {
-          throw err
-        }
+        let peer = await this.libp2p.peerRouting.findPeer(peerId)
 
-        return {
-          type: DHTResponse.Type.VALUE,
-          peer: {
-            id: peer.id.toBytes(),
-            addrs: peer.multiaddrs.toArray().map(m => m.buffer)
+        return [OkResponse({
+          dht: {
+            type: DHTResponse.Type.VALUE,
+            peer: {
+              id: peer.id.toBytes(),
+              addrs: peer.multiaddrs.toArray().map(m => m.buffer)
+            }
           }
-        }
+        })]
+      }
+      case DHTRequest.Type.FIND_PROVIDERS: {
+        const cid = new CID(dht.cid)
+        const maxNumProviders = dht.count
+        // Currently the dht doesn't provide a streaming interface.
+        // So we need to collect all of the responses and then compose
+        // the response 'stream' to the client
+        let responses = [OkResponse({
+          dht: {
+            type: DHTResponse.Type.BEGIN
+          }
+        })]
+
+        const providers = await this.libp2p.contentRouting.findProviders(cid, {
+          maxNumProviders
+        })
+
+        providers.forEach(provider => {
+          responses.push(DHTResponse.encode({
+            type: DHTResponse.Type.VALUE,
+            peer: {
+              id: provider.id.toBytes(),
+              addrs: provider.multiaddrs.toArray().map(m => m.buffer)
+            }
+          }))
+        })
+
+        responses.push(DHTResponse.encode({
+          type: DHTResponse.Type.END
+        }))
+
+        return responses
+      }
+      case DHTRequest.Type.PROVIDE: {
+        const cid = new CID(dht.cid)
+        await this.libp2p.contentRouting.provide(cid)
+        return [OkResponse()]
       }
       default:
         throw new Error('ERR_INVALID_REQUEST_TYPE')
@@ -302,21 +337,22 @@ class Daemon {
           break
         }
         case Request.Type.DHT: {
-          let dhtResponse
           try {
-            dhtResponse = await this.handleDHTRequest(request)
+            // DHT responses may require multiple writes
+            const responses = await this.handleDHTRequest(request)
+            for (const response of responses) {
+              // write and wait for the flush
+              await new Promise((resolve) => {
+                enc.write(response, resolve)
+              })
+            }
           } catch (err) {
             enc.write(ErrorResponse(err.message))
             break
           }
-
-          // write the response
-          enc.write(OkResponse({
-            dht: dhtResponse
-          }))
           break
         }
-        // Not yet support or doesn't exist
+        // Not yet supported or doesn't exist
         default:
           enc.write(ErrorResponse('ERR_INVALID_REQUEST_TYPE'))
           break
