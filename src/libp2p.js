@@ -98,6 +98,55 @@ class ContentRouting {
   }
 }
 
+class DHT {
+  constructor (libp2p) {
+    this.libp2p = libp2p
+  }
+
+  /**
+   * Gets the closest peers to the key
+   * @param {Buffer} key
+   */
+  getClosestPeers (key) {
+    return new Promise((resolve, reject) => {
+      this.libp2p._dht.getClosestPeers(key, (err, peers) => {
+        if (err) return reject(err)
+        resolve(peers)
+      })
+    }).catch(err => {
+      console.log('Kaboom')
+      throw err
+    })
+  }
+
+  put (key, value) {
+    return new Promise((resolve, reject) => {
+      this.libp2p._dht.put(key, value, (err) => {
+        if (err) return reject(err)
+        resolve()
+      })
+    })
+  }
+
+  get (key, options) {
+    return new Promise((resolve, reject) => {
+      this.libp2p._dht.get(key, options, (err, val) => {
+        if (err) return reject(err)
+        resolve(val)
+      })
+    })
+  }
+
+  getMany (key, nVals, options) {
+    return new Promise((resolve, reject) => {
+      this.libp2p._dht.getMany(key, nVals, options, (err, results) => {
+        if (err) return reject(err)
+        resolve(results)
+      })
+    })
+  }
+}
+
 class DaemonLibp2p extends Libp2p {
   get contentRouting () {
     return this._contentRouting
@@ -110,6 +159,12 @@ class DaemonLibp2p extends Libp2p {
   }
   set peerRouting (routing) {
     this._peerRouting = new PeerRouting(routing)
+  }
+  get dht () {
+    return this._kadDHT
+  }
+  set dht (_) {
+    this._kadDHT = new DHT(this)
   }
 
   /**

@@ -375,5 +375,54 @@ describe('daemon', () => {
         expectedResponses.shift()(message)
       }
     })
+
+    it('should be able to get closest peers to a key', async () => {
+      // Now find it as a provider
+      client = new Client('/tmp/p2pd.sock')
+
+      await client.attach()
+
+      const request = {
+        type: Request.Type.DHT,
+        connect: null,
+        streamOpen: null,
+        streamHandler: null,
+        dht: {
+          type: DHTRequest.Type.GET_CLOSEST_PEERS,
+          key: 'foobar'
+        },
+        disconnect: null,
+        pubsub: null,
+        connManager: null
+      }
+
+      const stream = client.send(request)
+
+      const expectedResponses = [
+        (message) => {
+          const response = Response.decode(message)
+          expect(response.type).to.eql(Response.Type.OK)
+          expect(response.dht).to.eql({
+            type: DHTResponse.Type.BEGIN,
+            peer: null,
+            value: null
+          })
+        },
+        (message) => {
+          const response = DHTResponse.decode(message)
+          expect(response.type).to.eql(DHTResponse.Type.VALUE)
+          expect(response.value.toString()).to.eql(libp2pPeer.peerInfo.id.toB58String())
+        },
+        (message) => {
+          const response = DHTResponse.decode(message)
+          expect(response.type).to.eql(DHTResponse.Type.END)
+          stream.end()
+        }
+      ]
+
+      for await (const message of stream) {
+        expectedResponses.shift()(message)
+      }
+    })
   })
 })

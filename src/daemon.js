@@ -243,6 +243,30 @@ class Daemon {
         await this.libp2p.contentRouting.provide(cid)
         return [OkResponse()]
       }
+      case DHTRequest.Type.GET_CLOSEST_PEERS: {
+        const peerIds = await this.libp2p.dht.getClosestPeers(
+          Buffer.from(dht.key)
+        )
+
+        let responses = [OkResponse({
+          dht: {
+            type: DHTResponse.Type.BEGIN
+          }
+        })]
+
+        peerIds.forEach(peerId => {
+          responses.push(DHTResponse.encode({
+            type: DHTResponse.Type.VALUE,
+            value: peerId.toB58String()
+          }))
+        })
+
+        responses.push(DHTResponse.encode({
+          type: DHTResponse.Type.END
+        }))
+
+        return responses
+      }
       default:
         throw new Error('ERR_INVALID_REQUEST_TYPE')
     }
