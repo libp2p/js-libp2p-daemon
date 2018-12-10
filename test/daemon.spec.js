@@ -424,5 +424,38 @@ describe('daemon', () => {
         expectedResponses.shift()(message)
       }
     })
+
+    it('should be able to get the public key of a peer', async () => {
+      client = new Client('/tmp/p2pd.sock')
+
+      await client.attach()
+
+      const request = {
+        type: Request.Type.DHT,
+        connect: null,
+        streamOpen: null,
+        streamHandler: null,
+        dht: {
+          type: DHTRequest.Type.GET_PUBLIC_KEY,
+          peer: libp2pPeer.peerInfo.id.toBytes()
+        },
+        disconnect: null,
+        pubsub: null,
+        connManager: null
+      }
+
+      const stream = client.send(request)
+
+      for await (const message of stream) {
+        const response = Response.decode(message)
+        expect(response.type).to.eql(Response.Type.OK)
+        expect(response.dht).to.eql({
+          type: DHTResponse.Type.VALUE,
+          peer: null,
+          value: libp2pPeer.peerInfo.id.pubKey.bytes
+        })
+        stream.end()
+      }
+    })
   })
 })

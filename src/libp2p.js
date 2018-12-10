@@ -104,7 +104,7 @@ class DHT {
   }
 
   /**
-   * Gets the closest peers to the key
+   * Gets the peers with ids that most closely match the given key
    * @param {Buffer} key
    */
   getClosestPeers (key) {
@@ -142,6 +142,19 @@ class DHT {
       this.libp2p._dht.getMany(key, nVals, options, (err, results) => {
         if (err) return reject(err)
         resolve(results)
+      })
+    })
+  }
+
+  /**
+   * Gets the public key for the given peer
+   * @param {PeerId} peerId
+   */
+  getPublicKey (peerId) {
+    return new Promise((resolve, reject) => {
+      this.libp2p._dht.getPublicKey(peerId, (err, key) => {
+        if (err) return reject(err)
+        resolve(key)
       })
     })
   }

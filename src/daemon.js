@@ -267,6 +267,17 @@ class Daemon {
 
         return responses
       }
+      case DHTRequest.Type.GET_PUBLIC_KEY: {
+        const peerId = PeerId.createFromBytes(dht.peer)
+        const pubKey = await this.libp2p.dht.getPublicKey(peerId)
+
+        return [OkResponse({
+          dht: {
+            type: DHTResponse.Type.VALUE,
+            value: pubKey.bytes
+          }
+        })]
+      }
       default:
         throw new Error('ERR_INVALID_REQUEST_TYPE')
     }
