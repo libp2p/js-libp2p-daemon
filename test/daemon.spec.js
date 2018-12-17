@@ -201,10 +201,7 @@ describe('daemon', () => {
 
         // Read the stream info from the daemon, then pipe to echo
         for await (const message of dec) {
-          let response
-          expect(() => {
-            response = StreamInfo.decode(message)
-          }).to.not.throw()
+          let response = StreamInfo.decode(message)
 
           expect(response.peer).to.eql(libp2pPeer.peerInfo.id.toBytes())
           expect(response.proto).to.eql('/echo/1.0.0')
@@ -249,7 +246,6 @@ describe('daemon', () => {
 
   describe('dht', () => {
     const cid = new CID('QmVzw6MPsF96TyXBSRs1ptLoVMWRv5FCYJZZGJSVB2Hp38')
-    const content = Buffer.from('oh hello there')
 
     it('should be able to find a peer', async () => {
       client = new Client('/tmp/p2pd.sock')
@@ -456,6 +452,102 @@ describe('daemon', () => {
         })
         stream.end()
       }
+    })
+
+    it('should be able to get a value from the dht', async () => {
+      client = new Client('/tmp/p2pd.sock')
+
+      await client.attach()
+
+      await libp2pPeer.dht.put(Buffer.from('/hello'), Buffer.from('world'))
+
+      const request = {
+        type: Request.Type.DHT,
+        connect: null,
+        streamOpen: null,
+        streamHandler: null,
+        dht: {
+          type: DHTRequest.Type.GET_VALUE,
+          key: '/hello'
+        },
+        disconnect: null,
+        pubsub: null,
+        connManager: null
+      }
+
+      const stream = client.send(request)
+
+      for await (const message of stream) {
+        const response = Response.decode(message)
+        expect(response.type).to.eql(Response.Type.OK)
+        expect(response.dht).to.eql({
+          type: DHTResponse.Type.VALUE,
+          peer: null,
+          value: Buffer.from('world')
+        })
+        stream.end()
+      }
+    })
+
+    it('should error when it cannot find a value', async () => {
+      client = new Client('/tmp/p2pd.sock')
+
+      await client.attach()
+
+      const request = {
+        type: Request.Type.DHT,
+        connect: null,
+        streamOpen: null,
+        streamHandler: null,
+        dht: {
+          type: DHTRequest.Type.GET_VALUE,
+          key: '/v/doesntexist'
+        },
+        disconnect: null,
+        pubsub: null,
+        connManager: null
+      }
+
+      const stream = client.send(request)
+
+      for await (const message of stream) {
+        const response = Response.decode(message)
+        expect(response.type).to.eql(Response.Type.ERROR)
+        stream.end()
+      }
+    })
+
+    it('should be able to put a value to the dht', async () => {
+      client = new Client('/tmp/p2pd.sock')
+
+      await client.attach()
+
+      const request = {
+        type: Request.Type.DHT,
+        connect: null,
+        streamOpen: null,
+        streamHandler: null,
+        dht: {
+          type: DHTRequest.Type.PUT_VALUE,
+          key: '/hello2',
+          value: Buffer.from('world2')
+        },
+        disconnect: null,
+        pubsub: null,
+        connManager: null
+      }
+
+      const stream = client.send(request)
+
+      for await (const message of stream) {
+        const response = Response.decode(message)
+        expect(response.type).to.eql(Response.Type.OK)
+        expect(response.dht).to.eql(null)
+        stream.end()
+      }
+
+      const value = await libp2pPeer.dht.get(Buffer.from('/hello2'))
+      expect(value).to.eql(Buffer.from('world2'))
     })
   })
 })

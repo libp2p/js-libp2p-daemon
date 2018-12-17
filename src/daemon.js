@@ -53,10 +53,17 @@ class Daemon {
   }
 
   /**
+   * A number, or a string containing a number.
+   * @typedef {Object} OpenStream
+   * @property {StreamInfo} streamInfo
+   * @property {Stream} connection
+   */
+
+  /**
    * Opens a stream on one of the given protocols to the given peer
    * @param {StreamOpenRequest} request
    * @throws {Error}
-   * @returns {StreamInfo, Stream}
+   * @returns {OpenStream}
    */
   async openStream (request) {
     const { peer, proto } = request.streamOpen
@@ -277,6 +284,26 @@ class Daemon {
             value: pubKey.bytes
           }
         })]
+      }
+      case DHTRequest.Type.GET_VALUE: {
+        const value = await this.libp2p.dht.get(
+          Buffer.from(dht.key)
+        )
+
+        return [OkResponse({
+          dht: {
+            type: DHTResponse.Type.VALUE,
+            value: value
+          }
+        })]
+      }
+      case DHTRequest.Type.PUT_VALUE: {
+        await this.libp2p.dht.put(
+          Buffer.from(dht.key),
+          dht.value
+        )
+
+        return [OkResponse()]
       }
       default:
         throw new Error('ERR_INVALID_REQUEST_TYPE')

@@ -106,6 +106,7 @@ class DHT {
   /**
    * Gets the peers with ids that most closely match the given key
    * @param {Buffer} key
+   * @returns {Promise} Array of peers
    */
   getClosestPeers (key) {
     return new Promise((resolve, reject) => {
@@ -149,6 +150,7 @@ class DHT {
   /**
    * Gets the public key for the given peer
    * @param {PeerId} peerId
+   * @returns {Promise} public key
    */
   getPublicKey (peerId) {
     return new Promise((resolve, reject) => {
