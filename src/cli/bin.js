@@ -75,8 +75,11 @@ const main = async (processArgs) => {
 
   try {
     const { data, argv } = await parser.parse(processArgs)
-    // eslint-disable-next-line
-    if (data) console.log(data)
+    if (data) {
+      // eslint-disable-next-line
+      console.log(data)
+      process.exit(0)
+    }
     const daemon = await createDaemon(argv)
     await daemon.start()
     // eslint-disable-next-line
