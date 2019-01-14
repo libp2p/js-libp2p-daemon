@@ -10,6 +10,7 @@ const Client = require('../src/client')
 const { createLibp2p } = require('../src/libp2p')
 const { decode } = require('length-prefixed-stream')
 const CID = require('cids')
+const isWindows = !!os.type().match(/windows/gi)
 const {
   Request,
   DHTRequest,
@@ -17,6 +18,9 @@ const {
   DHTResponse,
   StreamInfo
 } = require('../src/protocol')
+const PATH = isWindows ?
+  path.join('\\\\?\\pipe', '/tmp/p2pd.sock') :
+  path.resolve(os.tmpdir(), '/tmp/p2pd.sock')
 
 describe('daemon', () => {
   let daemon
@@ -34,7 +38,7 @@ describe('daemon', () => {
         dht: true,
         dhtClient: false,
         connMgr: false,
-        sock: path.resolve(os.tmpdir(), '/tmp/p2pd.sock'),
+        sock: PATH,
         id: '',
         bootstrapPeers: ''
       }),
@@ -64,7 +68,7 @@ describe('daemon', () => {
   })
 
   it('should be able to connect to another node', async () => {
-    client = new Client(path.resolve(os.tmpdir(), '/tmp/p2pd.sock'))
+    client = new Client(PATH)
 
     await client.attach()
 
@@ -92,7 +96,7 @@ describe('daemon', () => {
   })
 
   it('should be able to list peers', async () => {
-    client = new Client(path.resolve(os.tmpdir(), '/tmp/p2pd.sock'))
+    client = new Client(PATH)
 
     await client.attach()
 
@@ -118,7 +122,7 @@ describe('daemon', () => {
   })
 
   it('should be able to identify', async () => {
-    client = new Client(path.resolve(os.tmpdir(), '/tmp/p2pd.sock'))
+    client = new Client(PATH)
 
     await client.attach()
 
@@ -152,7 +156,7 @@ describe('daemon', () => {
       libp2pPeer.handle('/echo/1.0.0', async (conn) => {
         conn.pipe(conn)
       })
-      client = new Client(path.resolve(os.tmpdir(), '/tmp/p2pd.sock'))
+      client = new Client(PATH)
 
       await client.attach()
 
@@ -191,8 +195,10 @@ describe('daemon', () => {
     })
 
     it('should be able to register a stream handler and echo with it', async () => {
-      client = new Client(path.resolve(os.tmpdir(), '/tmp/p2pd.sock'))
-      const socketPath = path.resolve(os.tmpdir(), '/tmp/p2p-echo-handler.sock')
+      client = new Client(PATH)
+      const socketPath = isWindows ?
+        path.join('\\\\?\\pipe', '/tmp/p2p-echo-handler.sock') :
+        path.resolve(os.tmpdir(), '/tmp/p2p-echo-handler.sock')
 
       await client.attach()
       // Start an echo server
@@ -250,7 +256,7 @@ describe('daemon', () => {
     const cid = new CID('QmVzw6MPsF96TyXBSRs1ptLoVMWRv5FCYJZZGJSVB2Hp38')
 
     it('should be able to find a peer', async () => {
-      client = new Client(path.resolve(os.tmpdir(), '/tmp/p2pd.sock'))
+      client = new Client(PATH)
 
       await client.attach()
 
@@ -286,7 +292,7 @@ describe('daemon', () => {
     })
 
     it('should be able to register as a provider', async () => {
-      client = new Client(path.resolve(os.tmpdir(), '/tmp/p2pd.sock'))
+      client = new Client(PATH)
 
       await client.attach()
 
@@ -323,7 +329,7 @@ describe('daemon', () => {
       await libp2pPeer.contentRouting.provide(cid)
 
       // Now find it as a provider
-      client = new Client(path.resolve(os.tmpdir(), '/tmp/p2pd.sock'))
+      client = new Client(PATH)
 
       await client.attach()
 
@@ -376,7 +382,7 @@ describe('daemon', () => {
 
     it('should be able to get closest peers to a key', async () => {
       // Now find it as a provider
-      client = new Client(path.resolve(os.tmpdir(), '/tmp/p2pd.sock'))
+      client = new Client(PATH)
 
       await client.attach()
 
@@ -424,7 +430,7 @@ describe('daemon', () => {
     })
 
     it('should be able to get the public key of a peer', async () => {
-      client = new Client(path.resolve(os.tmpdir(), '/tmp/p2pd.sock'))
+      client = new Client(PATH)
 
       await client.attach()
 
@@ -457,7 +463,7 @@ describe('daemon', () => {
     })
 
     it('should be able to get a value from the dht', async () => {
-      client = new Client(path.resolve(os.tmpdir(), '/tmp/p2pd.sock'))
+      client = new Client(PATH)
 
       await client.attach()
 
@@ -492,7 +498,7 @@ describe('daemon', () => {
     })
 
     it('should error when it cannot find a value', async () => {
-      client = new Client(path.resolve(os.tmpdir(), '/tmp/p2pd.sock'))
+      client = new Client(PATH)
 
       await client.attach()
 
@@ -520,7 +526,7 @@ describe('daemon', () => {
     })
 
     it('should be able to put a value to the dht', async () => {
-      client = new Client(path.resolve(os.tmpdir(), '/tmp/p2pd.sock'))
+      client = new Client(PATH)
 
       await client.attach()
 
