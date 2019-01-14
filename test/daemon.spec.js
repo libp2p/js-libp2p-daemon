@@ -10,7 +10,7 @@ const Client = require('../src/client')
 const { createLibp2p } = require('../src/libp2p')
 const { decode } = require('length-prefixed-stream')
 const CID = require('cids')
-const isWindows = !!os.type().match(/windows/gi)
+const isWindows = Boolean(os.type().match(/windows/gi))
 const {
   Request,
   DHTRequest,
@@ -18,9 +18,9 @@ const {
   DHTResponse,
   StreamInfo
 } = require('../src/protocol')
-const PATH = isWindows ?
-  path.join('\\\\?\\pipe', '/tmp/p2pd.sock') :
-  path.resolve(os.tmpdir(), '/tmp/p2pd.sock')
+const PATH = isWindows
+  ? path.join('\\\\?\\pipe', '/tmp/p2pd.sock')
+  : path.resolve(os.tmpdir(), '/tmp/p2pd.sock')
 
 describe('daemon', () => {
   let daemon
@@ -150,7 +150,8 @@ describe('daemon', () => {
     }
   })
 
-  describe('streams', () => {
+  describe('streams', function () {
+    this.timeout(10e3)
     it('should be able to open a stream and echo with it', async () => {
       // Have the peer echo our messages back
       libp2pPeer.handle('/echo/1.0.0', async (conn) => {
@@ -196,9 +197,9 @@ describe('daemon', () => {
 
     it('should be able to register a stream handler and echo with it', async () => {
       client = new Client(PATH)
-      const socketPath = isWindows ?
-        path.join('\\\\?\\pipe', '/tmp/p2p-echo-handler.sock') :
-        path.resolve(os.tmpdir(), '/tmp/p2p-echo-handler.sock')
+      const socketPath = isWindows
+        ? path.join('\\\\?\\pipe', '/tmp/p2p-echo-handler.sock')
+        : path.resolve(os.tmpdir(), '/tmp/p2p-echo-handler.sock')
 
       await client.attach()
       // Start an echo server
