@@ -7,6 +7,8 @@ const { encode, decode } = require('length-prefixed-stream')
 const { Request } = require('./protocol')
 const LIMIT = 1 << 22 // 4MB
 
+const { ends } = require('../src/util')
+
 class Client {
   constructor (socketPath) {
     this.path = path.resolve(socketPath)
@@ -97,7 +99,7 @@ class Client {
     enc.write(Request.encode(request))
     enc.pipe(this.socket)
 
-    return dec
+    return ends(dec)
   }
 
   /**

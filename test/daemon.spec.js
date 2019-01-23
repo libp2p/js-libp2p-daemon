@@ -11,6 +11,7 @@ const { createLibp2p } = require('../src/libp2p')
 const { decode } = require('length-prefixed-stream')
 const CID = require('cids')
 const isWindows = Boolean(os.type().match(/windows/gi))
+const { ends } = require('../src/util')
 const {
   Request,
   DHTRequest,
@@ -88,11 +89,10 @@ describe('daemon', () => {
 
     const stream = client.send(request)
 
-    for await (const message of stream) {
-      let response = Response.decode(message)
-      expect(response.type).to.eql(Response.Type.OK)
-      stream.end()
-    }
+    const message = await stream.first()
+    let response = Response.decode(message)
+    expect(response.type).to.eql(Response.Type.OK)
+    stream.end()
   })
 
   it('should be able to list peers', async () => {
@@ -113,12 +113,11 @@ describe('daemon', () => {
 
     const stream = client.send(request)
 
-    for await (const message of stream) {
-      const response = Response.decode(message)
-      expect(response.type).to.eql(Response.Type.OK)
-      expect(response.peers).to.have.length(1)
-      stream.end()
-    }
+    const message = await stream.first()
+    const response = Response.decode(message)
+    expect(response.type).to.eql(Response.Type.OK)
+    expect(response.peers).to.have.length(1)
+    stream.end()
   })
 
   it('should be able to identify', async () => {
@@ -139,15 +138,13 @@ describe('daemon', () => {
 
     const stream = client.send(request)
 
-    for await (const message of stream) {
-      const response = Response.decode(message)
-      expect(response.type).to.eql(Response.Type.OK)
-      expect(response.identify).to.eql({
-        id: daemon.libp2p.peerInfo.id.toBytes(),
-        addrs: daemon.libp2p.peerInfo.multiaddrs.toArray().map(m => m.buffer)
-      })
-      stream.end()
-    }
+    const response = Response.decode(await stream.first())
+    expect(response.type).to.eql(Response.Type.OK)
+    expect(response.identify).to.eql({
+      id: daemon.libp2p.peerInfo.id.toBytes(),
+      addrs: daemon.libp2p.peerInfo.multiaddrs.toArray().map(m => m.buffer)
+    })
+    stream.end()
   })
 
   describe('streams', function () {
@@ -175,17 +172,14 @@ describe('daemon', () => {
 
       const stream = client.send(request)
 
-      // Verify the response then break
-      for await (const message of stream) {
-        const response = Response.decode(message)
-        expect(response.type).to.eql(Response.Type.OK)
-        expect(response.streamInfo).to.eql({
-          peer: libp2pPeer.peerInfo.id.toBytes(),
-          addr: libp2pPeer.peerInfo.multiaddrs.toArray()[0].buffer,
-          proto: '/echo/1.0.0'
-        })
-        break
-      }
+      // Verify the response
+      const response = Response.decode(await stream.first())
+      expect(response.type).to.eql(Response.Type.OK)
+      expect(response.streamInfo).to.eql({
+        peer: libp2pPeer.peerInfo.id.toBytes(),
+        addr: libp2pPeer.peerInfo.multiaddrs.toArray()[0].buffer,
+        proto: '/echo/1.0.0'
+      })
 
       const hello = Buffer.from('hello there')
       const peerStream = client.write(hello)
@@ -209,15 +203,13 @@ describe('daemon', () => {
         conn.pipe(dec)
 
         // Read the stream info from the daemon, then pipe to echo
-        for await (const message of dec) {
-          let response = StreamInfo.decode(message)
+        const message = await ends(dec).first()
+        let response = StreamInfo.decode(message)
 
-          expect(response.peer).to.eql(libp2pPeer.peerInfo.id.toBytes())
-          expect(response.proto).to.eql('/echo/1.0.0')
-          conn.unpipe(dec)
-          break
-        }
+        expect(response.peer).to.eql(libp2pPeer.peerInfo.id.toBytes())
+        expect(response.proto).to.eql('/echo/1.0.0')
 
+        conn.unpipe(dec)
         conn.pipe(conn)
       })
 
@@ -235,11 +227,8 @@ describe('daemon', () => {
 
       const stream = client.send(request)
 
-      for await (const message of stream) {
-        const response = Response.decode(message)
-        expect(response.type).to.eql(Response.Type.OK)
-        break
-      }
+      const response = Response.decode(await stream.first())
+      expect(response.type).to.eql(Response.Type.OK)
 
       const { connection } = await libp2pPeer.dial(daemon.libp2p.peerInfo, '/echo/1.0.0')
 
@@ -277,19 +266,17 @@ describe('daemon', () => {
 
       const stream = client.send(request)
 
-      for await (const message of stream) {
-        const response = Response.decode(message)
-        expect(response.type).to.eql(Response.Type.OK)
-        expect(response.dht).to.eql({
-          type: DHTResponse.Type.VALUE,
-          peer: {
-            id: libp2pPeer.peerInfo.id.toBytes(),
-            addrs: libp2pPeer.peerInfo.multiaddrs.toArray().map(m => m.buffer)
-          },
-          value: null
-        })
-        stream.end()
-      }
+      const response = Response.decode(await stream.first())
+      expect(response.type).to.eql(Response.Type.OK)
+      expect(response.dht).to.eql({
+        type: DHTResponse.Type.VALUE,
+        peer: {
+          id: libp2pPeer.peerInfo.id.toBytes(),
+          addrs: libp2pPeer.peerInfo.multiaddrs.toArray().map(m => m.buffer)
+        },
+        value: null
+      })
+      stream.end()
     })
 
     it('should be able to register as a provider', async () => {
@@ -313,11 +300,9 @@ describe('daemon', () => {
 
       const stream = client.send(request)
 
-      for await (const message of stream) {
-        const response = Response.decode(message)
-        expect(response.type).to.eql(Response.Type.OK)
-        stream.end()
-      }
+      const response = Response.decode(await stream.first())
+      expect(response.type).to.eql(Response.Type.OK)
+      stream.end()
 
       // The peer should be able to find our daemon as a provider
       const providers = await libp2pPeer.contentRouting.findProviders(cid, { maxNumProviders: 1 })
@@ -451,16 +436,14 @@ describe('daemon', () => {
 
       const stream = client.send(request)
 
-      for await (const message of stream) {
-        const response = Response.decode(message)
-        expect(response.type).to.eql(Response.Type.OK)
-        expect(response.dht).to.eql({
-          type: DHTResponse.Type.VALUE,
-          peer: null,
-          value: libp2pPeer.peerInfo.id.pubKey.bytes
-        })
-        stream.end()
-      }
+      const response = Response.decode(await stream.first())
+      expect(response.type).to.eql(Response.Type.OK)
+      expect(response.dht).to.eql({
+        type: DHTResponse.Type.VALUE,
+        peer: null,
+        value: libp2pPeer.peerInfo.id.pubKey.bytes
+      })
+      stream.end()
     })
 
     it('should be able to get a value from the dht', async () => {
@@ -486,16 +469,14 @@ describe('daemon', () => {
 
       const stream = client.send(request)
 
-      for await (const message of stream) {
-        const response = Response.decode(message)
-        expect(response.type).to.eql(Response.Type.OK)
-        expect(response.dht).to.eql({
-          type: DHTResponse.Type.VALUE,
-          peer: null,
-          value: Buffer.from('world')
-        })
-        stream.end()
-      }
+      const response = Response.decode(await stream.first())
+      expect(response.type).to.eql(Response.Type.OK)
+      expect(response.dht).to.eql({
+        type: DHTResponse.Type.VALUE,
+        peer: null,
+        value: Buffer.from('world')
+      })
+      stream.end()
     })
 
     it('should error when it cannot find a value', async () => {
@@ -519,11 +500,9 @@ describe('daemon', () => {
 
       const stream = client.send(request)
 
-      for await (const message of stream) {
-        const response = Response.decode(message)
-        expect(response.type).to.eql(Response.Type.ERROR)
-        stream.end()
-      }
+      const response = Response.decode(await stream.first())
+      expect(response.type).to.eql(Response.Type.ERROR)
+      stream.end()
     })
 
     it('should be able to put a value to the dht', async () => {
@@ -548,12 +527,10 @@ describe('daemon', () => {
 
       const stream = client.send(request)
 
-      for await (const message of stream) {
-        const response = Response.decode(message)
-        expect(response.type).to.eql(Response.Type.OK)
-        expect(response.dht).to.eql(null)
-        stream.end()
-      }
+      const response = Response.decode(await stream.first())
+      expect(response.type).to.eql(Response.Type.OK)
+      expect(response.dht).to.eql(null)
+      stream.end()
 
       const value = await libp2pPeer.dht.get(Buffer.from('/hello2'))
       expect(value).to.eql(Buffer.from('world2'))
