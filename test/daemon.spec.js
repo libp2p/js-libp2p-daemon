@@ -154,8 +154,8 @@ describe('daemon', () => {
       libp2pPeer.handle('/echo/1.0.0', async (conn) => {
         conn.pipe(conn)
       })
-      client = new Client(PATH)
 
+      client = new Client(PATH)
       await client.attach()
 
       const request = {
@@ -170,6 +170,7 @@ describe('daemon', () => {
         connManager: null
       }
 
+      // Open a stream from the daemon to the peer node
       const stream = client.send(request)
 
       // Verify the response
@@ -181,9 +182,12 @@ describe('daemon', () => {
         proto: '/echo/1.0.0'
       })
 
+      console.log('StreamOpen response verified')
+
       const hello = Buffer.from('hello there')
       const peerStream = client.write(hello)
       for await (const message of peerStream) {
+        console.log('received a message', message.toString())
         expect(message).to.eql(hello)
         peerStream.end()
       }
@@ -196,7 +200,7 @@ describe('daemon', () => {
         : path.resolve(os.tmpdir(), '/tmp/p2p-echo-handler.sock')
 
       await client.attach()
-      // Start an echo server
+      // Start an echo server, where we will handle streams from the daemon
       await client.startServer(socketPath, async (conn) => {
         // Decode the stream
         const dec = decode()
@@ -225,13 +229,14 @@ describe('daemon', () => {
         connManager: null
       }
 
+      // Register the stream handler
       const stream = client.send(request)
-
       const response = Response.decode(await stream.first())
       expect(response.type).to.eql(Response.Type.OK)
 
+      // Open a connection between the peer and our daemon
+      // Then send hello from the peer to the daemon
       const { connection } = await libp2pPeer.dial(daemon.libp2p.peerInfo, '/echo/1.0.0')
-
       const hello = Buffer.from('hello, peer')
       connection.write(hello)
 

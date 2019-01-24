@@ -3,6 +3,10 @@
   "version": "0.0.0",
   "description": "libp2p-daemon JavaScript implementation",
   "leadMaintainer": "Jacob Heun <jacobheun@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/libp2p/js-libp2p-daemon.git"
+  },
   "files": [
     "dist",
     "src"
