@@ -1,4 +1,5 @@
 /* eslint-env mocha */
+/* eslint max-nested-callbacks: ["error", 5] */
 'use strict'
 
 const chai = require('chai')
@@ -10,7 +11,7 @@ const { createDaemon } = require('../src/daemon')
 const Client = require('../src/client')
 const { createLibp2p } = require('../src/libp2p')
 const { decode } = require('length-prefixed-stream')
-const { pipeline, Transform } = require('readable-stream')
+const { pipeline } = require('readable-stream')
 const CID = require('cids')
 const isWindows = Boolean(os.type().match(/windows/gi))
 const { ends } = require('../src/util')
