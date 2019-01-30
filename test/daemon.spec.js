@@ -2,6 +2,7 @@
 'use strict'
 
 const chai = require('chai')
+chai.use(require('dirty-chai'))
 const expect = chai.expect
 const os = require('os')
 const path = require('path')
@@ -9,6 +10,7 @@ const { createDaemon } = require('../src/daemon')
 const Client = require('../src/client')
 const { createLibp2p } = require('../src/libp2p')
 const { decode } = require('length-prefixed-stream')
+const { pipeline, Transform } = require('readable-stream')
 const CID = require('cids')
 const isWindows = Boolean(os.type().match(/windows/gi))
 const { ends } = require('../src/util')
@@ -148,11 +150,15 @@ describe('daemon', () => {
   })
 
   describe('streams', function () {
-    this.timeout(10e3)
+    // this.timeout(10e3)
     it('should be able to open a stream and echo with it', async () => {
+      const hello = Buffer.from('hello there')
+
       // Have the peer echo our messages back
       libp2pPeer.handle('/echo/1.0.0', async (conn) => {
-        conn.pipe(conn)
+        pipeline(conn, conn, (err) => {
+          expect(err).to.not.exist()
+        })
       })
 
       client = new Client(PATH)
@@ -182,12 +188,8 @@ describe('daemon', () => {
         proto: '/echo/1.0.0'
       })
 
-      console.log('StreamOpen response verified')
-
-      const hello = Buffer.from('hello there')
       const peerStream = client.write(hello)
       for await (const message of peerStream) {
-        console.log('received a message', message.toString())
         expect(message).to.eql(hello)
         peerStream.end()
       }
@@ -214,7 +216,15 @@ describe('daemon', () => {
         expect(response.proto).to.eql('/echo/1.0.0')
 
         conn.unpipe(dec)
-        conn.pipe(conn)
+
+        // Echo messages
+        pipeline(
+          conn,
+          conn,
+          (err) => {
+            expect(err).to.not.exist()
+          }
+        )
       })
 
       const request = {
@@ -236,14 +246,18 @@ describe('daemon', () => {
 
       // Open a connection between the peer and our daemon
       // Then send hello from the peer to the daemon
-      const { connection } = await libp2pPeer.dial(daemon.libp2p.peerInfo, '/echo/1.0.0')
+      const connection = await libp2pPeer.dial(daemon.libp2p.peerInfo, '/echo/1.0.0')
       const hello = Buffer.from('hello, peer')
       connection.write(hello)
 
-      for await (const message of connection) {
-        expect(message).to.eql(hello)
-        connection.end()
-      }
+      // TODO: The connection from dial should be async iterable
+      return new Promise((resolve) => {
+        connection.on('data', message => {
+          expect(message).to.eql(hello)
+          connection.end()
+          resolve()
+        })
+      })
     })
   })
 

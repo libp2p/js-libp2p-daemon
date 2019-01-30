@@ -71,11 +71,11 @@ class Daemon {
       PeerId.createFromB58String(peer)
     )
 
-    let results
+    let connection
     let successfulProto
     for (const protocol of proto) {
       try {
-        results = await this.libp2p.dial(peerInfo, protocol)
+        connection = await this.libp2p.dial(peerInfo, protocol)
         successfulProto = protocol
         break
       } catch (err) {
@@ -84,17 +84,17 @@ class Daemon {
       }
     }
 
-    if (!results) {
+    if (!connection) {
       throw new Error('no protocols could be dialed')
     }
 
     return {
       streamInfo: {
         peer: peerInfo.id.toBytes(),
-        addr: results.peerInfo.isConnected().buffer,
+        addr: connection.peerInfo.isConnected().buffer,
         proto: successfulProto
       },
-      connection: results.connection
+      connection: connection
     }
   }
 
@@ -134,7 +134,7 @@ class Daemon {
             proto: proto
           })
 
-          // Write the encoded message to the client
+          // Tell the client about the new connection
           enc.pipe(socket)
           enc.write(message)
           enc.unpipe(socket)
@@ -163,9 +163,9 @@ class Daemon {
    * Starts the daemon
    * @returns {Promise}
    */
-  start () {
-    return new Promise(async (resolve, reject) => {
-      await this.libp2p.start()
+  async start () {
+    await this.libp2p.start()
+    return new Promise((resolve, reject) => {
       this.server.listen(path.resolve(this.socketPath), (err) => {
         if (err) return reject(err)
         resolve()
@@ -179,9 +179,9 @@ class Daemon {
    * @param {boolean} options.exit If the daemon process should exit
    * @returns {Promise}
    */
-  stop (options = { exit: false }) {
-    return new Promise(async (resolve) => {
-      await this.libp2p.stop()
+  async stop (options = { exit: false }) {
+    await this.libp2p.stop()
+    return new Promise((resolve) => {
       this.server.close(() => {
         if (options.exit) {
           log('server closed, exiting')
@@ -313,7 +313,7 @@ class Daemon {
   /**
    * Handles requests for the given connection
    * @private
-   * @param {Stream} conn
+   * @param {Stream} conn Connection from the daemon client
    */
   async handleConnection (conn) {
     const dec = decode({ limit: LIMIT })
@@ -382,8 +382,7 @@ class Daemon {
           conn.unpipe(dec)
 
           // then pipe the connection to the client
-          response.connection.pipe(conn)
-          conn.pipe(response.connection)
+          conn.pipe(response.connection).pipe(conn)
           break
         }
         case Request.Type.STREAM_HANDLER: {

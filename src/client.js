@@ -41,12 +41,11 @@ class Client {
    * @param {function(Stream)} connectionHandler
    * @returns {Promise}
    */
-  startServer (socketPath, connectionHandler) {
-    return new Promise(async (resolve, reject) => {
-      if (this.server) {
-        await this.stopServer()
-      }
-
+  async startServer (socketPath, connectionHandler) {
+    if (this.server) {
+      await this.stopServer()
+    }
+    return new Promise((resolve, reject) => {
       this.server = net.createServer({
         allowHalfOpen: true
       }, connectionHandler)
@@ -76,9 +75,9 @@ class Client {
    * Closes the socket
    * @returns {Promise}
    */
-  close () {
-    return new Promise(async (resolve) => {
-      await this.stopServer()
+  async close () {
+    await this.stopServer()
+    return new Promise((resolve) => {
       this.socket.end(resolve)
     })
   }
