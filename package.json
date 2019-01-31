@@ -49,7 +49,7 @@
   "dependencies": {
     "cids": "~0.5.7",
     "debug": "^4.1.1",
-    "length-prefixed-stream": "github:jacobheun/length-prefixed-stream#feat/readable3",
+    "length-prefixed-stream": "github:jacobheun/length-prefixed-stream#v2.0.0-rc.1",
     "libp2p": "~0.24.4",
     "libp2p-bootstrap": "~0.9.7",
     "libp2p-kad-dht": "~0.14.3",
