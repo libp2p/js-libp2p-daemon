@@ -39,6 +39,10 @@ const getPeerInfo = (privateKey) => {
 }
 
 class PeerRouting {
+  /**
+   * @constructor
+   * @param {PeerRouter} routing A Peer Routing compliant implementation
+   */
   constructor (routing) {
     this._routing = routing
   }
@@ -61,17 +65,22 @@ class PeerRouting {
 }
 
 class ContentRouting {
+  /**
+   * @constructor
+   * @param {PeerRouter} routing A Content Routing compliant implementation
+   */
   constructor (routing) {
     this._routing = routing
   }
 
   /**
+   * Search the dht for up to `K` providers of the given CID.
    *
    * @param {CID} cid The cid to find providers for
    * @param {object} options
    * @param {number} options.maxTimeout How long the query should run
    * @param {number} options.maxNumProviders maximum number of providers to find
-   * @returns {Promise}
+   * @returns {Promise<PeerInfo[]>}
    */
   findProviders (cid, options) {
     return new Promise((resolve, reject) => {
@@ -83,29 +92,34 @@ class ContentRouting {
   }
 
   /**
+   * Announce to the network that we can provide given key's value.
    *
    * @param {CID} cid The cid to register as a provider of
-   * @returns {Promise}
+   * @returns {Promise<void>}
    */
   provide (cid) {
     return new Promise((resolve, reject) => {
-      this._routing.provide(cid, (err, results) => {
+      this._routing.provide(cid, (err) => {
         if (err) return reject(err)
-        resolve(results)
+        resolve()
       })
     })
   }
 }
 
 class DHT {
+  /**
+   * @param {Libp2p} libp2p The libp2p instance to use
+   */
   constructor (libp2p) {
     this.libp2p = libp2p
   }
 
   /**
    * Gets the peers with ids that most closely match the given key
+   *
    * @param {Buffer} key
-   * @returns {Promise} Array of peers
+   * @returns {Promise<PeerId[]>} Array of peers
    */
   getClosestPeers (key) {
     return new Promise((resolve, reject) => {
@@ -114,11 +128,17 @@ class DHT {
         resolve(peers)
       })
     }).catch(err => {
-      console.log('Kaboom')
       throw err
     })
   }
 
+  /**
+   * Store the given key/value  pair in the DHT.
+   *
+   * @param {Buffer} key
+   * @param {Buffer} value
+   * @returns {Promise<void>}
+   */
   put (key, value) {
     return new Promise((resolve, reject) => {
       this.libp2p._dht.put(key, value, (err) => {
@@ -128,6 +148,14 @@ class DHT {
     })
   }
 
+  /**
+   * Get the value to the given key.
+   *
+   * @param {Buffer} key
+   * @param {Object} options - get options
+   * @param {number} options.timeout - optional timeout (default: 60000)
+   * @returns {Promise<Buffer>}
+   */
   get (key, options) {
     return new Promise((resolve, reject) => {
       this.libp2p._dht.get(key, options, (err, val) => {
@@ -137,9 +165,18 @@ class DHT {
     })
   }
 
-  getMany (key, nVals, options) {
+  /**
+   * Get the `n` values to the given key without sorting.
+   *
+   * @param {Buffer} key
+   * @param {number} nvals
+   * @param {Object} options - get options
+   * @param {number} options.timeout - optional timeout (default: 60000)
+   * @returns {Promise<{from: PeerId, val: Buffer}[]>}
+   */
+  getMany (key, nvals, options) {
     return new Promise((resolve, reject) => {
-      this.libp2p._dht.getMany(key, nVals, options, (err, results) => {
+      this.libp2p._dht.getMany(key, nvals, options, (err, results) => {
         if (err) return reject(err)
         resolve(results)
       })
@@ -149,7 +186,7 @@ class DHT {
   /**
    * Gets the public key for the given peer
    * @param {PeerId} peerId
-   * @returns {Promise} public key
+   * @returns {Promise<PubKey>} public key
    */
   getPublicKey (peerId) {
     return new Promise((resolve, reject) => {
@@ -183,7 +220,8 @@ class DaemonLibp2p extends Libp2p {
 
   /**
    * Starts the libp2p node
-   * @returns {Promise}
+   *
+   * @returns {Promise<void>}
    */
   start () {
     return new Promise((resolve, reject) => {
@@ -196,7 +234,8 @@ class DaemonLibp2p extends Libp2p {
 
   /**
    * Stops the libp2p node
-   * @returns {Promise}
+   *
+   * @returns {Promise<void>}
    */
   stop () {
     return new Promise((resolve, reject) => {
@@ -209,9 +248,10 @@ class DaemonLibp2p extends Libp2p {
 
   /**
    * Dials the given peer on protocol. The promise will resolve with the connection
+   *
    * @param {PeerInfo} peerInfo
    * @param {string} protocol
-   * @returns {Promise}
+   * @returns {Promise<Connection>}
    */
   dial (peerInfo, protocol) {
     return new Promise((resolve, reject) => {
@@ -230,6 +270,7 @@ class DaemonLibp2p extends Libp2p {
 
   /**
    * Overrides the default `handle` to convert pull streams to streams
+   *
    * @param {string} protocol
    * @param {function(Stream)} handler
    */
@@ -274,7 +315,6 @@ const createLibp2p = async ({
   const peerBook = new PeerBook()
   const bootstrapList = bootstrapPeers ? bootstrapPeers.split(',').filter(s => s !== '') : null
 
-  // TODO: Add multiaddrs
   peerInfo.multiaddrs.add(multiaddr('/ip4/0.0.0.0/tcp/0'))
 
   const libp2p = new DaemonLibp2p({

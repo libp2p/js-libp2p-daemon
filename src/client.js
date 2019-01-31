@@ -90,7 +90,7 @@ class Client {
    */
   send (request) {
     // Decode and pipe the response
-    const dec = decode({ limit: LIMIT }, { readableObjectMode: true })
+    const dec = decode({ limit: LIMIT, allowEmpty: true })
     this.socket.pipe(dec)
 
     // Encode and pipe the request

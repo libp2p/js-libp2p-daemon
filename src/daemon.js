@@ -17,9 +17,15 @@ const {
 } = require('./protocol')
 const LIMIT = 1 << 22 // 4MB
 
-const log = console.log
+const log = require('debug')('libp2p:daemon')
 
 class Daemon {
+  /**
+   * @constructor
+   * @param {object} options
+   * @param {string} options.socketPath
+   * @param {Libp2p} options.libp2pNode
+   */
   constructor ({
     socketPath,
     libp2pNode
@@ -30,14 +36,15 @@ class Daemon {
       allowHalfOpen: true
     }, this.handleConnection.bind(this))
     this.streamHandlers = {}
-    this.listen()
+    this._listen()
   }
 
   /**
    * Connects the daemons libp2p node to the peer provided
    * in the ConnectRequest
+   *
    * @param {ConnectRequest} connectRequest
-   * @returns {Promise}
+   * @returns {Promise<Connection>}
    */
   connect (connectRequest) {
     const peer = connectRequest.connect.peer
@@ -79,7 +86,7 @@ class Daemon {
         successfulProto = protocol
         break
       } catch (err) {
-        console.log(err)
+        log(err)
         // We can ignore this, and try other protos
       }
     }
@@ -102,8 +109,9 @@ class Daemon {
    * Sends inbound requests for the given protocol
    * to the unix socket path provided. If an existing handler
    * is registered at the path, it will be overridden.
+   *
    * @param {StreamHandlerRequest} request
-   * @returns {Promise}
+   * @returns {Promise<void>}
    */
   registerStreamHandler (request) {
     return new Promise((resolve, reject) => {
@@ -152,7 +160,13 @@ class Daemon {
     })
   }
 
-  listen () {
+  /**
+   * Listens for process exit to handle cleanup
+   *
+   * @private
+   * @returns {void}
+   */
+  _listen () {
     // listen for graceful termination
     process.on('SIGTERM', () => this.stop({ exit: true }))
     process.on('SIGINT', () => this.stop({ exit: true }))
@@ -161,7 +175,8 @@ class Daemon {
 
   /**
    * Starts the daemon
-   * @returns {Promise}
+   *
+   * @returns {Promise<void>}
    */
   async start () {
     await this.libp2p.start()
@@ -175,9 +190,10 @@ class Daemon {
 
   /**
    * Stops the daemon
+   *
    * @param {object} options
    * @param {boolean} options.exit If the daemon process should exit
-   * @returns {Promise}
+   * @returns {Promise<void>}
    */
   async stop (options = { exit: false }) {
     await this.libp2p.stop()
@@ -193,7 +209,9 @@ class Daemon {
   }
 
   /**
+   * Parses and responds to DHTRequests
    *
+   * @private
    * @param {Request} request
    * @returns {DHTResponse[]}
    */
@@ -312,8 +330,10 @@ class Daemon {
 
   /**
    * Handles requests for the given connection
+   *
    * @private
    * @param {Stream} conn Connection from the daemon client
+   * @returns {void}
    */
   async handleConnection (conn) {
     const dec = decode({ limit: LIMIT })
@@ -427,6 +447,8 @@ class Daemon {
 
 /**
  * Creates and encodes an OK response
+ *
+ * @private
  * @param {Object} data an optional map of values to be assigned to the response
  * @returns {Response}
  */
@@ -437,6 +459,13 @@ function OkResponse (data) {
   })
 }
 
+/**
+ * Creates and encodes an ErrorResponse
+ *
+ * @private
+ * @param {string} message
+ * @returns {ErrorResponse}
+ */
 function ErrorResponse (message) {
   return Response.encode({
     type: Response.Type.ERROR,
@@ -446,6 +475,12 @@ function ErrorResponse (message) {
   })
 }
 
+/**
+ * Creates a daemon from the provided Daemon Options
+ *
+ * @param {object} options
+ * @returns {Daemon}
+ */
 const createDaemon = async (options) => {
   const libp2pNode = await Libp2p.createLibp2p(options)
   const daemon = new Daemon({

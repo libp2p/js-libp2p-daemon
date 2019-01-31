@@ -8,6 +8,8 @@ const Daemon = require('../daemon')
 const args = process.argv.slice(2)
 const parser = new YargsPromise(yargs)
 
+const log = console.log
+
 const main = async (processArgs) => {
   parser.yargs
     .option('sock', {
@@ -67,7 +69,7 @@ const main = async (processArgs) => {
 
       if (args.length > 0) {
         // eslint-disable-next-line
-        console.log(msg)
+        log(msg)
       }
 
       yargs.showHelp()
@@ -78,14 +80,14 @@ const main = async (processArgs) => {
     if (data) {
       // Log help and exit
       // eslint-disable-next-line
-      console.log(data)
+      log(data)
       process.exit(0)
     }
     const daemon = await Daemon.createDaemon(argv)
     await daemon.start()
     if (!argv.quiet) {
       // eslint-disable-next-line
-      console.log('daemon has started')
+      log('daemon has started')
     }
   } catch (err) {
     throw err
