@@ -79,7 +79,7 @@ describe('daemon', () => {
     const request = {
       type: Request.Type.CONNECT,
       connect: {
-        peer: Buffer.from(libp2pPeer.peerInfo.id.toB58String()),
+        peer: Buffer.from(libp2pPeer.peerInfo.id.toBytes()),
         addrs: libp2pPeer.peerInfo.multiaddrs.toArray().map(addr => addr.buffer)
       },
       streamOpen: null,
