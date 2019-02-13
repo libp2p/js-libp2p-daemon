@@ -1,3 +1,13 @@
+<a name="0.1.1"></a>
+## [0.1.1](https://github.com/libp2p/js-libp2p-daemon/compare/v0.1.0...v0.1.1) (2019-02-13)
+
+
+### Bug Fixes
+
+* connect should use peer id in bytes ([021b006](https://github.com/libp2p/js-libp2p-daemon/commit/021b006))
+
+
+
 <a name="0.1.0"></a>
 # 0.1.0 (2019-01-31)
 
