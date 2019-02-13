@@ -22,9 +22,7 @@
     "test:node": "aegir test -t node -f test/**/*.js",
     "release": "aegir release --no-build -t node",
     "release-minor": "aegir release --no-build --type minor -t node",
-    "release-major": "aegir release --no-build --type major -t node",
-    "coverage": "aegir coverage",
-    "coverage-publish": "aegir coverage --provider coveralls"
+    "release-major": "aegir release --no-build --type major -t node"
   },
   "engines": {
     "node": ">=10.0.0",
