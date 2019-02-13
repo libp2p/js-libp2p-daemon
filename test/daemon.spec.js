@@ -143,9 +143,10 @@ describe('daemon', () => {
 
     const response = Response.decode(await stream.first())
     expect(response.type).to.eql(Response.Type.OK)
+
     expect(response.identify).to.eql({
       id: daemon.libp2p.peerInfo.id.toBytes(),
-      addrs: daemon.libp2p.peerInfo.multiaddrs.toArray().map(m => m.buffer)
+      addrs: daemon.libp2p.peerInfo.multiaddrs.toArray().map(m => m.decapsulate('ipfs').buffer)
     })
     stream.end()
   })
