@@ -50,7 +50,7 @@ class Daemon {
     const peer = connectRequest.connect.peer
     const addrs = connectRequest.connect.addrs
     const peerInfo = new PeerInfo(
-      PeerId.createFromB58String(peer)
+      PeerId.createFromBytes(peer)
     )
     addrs.forEach((a) => {
       peerInfo.multiaddrs.add(multiaddr(a))
