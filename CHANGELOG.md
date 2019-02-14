@@ -1,3 +1,13 @@
+<a name="0.1.2"></a>
+## [0.1.2](https://github.com/libp2p/js-libp2p-daemon/compare/v0.1.1...v0.1.2) (2019-02-14)
+
+
+### Bug Fixes
+
+* remove ipfs from identify multiaddrs ([7cee6ea](https://github.com/libp2p/js-libp2p-daemon/commit/7cee6ea))
+
+
+
 <a name="0.1.1"></a>
 ## [0.1.1](https://github.com/libp2p/js-libp2p-daemon/compare/v0.1.0...v0.1.1) (2019-02-13)
 
