@@ -38,7 +38,7 @@ describe('daemon', () => {
         quiet: false,
         q: false,
         bootstrap: false,
-        hostAddrs: '/ip4/0.0.0.0/tcp/0',
+        hostAddrs: '/ip4/0.0.0.0/tcp/0,/ip4/0.0.0.0/tcp/0/ws',
         b: false,
         dht: true,
         dhtClient: false,

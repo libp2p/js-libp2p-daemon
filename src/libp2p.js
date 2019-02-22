@@ -2,6 +2,7 @@
 
 const Libp2p = require('libp2p')
 const TCP = require('libp2p-tcp')
+const WS = require('libp2p-websockets')
 const Bootstrap = require('libp2p-bootstrap')
 const MPLEX = require('libp2p-mplex')
 const SECIO = require('libp2p-secio')
@@ -329,7 +330,8 @@ const createLibp2p = async ({
     },
     modules: {
       transport: [
-        TCP
+        TCP,
+        WS
       ],
       streamMuxer: [
         MPLEX
