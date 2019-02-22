@@ -33,6 +33,11 @@ const main = async (processArgs) => {
       type: 'string',
       default: ''
     })
+    .option('announceAddrs', {
+      desc: 'Comma separated list of multiaddrs the host should announce to the network',
+      type: 'string',
+      default: ''
+    })
     .option('bootstrap', {
       alias: 'b',
       desc: 'Connects to bootstrap peers and bootstraps the dht if enabled',

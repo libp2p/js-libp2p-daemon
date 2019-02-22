@@ -200,6 +200,10 @@ class DHT {
 }
 
 class DaemonLibp2p extends Libp2p {
+  constructor (libp2pOpts, { announceAddrs }) {
+    super(libp2pOpts)
+    this.announceAddrs = announceAddrs
+  }
   get contentRouting () {
     return this._contentRouting
   }
@@ -228,6 +232,14 @@ class DaemonLibp2p extends Libp2p {
     return new Promise((resolve, reject) => {
       super.start((err) => {
         if (err) return reject(err)
+
+        // replace with announce addrs until libp2p supports this directly
+        if (this.announceAddrs.length > 0) {
+          this.peerInfo.multiaddrs.clear()
+          this.announceAddrs.forEach(addr => {
+            this.peerInfo.multiaddrs.add(addr)
+          })
+        }
         resolve()
       })
     })
@@ -305,6 +317,7 @@ const createLibp2p = async ({
   bootstrap,
   bootstrapPeers,
   hostAddrs,
+  announceAddrs,
   dht,
   dhtClient,
   connMgr,
@@ -316,6 +329,9 @@ const createLibp2p = async ({
   const peerBook = new PeerBook()
   const bootstrapList = bootstrapPeers ? bootstrapPeers.split(',').filter(s => s !== '') : null
   const listenAddrs = hostAddrs ? hostAddrs.split(',').filter(s => s !== '') : []
+
+  announceAddrs = announceAddrs ? announceAddrs.split(',').filter(s => s !== '') : []
+  announceAddrs = announceAddrs.map(addr => multiaddr(addr))
 
   listenAddrs.forEach(addr => {
     peerInfo.multiaddrs.add(multiaddr(addr))
@@ -367,6 +383,10 @@ const createLibp2p = async ({
         pubsub: false
       }
     }
+  }, {
+    // using a secondary config until https://github.com/libp2p/js-libp2p/issues/202
+    // is completed
+    announceAddrs
   })
 
   return libp2p
