@@ -42,7 +42,7 @@ describe('daemon', () => {
         dht: true,
         dhtClient: false,
         connMgr: false,
-        sock: PATH,
+        listen: `/unix${PATH}`,
         id: '',
         bootstrapPeers: ''
       }),

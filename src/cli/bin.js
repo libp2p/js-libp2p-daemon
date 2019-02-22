@@ -12,10 +12,10 @@ const log = console.log
 
 const main = async (processArgs) => {
   parser.yargs
-    .option('sock', {
-      desc: 'daemon control socket path',
+    .option('listen', {
+      desc: 'daemon control listen multiaddr',
       type: 'string',
-      default: '/tmp/p2pd.sock'
+      default: '/unix/tmp/p2pd.sock'
     })
     .option('quiet', {
       alias: 'q',

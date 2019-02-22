@@ -5,7 +5,7 @@ const path = require('path')
 const Libp2p = require('./libp2p')
 const PeerInfo = require('peer-info')
 const PeerId = require('peer-id')
-const multiaddr = require('multiaddr')
+const ma = require('multiaddr')
 const CID = require('cids')
 const { encode, decode } = require('length-prefixed-stream')
 const {
@@ -23,14 +23,14 @@ class Daemon {
   /**
    * @constructor
    * @param {object} options
-   * @param {string} options.socketPath
+   * @param {Multiaddr} options.multiaddr
    * @param {Libp2p} options.libp2pNode
    */
   constructor ({
-    socketPath,
+    multiaddr,
     libp2pNode
   }) {
-    this.socketPath = socketPath
+    this.multiaddr = ma(multiaddr)
     this.libp2p = libp2pNode
     this.server = net.createServer({
       allowHalfOpen: true
@@ -53,7 +53,7 @@ class Daemon {
       PeerId.createFromBytes(peer)
     )
     addrs.forEach((a) => {
-      peerInfo.multiaddrs.add(multiaddr(a))
+      peerInfo.multiaddrs.add(ma(a))
     })
 
     return this.libp2p.dial(peerInfo)
@@ -181,7 +181,7 @@ class Daemon {
   async start () {
     await this.libp2p.start()
     return new Promise((resolve, reject) => {
-      this.server.listen(path.resolve(this.socketPath), (err) => {
+      this.server.listen(path.resolve(this.multiaddr.getPath()), (err) => {
         if (err) return reject(err)
         resolve()
       })
@@ -486,7 +486,7 @@ function ErrorResponse (message) {
 const createDaemon = async (options) => {
   const libp2pNode = await Libp2p.createLibp2p(options)
   const daemon = new Daemon({
-    socketPath: options.sock,
+    multiaddr: options.listen,
     libp2pNode: libp2pNode
   })
 

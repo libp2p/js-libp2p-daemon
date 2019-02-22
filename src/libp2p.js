@@ -308,7 +308,6 @@ const createLibp2p = async ({
   connMgr,
   connMgrLo,
   connMgrHi,
-  sock,
   id
 } = {}) => {
   const peerInfo = await getPeerInfo(id)

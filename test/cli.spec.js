@@ -28,7 +28,7 @@ describe('cli', () => {
         id: '',
         q: false,
         quiet: false,
-        sock: '/tmp/p2pd.sock'
+        listen: '/unix/tmp/p2pd.sock'
       })
       return {
         start: () => {},
@@ -57,7 +57,7 @@ describe('cli', () => {
         id: '/path/to/key',
         q: true,
         quiet: true,
-        sock: '/tmp/d.sock'
+        listen: '/unix/tmp/d.sock'
       })
       return {
         start: () => {},
@@ -75,7 +75,7 @@ describe('cli', () => {
       '--dhtClient=true',
       '--quiet=true',
       '--id=/path/to/key',
-      '--sock=/tmp/d.sock'
+      '--listen=/unix/tmp/d.sock'
     ])
   })
 })
