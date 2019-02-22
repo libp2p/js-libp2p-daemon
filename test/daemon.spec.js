@@ -38,6 +38,7 @@ describe('daemon', () => {
         quiet: false,
         q: false,
         bootstrap: false,
+        hostAddrs: '/ip4/0.0.0.0/tcp/0',
         b: false,
         dht: true,
         dhtClient: false,
@@ -47,7 +48,8 @@ describe('daemon', () => {
         bootstrapPeers: ''
       }),
       createLibp2p({
-        dht: true
+        dht: true,
+        hostAddrs: '/ip4/0.0.0.0/tcp/0'
       })
     ]).then((results) => {
       daemon = results.shift()

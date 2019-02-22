@@ -295,14 +295,15 @@ class DaemonLibp2p extends Libp2p {
  * @param {boolean} opts.connMgr
  * @param {number} opts.connMgrLo
  * @param {number} opts.connMgrHi
- * @param {string} opts.sock
  * @param {string} opts.id
  * @param {string} opts.bootstrapPeers
+ * @param {string} opts.hostAddrs
  * @returns {Libp2p}
  */
 const createLibp2p = async ({
   bootstrap,
   bootstrapPeers,
+  hostAddrs,
   dht,
   dhtClient,
   connMgr,
@@ -313,8 +314,11 @@ const createLibp2p = async ({
   const peerInfo = await getPeerInfo(id)
   const peerBook = new PeerBook()
   const bootstrapList = bootstrapPeers ? bootstrapPeers.split(',').filter(s => s !== '') : null
+  const listenAddrs = hostAddrs ? hostAddrs.split(',').filter(s => s !== '') : []
 
-  peerInfo.multiaddrs.add(multiaddr('/ip4/0.0.0.0/tcp/0'))
+  listenAddrs.forEach(addr => {
+    peerInfo.multiaddrs.add(multiaddr(addr))
+  })
 
   const libp2p = new DaemonLibp2p({
     peerBook,

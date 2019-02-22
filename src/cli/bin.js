@@ -28,6 +28,11 @@ const main = async (processArgs) => {
       type: 'string',
       default: ''
     })
+    .option('hostAddrs', {
+      desc: 'Comma separated list of multiaddrs the host should listen on',
+      type: 'string',
+      default: ''
+    })
     .option('bootstrap', {
       alias: 'b',
       desc: 'Connects to bootstrap peers and bootstraps the dht if enabled',
