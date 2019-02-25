@@ -55,7 +55,7 @@
     "libp2p-secio": "~0.11.1",
     "libp2p-tcp": "~0.13.0",
     "libp2p-websockets": "~0.12.2",
-    "multiaddr": "github:multiformats/js-multiaddr#feat/unix",
+    "multiaddr": "^6.0.5",
     "peer-book": "~0.9.0",
     "peer-id": "~0.12.0",
     "peer-info": "~0.15.0",
