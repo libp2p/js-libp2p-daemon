@@ -10,18 +10,18 @@ const {
 } = require('../../src/protocol')
 
 /**
- * Creates a new client connected at `options.path` and connects the daemon
+ * Creates a new client connected at `options.multiaddr` and connects the daemon
  * to`libp2pPeer`.
  * @param {object} options
  * @param {Libp2p} options.libp2pPeer
- * @param {string} options.path
+ * @param {Multiaddr} options.multiaddr
  * @returns {void}
  */
 async function connect ({
   libp2pPeer,
-  path
+  multiaddr
 }) {
-  const client = new Client(path)
+  const client = new Client(multiaddr)
 
   await client.attach()
 

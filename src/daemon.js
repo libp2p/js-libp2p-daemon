@@ -8,6 +8,7 @@ const PeerId = require('peer-id')
 const ma = require('multiaddr')
 const CID = require('cids')
 const { encode, decode } = require('length-prefixed-stream')
+const { multiaddrToNetConfig } = require('./util')
 const {
   Request,
   DHTRequest,
@@ -116,15 +117,16 @@ class Daemon {
   registerStreamHandler (request) {
     return new Promise((resolve, reject) => {
       const protocols = request.streamHandler.proto
-      const socketPath = path.resolve(request.streamHandler.path)
+      const addr = ma(request.streamHandler.addr)
+      const addrString = addr.toString()
 
       // If we have a handler, end it
-      if (this.streamHandlers[socketPath]) {
-        this.streamHandlers[socketPath].end()
-        delete this.streamHandlers[socketPath]
+      if (this.streamHandlers[addrString]) {
+        this.streamHandlers[addrString].end()
+        delete this.streamHandlers[addrString]
       }
 
-      const socket = this.streamHandlers[socketPath] = new net.Socket({
+      const socket = this.streamHandlers[addrString] = new net.Socket({
         readable: true,
         writable: true,
         allowHalfOpen: true
@@ -153,7 +155,8 @@ class Daemon {
         })
       })
 
-      socket.connect(socketPath, (err) => {
+      const options = multiaddrToNetConfig(addr)
+      socket.connect(options, (err) => {
         if (err) return reject(err)
         resolve()
       })
@@ -181,7 +184,8 @@ class Daemon {
   async start () {
     await this.libp2p.start()
     return new Promise((resolve, reject) => {
-      this.server.listen(path.resolve(this.multiaddr.getPath()), (err) => {
+      const options = multiaddrToNetConfig(this.multiaddr)
+      this.server.listen(options, (err) => {
         if (err) return reject(err)
         resolve()
       })

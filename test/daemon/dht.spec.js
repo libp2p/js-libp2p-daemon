@@ -8,6 +8,7 @@ const expect = chai.expect
 const os = require('os')
 const path = require('path')
 const CID = require('cids')
+const ma = require('multiaddr')
 
 const { createDaemon } = require('../../src/daemon')
 const { createLibp2p } = require('../../src/libp2p')
@@ -21,9 +22,9 @@ const {
   DHTResponse
 } = require('../../src/protocol')
 
-const PATH = isWindows
-  ? path.join('\\\\?\\pipe', '/tmp/p2pd.sock')
-  : path.resolve(os.tmpdir(), '/tmp/p2pd.sock')
+const daemonAddr = isWindows
+  ? ma('/ip4/0.0.0.0/tcp/8080')
+  : ma(`/unix${path.resolve(os.tmpdir(), '/tmp/p2pd.sock')}`)
 
 describe('dht', () => {
   const cid = new CID('QmVzw6MPsF96TyXBSRs1ptLoVMWRv5FCYJZZGJSVB2Hp38')
@@ -43,7 +44,7 @@ describe('dht', () => {
         dht: true,
         dhtClient: false,
         connMgr: false,
-        listen: `/unix${PATH}`,
+        listen: daemonAddr.toString(),
         id: '',
         bootstrapPeers: ''
       }),
@@ -62,7 +63,7 @@ describe('dht', () => {
     }).then(() => {
       return connect({
         libp2pPeer,
-        path: PATH
+        multiaddr: daemonAddr
       })
     })
   })
@@ -79,7 +80,7 @@ describe('dht', () => {
   })
 
   it('should be able to find a peer', async () => {
-    client = new Client(PATH)
+    client = new Client(daemonAddr)
 
     await client.attach()
 
@@ -113,7 +114,7 @@ describe('dht', () => {
   })
 
   it('should be able to register as a provider', async () => {
-    client = new Client(PATH)
+    client = new Client(daemonAddr)
 
     await client.attach()
 
@@ -148,7 +149,7 @@ describe('dht', () => {
     await libp2pPeer.contentRouting.provide(cid)
 
     // Now find it as a provider
-    client = new Client(PATH)
+    client = new Client(daemonAddr)
 
     await client.attach()
 
@@ -201,7 +202,7 @@ describe('dht', () => {
 
   it('should be able to get closest peers to a key', async () => {
     // Now find it as a provider
-    client = new Client(PATH)
+    client = new Client(daemonAddr)
 
     await client.attach()
 
@@ -249,7 +250,7 @@ describe('dht', () => {
   })
 
   it('should be able to get the public key of a peer', async () => {
-    client = new Client(PATH)
+    client = new Client(daemonAddr)
 
     await client.attach()
 
@@ -280,7 +281,7 @@ describe('dht', () => {
   })
 
   it('should be able to get a value from the dht', async () => {
-    client = new Client(PATH)
+    client = new Client(daemonAddr)
 
     await client.attach()
 
@@ -313,7 +314,7 @@ describe('dht', () => {
   })
 
   it('should error when it cannot find a value', async () => {
-    client = new Client(PATH)
+    client = new Client(daemonAddr)
 
     await client.attach()
 
@@ -339,7 +340,7 @@ describe('dht', () => {
   })
 
   it('should be able to put a value to the dht', async () => {
-    client = new Client(PATH)
+    client = new Client(daemonAddr)
 
     await client.attach()
 

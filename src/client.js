@@ -2,16 +2,15 @@
 
 const net = require('net')
 const Socket = net.Socket
-const path = require('path')
 const { encode, decode } = require('length-prefixed-stream')
 const { Request } = require('./protocol')
 const LIMIT = 1 << 22 // 4MB
 
-const { ends } = require('../src/util')
+const { ends, multiaddrToNetConfig } = require('./util')
 
 class Client {
-  constructor (socketPath) {
-    this.path = path.resolve(socketPath)
+  constructor (addr) {
+    this.multiaddr = addr
     this.server = null
     this.socket = new Socket({
       readable: true,
@@ -27,7 +26,8 @@ class Client {
    */
   attach () {
     return new Promise((resolve, reject) => {
-      this.socket.connect(this.path, (err) => {
+      const options = multiaddrToNetConfig(this.multiaddr)
+      this.socket.connect(options, (err) => {
         if (err) return reject(err)
         resolve()
       })
@@ -37,11 +37,11 @@ class Client {
   /**
    * Starts a server listening at `socketPath`. New connections
    * will be sent to the `connectionHandler`.
-   * @param {string} socketPath
+   * @param {Multiaddr} addr
    * @param {function(Stream)} connectionHandler
    * @returns {Promise}
    */
-  async startServer (socketPath, connectionHandler) {
+  async startServer (addr, connectionHandler) {
     if (this.server) {
       await this.stopServer()
     }
@@ -50,7 +50,8 @@ class Client {
         allowHalfOpen: true
       }, connectionHandler)
 
-      this.server.listen(path.resolve(socketPath), (err) => {
+      const options = multiaddrToNetConfig(addr)
+      this.server.listen(options, (err) => {
         if (err) return reject(err)
         resolve()
       })

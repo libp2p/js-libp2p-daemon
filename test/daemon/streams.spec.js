@@ -9,6 +9,7 @@ const os = require('os')
 const path = require('path')
 const { decode } = require('length-prefixed-stream')
 const { pipeline } = require('readable-stream')
+const ma = require('multiaddr')
 
 const Client = require('../../src/client')
 const { createDaemon } = require('../../src/daemon')
@@ -21,9 +22,9 @@ const {
   StreamInfo
 } = require('../../src/protocol')
 
-const PATH = isWindows
-  ? path.join('\\\\?\\pipe', '/tmp/p2pd.sock')
-  : path.resolve(os.tmpdir(), '/tmp/p2pd.sock')
+const daemonAddr = isWindows
+  ? ma('/ip4/0.0.0.0/tcp/8080')
+  : ma(`/unix${path.resolve(os.tmpdir(), '/tmp/p2pd.sock')}`)
 
 describe('streams', function () {
   let daemon
@@ -42,7 +43,7 @@ describe('streams', function () {
         dht: true,
         dhtClient: false,
         connMgr: false,
-        listen: `/unix${PATH}`,
+        listen: daemonAddr.toString(),
         id: '',
         bootstrapPeers: ''
       }),
@@ -61,7 +62,7 @@ describe('streams', function () {
     }).then(() => {
       return connect({
         libp2pPeer,
-        path: PATH
+        multiaddr: daemonAddr
       })
     })
   })
@@ -87,7 +88,7 @@ describe('streams', function () {
       })
     })
 
-    client = new Client(PATH)
+    client = new Client(daemonAddr)
     await client.attach()
 
     const request = {
@@ -122,14 +123,14 @@ describe('streams', function () {
   })
 
   it('should be able to register a stream handler and echo with it', async () => {
-    client = new Client(PATH)
-    const socketPath = isWindows
-      ? path.join('\\\\?\\pipe', '/tmp/p2p-echo-handler.sock')
-      : path.resolve(os.tmpdir(), '/tmp/p2p-echo-handler.sock')
+    client = new Client(daemonAddr)
+    const addr = isWindows
+      ? ma('/ip4/0.0.0.0/tcp/9090')
+      : ma(`/unix${path.resolve(os.tmpdir(), '/tmp/p2p-echo-handler.sock')}`)
 
     await client.attach()
     // Start an echo server, where we will handle streams from the daemon
-    await client.startServer(socketPath, async (conn) => {
+    await client.startServer(addr, async (conn) => {
       // Decode the stream
       const dec = decode()
       conn.pipe(dec)
@@ -158,7 +159,7 @@ describe('streams', function () {
       connect: null,
       streamOpen: null,
       streamHandler: {
-        path: socketPath,
+        addr: addr.buffer,
         proto: ['/echo/1.0.0']
       },
       dht: null,

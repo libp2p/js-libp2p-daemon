@@ -57,7 +57,7 @@ message StreamOpenRequest {
 }
 
 message StreamHandlerRequest {
-  required string path = 1;
+  required bytes addr = 1;
   repeated string proto = 2;
 }
 

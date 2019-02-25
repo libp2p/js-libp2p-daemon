@@ -7,6 +7,7 @@ chai.use(require('dirty-chai'))
 const expect = chai.expect
 const os = require('os')
 const path = require('path')
+const ma = require('multiaddr')
 const { createDaemon } = require('../../src/daemon')
 const Client = require('../../src/client')
 const { createLibp2p } = require('../../src/libp2p')
@@ -15,9 +16,10 @@ const {
   Request,
   Response
 } = require('../../src/protocol')
-const PATH = isWindows
-  ? path.join('\\\\?\\pipe', '/tmp/p2pd.sock')
-  : path.resolve(os.tmpdir(), '/tmp/p2pd.sock')
+
+const daemonAddr = isWindows
+  ? ma('/ip4/0.0.0.0/tcp/8080')
+  : ma(`/unix${path.resolve(os.tmpdir(), '/tmp/p2pd.sock')}`)
 
 describe('core features', () => {
   let daemon
@@ -36,7 +38,7 @@ describe('core features', () => {
         dht: true,
         dhtClient: false,
         connMgr: false,
-        listen: `/unix${PATH}`,
+        listen: daemonAddr.toString(),
         id: '',
         bootstrapPeers: ''
       }),
@@ -67,7 +69,7 @@ describe('core features', () => {
   })
 
   it('should be able to connect to another node', async () => {
-    client = new Client(PATH)
+    client = new Client(daemonAddr)
 
     await client.attach()
 
@@ -94,7 +96,7 @@ describe('core features', () => {
   })
 
   it('should be able to list peers', async () => {
-    client = new Client(PATH)
+    client = new Client(daemonAddr)
 
     await client.attach()
 
@@ -119,7 +121,7 @@ describe('core features', () => {
   })
 
   it('should be able to identify', async () => {
-    client = new Client(PATH)
+    client = new Client(daemonAddr)
 
     await client.attach()
 
