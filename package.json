@@ -18,8 +18,8 @@
   "scripts": {
     "lint": "aegir lint",
     "build": "aegir build",
-    "test": "aegir test -t node -f test/**/*.js",
-    "test:node": "aegir test -t node -f test/**/*.js",
+    "test": "aegir test -t node -f test/*.js test/**/*.js",
+    "test:node": "aegir test -t node -f test/*.js test/**/*.js",
     "release": "aegir release --no-build -t node",
     "release-minor": "aegir release --no-build --type minor -t node",
     "release-major": "aegir release --no-build --type major -t node"

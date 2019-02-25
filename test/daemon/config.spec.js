@@ -11,9 +11,9 @@ const ma = require('multiaddr')
 const { createDaemon } = require('../../src/daemon')
 const { isWindows } = require('../../src/util')
 
-const PATH = isWindows
-  ? path.join('\\\\?\\pipe', '/tmp/p2pd.sock')
-  : path.resolve(os.tmpdir(), '/tmp/p2pd.sock')
+const daemonAddr = isWindows
+  ? ma('/ip4/0.0.0.0/tcp/8080')
+  : ma(`/unix${path.resolve(os.tmpdir(), '/tmp/p2pd.sock')}`)
 
 describe('configuration', () => {
   let daemon
@@ -32,7 +32,7 @@ describe('configuration', () => {
       dht: true,
       dhtClient: false,
       connMgr: false,
-      listen: `/unix${PATH}`,
+      listen: daemonAddr.toString(),
       id: '',
       bootstrapPeers: ''
     })
