@@ -1,5 +1,7 @@
 'use strict'
 
+const os = require('os')
+
 exports.first = async iterator => {
   for await (const value of iterator) return value
 }
@@ -15,3 +17,5 @@ exports.ends = iterator => {
   iterator.last = () => exports.last(iterator)
   return iterator
 }
+
+exports.isWindows = os.platform() === 'win32'
