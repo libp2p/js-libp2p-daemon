@@ -1,7 +1,6 @@
 'use strict'
 
 const net = require('net')
-const path = require('path')
 const Libp2p = require('./libp2p')
 const PeerInfo = require('peer-info')
 const PeerId = require('peer-id')
