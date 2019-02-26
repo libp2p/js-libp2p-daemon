@@ -18,8 +18,8 @@
   "scripts": {
     "lint": "aegir lint",
     "build": "aegir build",
-    "test": "aegir test -t node -f test/**/*.js",
-    "test:node": "aegir test -t node -f test/**/*.js",
+    "test": "aegir test -t node -f test/*.js test/**/*.js",
+    "test:node": "aegir test -t node -f test/*.js test/**/*.js",
     "release": "aegir release --no-build -t node",
     "release-minor": "aegir release --no-build --type minor -t node",
     "release-major": "aegir release --no-build --type major -t node"
@@ -54,7 +54,8 @@
     "libp2p-mplex": "~0.8.4",
     "libp2p-secio": "~0.11.1",
     "libp2p-tcp": "~0.13.0",
-    "multiaddr": "^6.0.3",
+    "libp2p-websockets": "~0.12.2",
+    "multiaddr": "^6.0.5",
     "peer-book": "~0.9.0",
     "peer-id": "~0.12.0",
     "peer-info": "~0.15.0",

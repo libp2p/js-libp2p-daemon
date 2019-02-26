@@ -4,8 +4,6 @@
 const chai = require('chai')
 const expect = chai.expect
 
-const path = require('path')
-
 const multiaddr = require('multiaddr')
 
 const {
@@ -61,7 +59,7 @@ describe('protocol', () => {
 
     it('should be able to encode/decode a StreamHandlerRequest', () => {
       const streamHandlerRequest = {
-        path: path.resolve('/tmp/p2p.sock'),
+        addr: multiaddr('/unix/tmp/p2p.sock').buffer,
         proto: ['/p2pdaemon/1.0.0']
       }
       const request = {

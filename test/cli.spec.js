@@ -20,6 +20,8 @@ describe('cli', () => {
         bootstrap: false,
         'bootstrap-peers': '',
         bootstrapPeers: '',
+        hostAddrs: '',
+        announceAddrs: '',
         'conn-mgr': false,
         connMgr: false,
         dht: false,
@@ -28,7 +30,7 @@ describe('cli', () => {
         id: '',
         q: false,
         quiet: false,
-        sock: '/tmp/p2pd.sock'
+        listen: '/unix/tmp/p2pd.sock'
       })
       return {
         start: () => {},
@@ -49,6 +51,8 @@ describe('cli', () => {
         bootstrap: true,
         'bootstrap-peers': '/p2p/Qm1,/p2p/Qm2',
         bootstrapPeers: '/p2p/Qm1,/p2p/Qm2',
+        hostAddrs: '/ip4/0.0.0.0/tcp/0,/ip4/0.0.0.0/tcp/0/wss',
+        announceAddrs: '/ip4/0.0.0.0/tcp/8080',
         'conn-mgr': true,
         connMgr: true,
         dht: true,
@@ -57,7 +61,7 @@ describe('cli', () => {
         id: '/path/to/key',
         q: true,
         quiet: true,
-        sock: '/tmp/d.sock'
+        listen: '/unix/tmp/d.sock'
       })
       return {
         start: () => {},
@@ -71,11 +75,13 @@ describe('cli', () => {
       '--dht=true',
       '--b=true',
       '--bootstrapPeers=/p2p/Qm1,/p2p/Qm2',
+      '--hostAddrs=/ip4/0.0.0.0/tcp/0,/ip4/0.0.0.0/tcp/0/wss',
+      '--announceAddrs=/ip4/0.0.0.0/tcp/8080',
       '--connMgr=true',
       '--dhtClient=true',
       '--quiet=true',
       '--id=/path/to/key',
-      '--sock=/tmp/d.sock'
+      '--listen=/unix/tmp/d.sock'
     ])
   })
 })

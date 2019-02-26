@@ -2,6 +2,7 @@
 
 const Libp2p = require('libp2p')
 const TCP = require('libp2p-tcp')
+const WS = require('libp2p-websockets')
 const Bootstrap = require('libp2p-bootstrap')
 const MPLEX = require('libp2p-mplex')
 const SECIO = require('libp2p-secio')
@@ -199,6 +200,10 @@ class DHT {
 }
 
 class DaemonLibp2p extends Libp2p {
+  constructor (libp2pOpts, { announceAddrs }) {
+    super(libp2pOpts)
+    this.announceAddrs = announceAddrs
+  }
   get contentRouting () {
     return this._contentRouting
   }
@@ -227,6 +232,14 @@ class DaemonLibp2p extends Libp2p {
     return new Promise((resolve, reject) => {
       super.start((err) => {
         if (err) return reject(err)
+
+        // replace with announce addrs until libp2p supports this directly
+        if (this.announceAddrs.length > 0) {
+          this.peerInfo.multiaddrs.clear()
+          this.announceAddrs.forEach(addr => {
+            this.peerInfo.multiaddrs.add(addr)
+          })
+        }
         resolve()
       })
     })
@@ -295,27 +308,34 @@ class DaemonLibp2p extends Libp2p {
  * @param {boolean} opts.connMgr
  * @param {number} opts.connMgrLo
  * @param {number} opts.connMgrHi
- * @param {string} opts.sock
  * @param {string} opts.id
  * @param {string} opts.bootstrapPeers
+ * @param {string} opts.hostAddrs
  * @returns {Libp2p}
  */
 const createLibp2p = async ({
   bootstrap,
   bootstrapPeers,
+  hostAddrs,
+  announceAddrs,
   dht,
   dhtClient,
   connMgr,
   connMgrLo,
   connMgrHi,
-  sock,
   id
 } = {}) => {
   const peerInfo = await getPeerInfo(id)
   const peerBook = new PeerBook()
   const bootstrapList = bootstrapPeers ? bootstrapPeers.split(',').filter(s => s !== '') : null
+  const listenAddrs = hostAddrs ? hostAddrs.split(',').filter(s => s !== '') : ['/ip4/0.0.0.0/tcp/0']
 
-  peerInfo.multiaddrs.add(multiaddr('/ip4/0.0.0.0/tcp/0'))
+  announceAddrs = announceAddrs ? announceAddrs.split(',').filter(s => s !== '') : []
+  announceAddrs = announceAddrs.map(addr => multiaddr(addr))
+
+  listenAddrs.forEach(addr => {
+    peerInfo.multiaddrs.add(multiaddr(addr))
+  })
 
   const libp2p = new DaemonLibp2p({
     peerBook,
@@ -326,7 +346,8 @@ const createLibp2p = async ({
     },
     modules: {
       transport: [
-        TCP
+        TCP,
+        WS
       ],
       streamMuxer: [
         MPLEX
@@ -362,6 +383,10 @@ const createLibp2p = async ({
         pubsub: false
       }
     }
+  }, {
+    // using a secondary config until https://github.com/libp2p/js-libp2p/issues/202
+    // is completed
+    announceAddrs
   })
 
   return libp2p

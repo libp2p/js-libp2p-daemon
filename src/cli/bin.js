@@ -12,10 +12,10 @@ const log = console.log
 
 const main = async (processArgs) => {
   parser.yargs
-    .option('sock', {
-      desc: 'daemon control socket path',
+    .option('listen', {
+      desc: 'daemon control listen multiaddr',
       type: 'string',
-      default: '/tmp/p2pd.sock'
+      default: '/unix/tmp/p2pd.sock'
     })
     .option('quiet', {
       alias: 'q',
@@ -25,6 +25,16 @@ const main = async (processArgs) => {
     })
     .option('id', {
       desc: 'peer identity; private key file',
+      type: 'string',
+      default: ''
+    })
+    .option('hostAddrs', {
+      desc: 'Comma separated list of multiaddrs the host should listen on',
+      type: 'string',
+      default: ''
+    })
+    .option('announceAddrs', {
+      desc: 'Comma separated list of multiaddrs the host should announce to the network',
       type: 'string',
       default: ''
     })

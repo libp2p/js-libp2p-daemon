@@ -1,13 +1,13 @@
 'use strict'
 
 const net = require('net')
-const path = require('path')
 const Libp2p = require('./libp2p')
 const PeerInfo = require('peer-info')
 const PeerId = require('peer-id')
-const multiaddr = require('multiaddr')
+const ma = require('multiaddr')
 const CID = require('cids')
 const { encode, decode } = require('length-prefixed-stream')
+const { multiaddrToNetConfig } = require('./util')
 const {
   Request,
   DHTRequest,
@@ -23,14 +23,14 @@ class Daemon {
   /**
    * @constructor
    * @param {object} options
-   * @param {string} options.socketPath
+   * @param {string} options.multiaddr
    * @param {Libp2p} options.libp2pNode
    */
   constructor ({
-    socketPath,
+    multiaddr,
     libp2pNode
   }) {
-    this.socketPath = socketPath
+    this.multiaddr = ma(multiaddr)
     this.libp2p = libp2pNode
     this.server = net.createServer({
       allowHalfOpen: true
@@ -53,7 +53,7 @@ class Daemon {
       PeerId.createFromBytes(peer)
     )
     addrs.forEach((a) => {
-      peerInfo.multiaddrs.add(multiaddr(a))
+      peerInfo.multiaddrs.add(ma(a))
     })
 
     return this.libp2p.dial(peerInfo)
@@ -116,15 +116,16 @@ class Daemon {
   registerStreamHandler (request) {
     return new Promise((resolve, reject) => {
       const protocols = request.streamHandler.proto
-      const socketPath = path.resolve(request.streamHandler.path)
+      const addr = ma(request.streamHandler.addr)
+      const addrString = addr.toString()
 
       // If we have a handler, end it
-      if (this.streamHandlers[socketPath]) {
-        this.streamHandlers[socketPath].end()
-        delete this.streamHandlers[socketPath]
+      if (this.streamHandlers[addrString]) {
+        this.streamHandlers[addrString].end()
+        delete this.streamHandlers[addrString]
       }
 
-      const socket = this.streamHandlers[socketPath] = new net.Socket({
+      const socket = this.streamHandlers[addrString] = new net.Socket({
         readable: true,
         writable: true,
         allowHalfOpen: true
@@ -153,7 +154,8 @@ class Daemon {
         })
       })
 
-      socket.connect(socketPath, (err) => {
+      const options = multiaddrToNetConfig(addr)
+      socket.connect(options, (err) => {
         if (err) return reject(err)
         resolve()
       })
@@ -181,7 +183,8 @@ class Daemon {
   async start () {
     await this.libp2p.start()
     return new Promise((resolve, reject) => {
-      this.server.listen(path.resolve(this.socketPath), (err) => {
+      const options = multiaddrToNetConfig(this.multiaddr)
+      this.server.listen(options, (err) => {
         if (err) return reject(err)
         resolve()
       })
@@ -368,7 +371,15 @@ class Daemon {
               id: this.libp2p.peerInfo.id.toBytes(),
               // temporary removal of "/ipfs/..." from multiaddrs
               // this will be solved in: https://github.com/libp2p/js-libp2p/issues/323
-              addrs: this.libp2p.peerInfo.multiaddrs.toArray().map(m => m.decapsulate('ipfs').buffer)
+              addrs: this.libp2p.peerInfo.multiaddrs.toArray().map(m => {
+                let buffer
+                try {
+                  buffer = m.decapsulate('ipfs').buffer
+                } catch (_) {
+                  buffer = m.buffer
+                }
+                return buffer
+              })
             }
           }))
           break
@@ -486,7 +497,7 @@ function ErrorResponse (message) {
 const createDaemon = async (options) => {
   const libp2pNode = await Libp2p.createLibp2p(options)
   const daemon = new Daemon({
-    socketPath: options.sock,
+    multiaddr: options.listen,
     libp2pNode: libp2pNode
   })
 
