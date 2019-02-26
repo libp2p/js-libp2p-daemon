@@ -328,7 +328,7 @@ const createLibp2p = async ({
   const peerInfo = await getPeerInfo(id)
   const peerBook = new PeerBook()
   const bootstrapList = bootstrapPeers ? bootstrapPeers.split(',').filter(s => s !== '') : null
-  const listenAddrs = hostAddrs ? hostAddrs.split(',').filter(s => s !== '') : []
+  const listenAddrs = hostAddrs ? hostAddrs.split(',').filter(s => s !== '') : ['/ip4/0.0.0.0/tcp/0']
 
   announceAddrs = announceAddrs ? announceAddrs.split(',').filter(s => s !== '') : []
   announceAddrs = announceAddrs.map(addr => multiaddr(addr))
