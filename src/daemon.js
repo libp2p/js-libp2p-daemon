@@ -23,7 +23,7 @@ class Daemon {
   /**
    * @constructor
    * @param {object} options
-   * @param {Multiaddr} options.multiaddr
+   * @param {string} options.multiaddr
    * @param {Libp2p} options.libp2pNode
    */
   constructor ({
