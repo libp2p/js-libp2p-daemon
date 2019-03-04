@@ -108,6 +108,107 @@ class ContentRouting {
   }
 }
 
+class Pubsub {
+  /**
+   * @param {Libp2p} libp2p The libp2p instance to use
+   */
+  constructor(libp2p) {
+    this.libp2p = libp2p
+  }
+
+  /**
+   * Subscribe to a pubsub topic.
+   * @param {*} topic pubsub topic
+   * @param {*} options pubsub options
+   * @memberof Pubsub
+   */
+  subscribe (topic, options, handler) {
+    return new Promise((resolve, reject) => {
+      this.libp2p.pubsub.subscribe(topic, options, handler, (err) => {
+        if (err) {
+          return reject(err)
+        }
+        resolve()
+      })
+    }).catch(err => {
+      throw err
+    })
+  }
+  /*
+  async * subscribe (topic, options) {
+    this.libp2p.pubsub.subscribe(topic, options, (msg) => {
+      // handle messages
+      yield msg
+    }, (err) => {
+      if (err) {
+        throw err
+      }
+
+      const subs = {
+        subscribed: true,
+      }
+      
+      yield subs
+    })
+  } */
+
+  /**
+   *
+   *
+   * @param {*} topic
+   * @param {*} data
+   */
+  publish (topic, data) {
+    return new Promise((resolve, reject) => {
+      this.libp2p.pubsub.publish(topic, data, (err) => {
+        if (err) {
+          return reject(err)
+        }
+        resolve()
+      })
+    }).catch(err => {
+      throw err
+    })
+  }
+
+  /**
+   *
+   *
+   * @returns
+   */
+  getTopics () {
+    return new Promise((resolve, reject) => {
+      this.libp2p.pubsub.ls((err, topics) => {
+        if (err) {
+          return reject(err)
+        }
+        resolve(topics)
+      })
+    }).catch(err => {
+      throw err
+    })
+  }
+
+  /**
+   *
+   *
+   * @param {*} topic
+   * @returns
+   */
+  listPeers (topic) {
+    return new Promise((resolve, reject) => {
+      this.libp2p.pubsub.peers(topic, (err, peers) => {
+        if (err) {
+          return reject(err)
+        }
+        resolve(peers)
+      })
+    }).catch(err => {
+      throw err
+    })
+  }
+}
+
 class DHT {
   /**
    * @param {Libp2p} libp2p The libp2p instance to use
@@ -203,6 +304,7 @@ class DaemonLibp2p extends Libp2p {
   constructor (libp2pOpts, { announceAddrs }) {
     super(libp2pOpts)
     this.announceAddrs = announceAddrs
+    this.ps = new Pubsub(this)
   }
   get contentRouting () {
     return this._contentRouting
@@ -323,7 +425,8 @@ const createLibp2p = async ({
   connMgr,
   connMgrLo,
   connMgrHi,
-  id
+  id,
+  pubsub
 } = {}) => {
   const peerInfo = await getPeerInfo(id)
   const peerBook = new PeerBook()
@@ -380,7 +483,7 @@ const createLibp2p = async ({
       },
       EXPERIMENTAL: {
         dht: dht,
-        pubsub: false
+        pubsub: pubsub
       }
     }
   }, {

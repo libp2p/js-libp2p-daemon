@@ -11,8 +11,10 @@ const { multiaddrToNetConfig } = require('./util')
 const {
   Request,
   DHTRequest,
+  PSRequest,
   Response,
   DHTResponse,
+  PSResponse,
   StreamInfo
 } = require('./protocol')
 const LIMIT = 1 << 22 // 4MB
@@ -209,6 +211,34 @@ class Daemon {
         resolve()
       })
     })
+  }
+
+  /**
+   * Parses and responds to PSRequests
+   *
+   * @private
+   * @param {Request} request
+   * @returns {PSResponse[]}
+   */
+  async handlePubsubRequest ({ pubsub }) {
+    switch (pubsub.type) {
+      case PSRequest.Type.GET_TOPICS:
+        const topics = await this.libp2p.ps.getTopics()
+
+        return [OkResponse({
+          pubsub: {
+            topics,
+          }
+        })]
+      case PSRequest.Type.PUBLISH:
+        const topic = pubsub.topic
+        const data = pubsub.data
+
+        await this.libp2p.ps.publish(topic, data)
+        return [OkResponse()]
+      default:
+        throw new Error('ERR_INVALID_REQUEST_TYPE')
+    }
   }
 
   /**
@@ -428,6 +458,38 @@ class Daemon {
 
           // write the response
           enc.write(OkResponse())
+          break
+        }
+        case Request.Type.PUBSUB: {
+          // subscribe message
+          if (request.pubsub.type === PSRequest.Type.SUBSCRIBE) {
+            const topic = request.pubsub.topic
+
+            try {
+              await this.libp2p.ps.subscribe(topic, {}, (msg) => {
+                enc.write(OkResponse())
+              })
+              
+              enc.write(OkResponse())
+            } catch (err) {
+              enc.write(ErrorResponse(err.message))
+              break
+            }
+          } else {
+            // other messages
+            try {
+              const responses = await this.handlePubsubRequest(request)
+              for (const response of responses) {
+                // write and wait for the flush
+                await new Promise((resolve) => {
+                  enc.write(response, resolve)
+                })
+              }
+            } catch (err) {
+              enc.write(ErrorResponse(err.message))
+              break
+            }
+          }
           break
         }
         case Request.Type.DHT: {
