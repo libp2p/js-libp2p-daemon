@@ -112,99 +112,51 @@ class Pubsub {
   /**
    * @param {Libp2p} libp2p The libp2p instance to use
    */
-  constructor(libp2p) {
+  constructor (libp2p) {
     this.libp2p = libp2p
   }
 
   /**
-   * Subscribe to a pubsub topic.
-   * @param {*} topic pubsub topic
-   * @param {*} options pubsub options
-   * @memberof Pubsub
+   * Subscribe to a pubsub topic
+   * @param {string} topic
+   * @param {Object} options
+   * @param {function(msg)} handler handle received messages
+   * @returns { Promise<void>}
    */
   subscribe (topic, options, handler) {
     return new Promise((resolve, reject) => {
       this.libp2p._pubsub.subscribe(topic, options, handler, (err) => {
-        if (err) {
-          return reject(err)
-        }
+        if (err) return reject(err)
         resolve()
       })
-    }).catch(err => {
-      throw err
     })
   }
-  /*
-  async * subscribe (topic, options) {
-    this.libp2p.pubsub.subscribe(topic, options, (msg) => {
-      // handle messages
-      yield msg
-    }, (err) => {
-      if (err) {
-        throw err
-      }
-
-      const subs = {
-        subscribed: true,
-      }
-
-      yield subs
-    })
-  } */
 
   /**
-   *
-   *
-   * @param {*} topic
-   * @param {*} data
+   * Publish data in the context of a topic
+   * @param {string} topic
+   * @param {Buffer} data
+   * @returns {Promise<void>}
    */
   publish (topic, data) {
     return new Promise((resolve, reject) => {
       this.libp2p._pubsub.publish(topic, data, (err) => {
-        if (err) {
-          return reject(err)
-        }
+        if (err) return reject(err)
         resolve()
       })
-    }).catch(err => {
-      throw err
     })
   }
 
   /**
-   *
-   *
-   * @returns
+   * Get the list of subscriptions the peer is subscribed to.
+   * @returns {Promise<Array<string>>}
    */
   getTopics () {
     return new Promise((resolve, reject) => {
       this.libp2p._pubsub.ls((err, topics) => {
-        if (err) {
-          return reject(err)
-        }
+        if (err) return reject(err)
         resolve(topics)
       })
-    }).catch(err => {
-      throw err
-    })
-  }
-
-  /**
-   *
-   *
-   * @param {*} topic
-   * @returns
-   */
-  listPeers (topic) {
-    return new Promise((resolve, reject) => {
-      this.libp2p._pubsub.peers(topic, (err, peers) => {
-        if (err) {
-          return reject(err)
-        }
-        resolve(peers)
-      })
-    }).catch(err => {
-      throw err
     })
   }
 }
@@ -304,6 +256,7 @@ class DaemonLibp2p extends Libp2p {
   constructor (libp2pOpts, { announceAddrs }) {
     super(libp2pOpts)
     this.announceAddrs = announceAddrs
+    this.needsPullStream = libp2pOpts.config.EXPERIMENTAL.pubsub
     this._pubsub = this.pubsub
     this.pubsub = new Pubsub(this)
   }
@@ -386,18 +339,22 @@ class DaemonLibp2p extends Libp2p {
 
   /**
    * Overrides the default `handle` to convert pull streams to streams
-   *
+   * NOTE: only convert if does not need pull-streams
    * @param {string} protocol
    * @param {function(Stream)} handler
    */
   handle (protocol, handler) {
     super.handle(protocol, (_, conn) => {
-      conn.getPeerInfo((_, peerInfo) => {
-        let connection = pullToStream(conn)
-        connection.peerInfo = peerInfo
-        connection.getPeerInfo = conn.getPeerInfo
-        handler(protocol, connection)
-      })
+      if (this.needsPullStream) {
+        handler(protocol, conn)
+      } else {
+        conn.getPeerInfo((_, peerInfo) => {
+          let connection = pullToStream(conn)
+          connection.peerInfo = peerInfo
+          connection.getPeerInfo = conn.getPeerInfo
+          handler(connection)
+        })
+      }
     })
   }
 }

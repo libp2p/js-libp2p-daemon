@@ -1,3 +1,5 @@
+/* eslint max-depth: ["error", 6] */
+
 'use strict'
 
 const net = require('net')
@@ -14,7 +16,7 @@ const {
   PSRequest,
   Response,
   DHTResponse,
-  PSResponse,
+  PSMessage,
   StreamInfo
 } = require('./protocol')
 const LIMIT = 1 << 22 // 4MB
@@ -135,7 +137,7 @@ class Daemon {
 
       protocols.forEach((proto) => {
         // Connect the client socket with the libp2p connection
-        this.libp2p.handle(proto, (_, conn) => {
+        this.libp2p.handle(proto, (conn) => {
           const enc = encode()
 
           const addr = conn.peerInfo.isConnected()
@@ -222,22 +224,23 @@ class Daemon {
    */
   async handlePubsubRequest ({ pubsub }) {
     switch (pubsub.type) {
-      case PSRequest.Type.GET_TOPICS:
+      case PSRequest.Type.GET_TOPICS: {
         const topics = await this.libp2p.pubsub.getTopics()
 
         return [OkResponse({
-          pubsub: {
-            topics,
-          }
+          pubsub: { topics }
         })]
-      case PSRequest.Type.PUBLISH:
+      }
+      case PSRequest.Type.PUBLISH: {
         const topic = pubsub.topic
         const data = pubsub.data
 
         await this.libp2p.pubsub.publish(topic, data)
         return [OkResponse()]
-      default:
+      }
+      default: {
         throw new Error('ERR_INVALID_REQUEST_TYPE')
+      }
     }
   }
 
@@ -467,7 +470,12 @@ class Daemon {
 
             try {
               await this.libp2p.pubsub.subscribe(topic, {}, (msg) => {
-                enc.write(OkResponse())
+                enc.write(PSMessage.encode({
+                  from: [Buffer.from(msg.from)],
+                  data: [msg.data],
+                  seqno: [msg.seqno],
+                  topicIDs: msg.topicIDs.map((t) => Buffer.from(t))
+                }))
               })
 
               enc.write(OkResponse())

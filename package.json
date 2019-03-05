@@ -39,6 +39,7 @@
   "devDependencies": {
     "aegir": "^18.0.3",
     "chai": "^4.2.0",
+    "chai-bytes": "~0.1.2",
     "dirty-chai": "^2.0.1",
     "mocha": "^5.2.0",
     "multihashes": "~0.4.14",
