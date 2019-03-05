@@ -135,7 +135,7 @@ class Daemon {
 
       protocols.forEach((proto) => {
         // Connect the client socket with the libp2p connection
-        this.libp2p.handle(proto, (conn) => {
+        this.libp2p.handle(proto, (_, conn) => {
           const enc = encode()
 
           const addr = conn.peerInfo.isConnected()
@@ -223,7 +223,7 @@ class Daemon {
   async handlePubsubRequest ({ pubsub }) {
     switch (pubsub.type) {
       case PSRequest.Type.GET_TOPICS:
-        const topics = await this.libp2p.ps.getTopics()
+        const topics = await this.libp2p.pubsub.getTopics()
 
         return [OkResponse({
           pubsub: {
@@ -234,7 +234,7 @@ class Daemon {
         const topic = pubsub.topic
         const data = pubsub.data
 
-        await this.libp2p.ps.publish(topic, data)
+        await this.libp2p.pubsub.publish(topic, data)
         return [OkResponse()]
       default:
         throw new Error('ERR_INVALID_REQUEST_TYPE')
@@ -466,10 +466,10 @@ class Daemon {
             const topic = request.pubsub.topic
 
             try {
-              await this.libp2p.ps.subscribe(topic, {}, (msg) => {
+              await this.libp2p.pubsub.subscribe(topic, {}, (msg) => {
                 enc.write(OkResponse())
               })
-              
+
               enc.write(OkResponse())
             } catch (err) {
               enc.write(ErrorResponse(err.message))

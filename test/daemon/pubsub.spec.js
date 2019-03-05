@@ -80,7 +80,7 @@ describe.only('pubsub', () => {
     await client && client.close()
   })
 
-  it.skip('should be able to subscribe a message', async () => {
+  it('should be able to subscribe to a message', async () => {
     const topic = 'test-topic'
     client = new Client(daemonAddr)
 

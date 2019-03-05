@@ -124,7 +124,7 @@ class Pubsub {
    */
   subscribe (topic, options, handler) {
     return new Promise((resolve, reject) => {
-      this.libp2p.pubsub.subscribe(topic, options, handler, (err) => {
+      this.libp2p._pubsub.subscribe(topic, options, handler, (err) => {
         if (err) {
           return reject(err)
         }
@@ -147,7 +147,7 @@ class Pubsub {
       const subs = {
         subscribed: true,
       }
-      
+
       yield subs
     })
   } */
@@ -160,7 +160,7 @@ class Pubsub {
    */
   publish (topic, data) {
     return new Promise((resolve, reject) => {
-      this.libp2p.pubsub.publish(topic, data, (err) => {
+      this.libp2p._pubsub.publish(topic, data, (err) => {
         if (err) {
           return reject(err)
         }
@@ -178,7 +178,7 @@ class Pubsub {
    */
   getTopics () {
     return new Promise((resolve, reject) => {
-      this.libp2p.pubsub.ls((err, topics) => {
+      this.libp2p._pubsub.ls((err, topics) => {
         if (err) {
           return reject(err)
         }
@@ -197,7 +197,7 @@ class Pubsub {
    */
   listPeers (topic) {
     return new Promise((resolve, reject) => {
-      this.libp2p.pubsub.peers(topic, (err, peers) => {
+      this.libp2p._pubsub.peers(topic, (err, peers) => {
         if (err) {
           return reject(err)
         }
@@ -304,7 +304,8 @@ class DaemonLibp2p extends Libp2p {
   constructor (libp2pOpts, { announceAddrs }) {
     super(libp2pOpts)
     this.announceAddrs = announceAddrs
-    this.ps = new Pubsub(this)
+    this._pubsub = this.pubsub
+    this.pubsub = new Pubsub(this)
   }
   get contentRouting () {
     return this._contentRouting
@@ -394,7 +395,8 @@ class DaemonLibp2p extends Libp2p {
       conn.getPeerInfo((_, peerInfo) => {
         let connection = pullToStream(conn)
         connection.peerInfo = peerInfo
-        handler(connection)
+        connection.getPeerInfo = conn.getPeerInfo
+        handler(protocol, connection)
       })
     })
   }
