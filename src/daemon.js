@@ -137,7 +137,7 @@ class Daemon {
 
       protocols.forEach((proto) => {
         // Connect the client socket with the libp2p connection
-        this.libp2p.handle(proto, (conn) => {
+        this.libp2p.handle(proto, (_, conn) => {
           const enc = encode()
 
           const addr = conn.peerInfo.isConnected()
@@ -220,23 +220,56 @@ class Daemon {
    *
    * @private
    * @param {Request} request
-   * @returns {PSResponse[]}
+   * @param {Encoder} enc
    */
-  async handlePubsubRequest ({ pubsub }) {
+  async handlePubsubRequest ({ pubsub }, enc) {
     switch (pubsub.type) {
       case PSRequest.Type.GET_TOPICS: {
         const topics = await this.libp2p.pubsub.getTopics()
 
-        return [OkResponse({
-          pubsub: { topics }
-        })]
+        await new Promise((resolve) => {
+          enc.write(
+            OkResponse({
+              pubsub: { topics }
+            }),
+            resolve)
+        })
+
+        break
       }
       case PSRequest.Type.PUBLISH: {
         const topic = pubsub.topic
         const data = pubsub.data
 
         await this.libp2p.pubsub.publish(topic, data)
-        return [OkResponse()]
+
+        await new Promise((resolve) => {
+          enc.write(OkResponse(), resolve)
+        })
+
+        break
+      }
+      case PSRequest.Type.SUBSCRIBE: {
+        const topic = pubsub.topic
+
+        await this.libp2p.pubsub.subscribe(topic, {}, async (msg) => {
+          await new Promise((resolve) => {
+            enc.write(PSMessage.encode({
+              from: msg.from && Buffer.from(msg.from),
+              data: msg.data,
+              seqno: msg.seqno,
+              topicIDs: msg.topicIDs,
+              signature: msg.signature,
+              key: msg.key
+            }), resolve)
+          })
+        })
+
+        await new Promise((resolve) => {
+          enc.write(OkResponse(), resolve)
+        })
+
+        break
       }
       default: {
         throw new Error('ERR_INVALID_REQUEST_TYPE')
@@ -464,39 +497,11 @@ class Daemon {
           break
         }
         case Request.Type.PUBSUB: {
-          // subscribe message
-          if (request.pubsub.type === PSRequest.Type.SUBSCRIBE) {
-            const topic = request.pubsub.topic
-
-            try {
-              await this.libp2p.pubsub.subscribe(topic, {}, (msg) => {
-                enc.write(PSMessage.encode({
-                  from: [Buffer.from(msg.from)],
-                  data: [msg.data],
-                  seqno: [msg.seqno],
-                  topicIDs: msg.topicIDs.map((t) => Buffer.from(t))
-                }))
-              })
-
-              enc.write(OkResponse())
-            } catch (err) {
-              enc.write(ErrorResponse(err.message))
-              break
-            }
-          } else {
-            // other messages
-            try {
-              const responses = await this.handlePubsubRequest(request)
-              for (const response of responses) {
-                // write and wait for the flush
-                await new Promise((resolve) => {
-                  enc.write(response, resolve)
-                })
-              }
-            } catch (err) {
-              enc.write(ErrorResponse(err.message))
-              break
-            }
+          try {
+            await this.handlePubsubRequest(request, enc)
+          } catch (err) {
+            enc.write(ErrorResponse(err.message))
+            break
           }
           break
         }

@@ -351,8 +351,7 @@ class DaemonLibp2p extends Libp2p {
         conn.getPeerInfo((_, peerInfo) => {
           let connection = pullToStream(conn)
           connection.peerInfo = peerInfo
-          connection.getPeerInfo = conn.getPeerInfo
-          handler(connection)
+          handler(protocol, connection)
         })
       }
     })

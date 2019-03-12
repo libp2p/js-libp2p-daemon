@@ -273,10 +273,14 @@ describe('pubsub', () => {
       for await (const msg of stream) {
         if (subscribed) {
           response = PSMessage.decode(msg)
+
           expect(response).to.exist()
+          expect(response.from.toString()).to.eql(libp2pPeer.peerInfo.id.toB58String())
           expect(response.data).to.exist()
-          expect(response.data[0]).to.exist()
-          expect(response.data[0]).to.equalBytes(data)
+          expect(response.data).to.equalBytes(data)
+          expect(response.topicIDs).to.eql([topic])
+          expect(response.seqno).to.exist()
+
           stream.end()
           resolve()
         } else {
