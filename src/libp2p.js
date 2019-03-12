@@ -108,6 +108,59 @@ class ContentRouting {
   }
 }
 
+class Pubsub {
+  /**
+   * @param {Libp2p} libp2p The libp2p instance to use
+   */
+  constructor (libp2p) {
+    this.libp2p = libp2p
+  }
+
+  /**
+   * Subscribe to a pubsub topic
+   * @param {string} topic
+   * @param {Object} options
+   * @param {function(msg)} handler handle received messages
+   * @returns { Promise<void>}
+   */
+  subscribe (topic, options, handler) {
+    return new Promise((resolve, reject) => {
+      this.libp2p._pubsub.subscribe(topic, options, handler, (err) => {
+        if (err) return reject(err)
+        resolve()
+      })
+    })
+  }
+
+  /**
+   * Publish data in the context of a topic
+   * @param {string} topic
+   * @param {Buffer} data
+   * @returns {Promise<void>}
+   */
+  publish (topic, data) {
+    return new Promise((resolve, reject) => {
+      this.libp2p._pubsub.publish(topic, data, (err) => {
+        if (err) return reject(err)
+        resolve()
+      })
+    })
+  }
+
+  /**
+   * Get the list of subscriptions the peer is subscribed to.
+   * @returns {Promise<Array<string>>}
+   */
+  getTopics () {
+    return new Promise((resolve, reject) => {
+      this.libp2p._pubsub.ls((err, topics) => {
+        if (err) return reject(err)
+        resolve(topics)
+      })
+    })
+  }
+}
+
 class DHT {
   /**
    * @param {Libp2p} libp2p The libp2p instance to use
@@ -203,6 +256,9 @@ class DaemonLibp2p extends Libp2p {
   constructor (libp2pOpts, { announceAddrs }) {
     super(libp2pOpts)
     this.announceAddrs = announceAddrs
+    this.needsPullStream = libp2pOpts.config.EXPERIMENTAL.pubsub
+    this._pubsub = this.pubsub
+    this.pubsub = new Pubsub(this)
   }
   get contentRouting () {
     return this._contentRouting
@@ -297,17 +353,21 @@ class DaemonLibp2p extends Libp2p {
 
   /**
    * Overrides the default `handle` to convert pull streams to streams
-   *
+   * NOTE: only convert if does not need pull-streams
    * @param {string} protocol
    * @param {function(Stream)} handler
    */
   handle (protocol, handler) {
     super.handle(protocol, (_, conn) => {
-      conn.getPeerInfo((_, peerInfo) => {
-        let connection = pullToStream(conn)
-        connection.peerInfo = peerInfo
-        handler(connection)
-      })
+      if (this.needsPullStream) {
+        handler(protocol, conn)
+      } else {
+        conn.getPeerInfo((_, peerInfo) => {
+          let connection = pullToStream(conn)
+          connection.peerInfo = peerInfo
+          handler(protocol, connection)
+        })
+      }
     })
   }
 }
@@ -337,7 +397,8 @@ const createLibp2p = async ({
   connMgr,
   connMgrLo,
   connMgrHi,
-  id
+  id,
+  pubsub
 } = {}) => {
   const peerInfo = await getPeerInfo(id)
   const peerBook = new PeerBook()
@@ -394,7 +455,7 @@ const createLibp2p = async ({
       },
       EXPERIMENTAL: {
         dht: dht,
-        pubsub: false
+        pubsub: pubsub
       }
     }
   }, {

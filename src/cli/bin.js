@@ -72,6 +72,11 @@ const main = async (processArgs) => {
       desc: 'Number identifying the maximum number of peers the current peer is willing to be connected to before is starts disconnecting',
       type: 'number'
     })
+    .option('pubsub', {
+      desc: 'Enables pubsub',
+      type: 'boolean',
+      default: false
+    })
     .fail((msg, err, yargs) => {
       if (err) {
         throw err // preserve stack

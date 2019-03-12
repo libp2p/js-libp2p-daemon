@@ -82,7 +82,7 @@ describe('streams', function () {
     const hello = Buffer.from('hello there')
 
     // Have the peer echo our messages back
-    libp2pPeer.handle('/echo/1.0.0', async (conn) => {
+    libp2pPeer.handle('/echo/1.0.0', async (_, conn) => {
       pipeline(conn, conn, (err) => {
         expect(err).to.not.exist()
       })

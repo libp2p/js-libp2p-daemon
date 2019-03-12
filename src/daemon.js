@@ -1,3 +1,5 @@
+/* eslint max-depth: ["error", 6] */
+
 'use strict'
 
 const net = require('net')
@@ -11,8 +13,10 @@ const { multiaddrToNetConfig } = require('./util')
 const {
   Request,
   DHTRequest,
+  PSRequest,
   Response,
   DHTResponse,
+  PSMessage,
   StreamInfo
 } = require('./protocol')
 const LIMIT = 1 << 22 // 4MB
@@ -133,7 +137,7 @@ class Daemon {
 
       protocols.forEach((proto) => {
         // Connect the client socket with the libp2p connection
-        this.libp2p.handle(proto, (conn) => {
+        this.libp2p.handle(proto, (_, conn) => {
           const enc = encode()
 
           const addr = conn.peerInfo.isConnected()
@@ -209,6 +213,68 @@ class Daemon {
         resolve()
       })
     })
+  }
+
+  /**
+   * Parses and responds to PSRequests
+   *
+   * @private
+   * @param {Request} request
+   * @param {Encoder} enc
+   */
+  async handlePubsubRequest ({ pubsub }, enc) {
+    switch (pubsub.type) {
+      case PSRequest.Type.GET_TOPICS: {
+        const topics = await this.libp2p.pubsub.getTopics()
+
+        await new Promise((resolve) => {
+          enc.write(
+            OkResponse({
+              pubsub: { topics }
+            }),
+            resolve)
+        })
+
+        break
+      }
+      case PSRequest.Type.PUBLISH: {
+        const topic = pubsub.topic
+        const data = pubsub.data
+
+        await this.libp2p.pubsub.publish(topic, data)
+
+        await new Promise((resolve) => {
+          enc.write(OkResponse(), resolve)
+        })
+
+        break
+      }
+      case PSRequest.Type.SUBSCRIBE: {
+        const topic = pubsub.topic
+
+        await this.libp2p.pubsub.subscribe(topic, {}, async (msg) => {
+          await new Promise((resolve) => {
+            enc.write(PSMessage.encode({
+              from: msg.from && Buffer.from(msg.from),
+              data: msg.data,
+              seqno: msg.seqno,
+              topicIDs: msg.topicIDs,
+              signature: msg.signature,
+              key: msg.key
+            }), resolve)
+          })
+        })
+
+        await new Promise((resolve) => {
+          enc.write(OkResponse(), resolve)
+        })
+
+        break
+      }
+      default: {
+        throw new Error('ERR_INVALID_REQUEST_TYPE')
+      }
+    }
   }
 
   /**
@@ -418,6 +484,15 @@ class Daemon {
 
           // write the response
           enc.write(OkResponse())
+          break
+        }
+        case Request.Type.PUBSUB: {
+          try {
+            await this.handlePubsubRequest(request, enc)
+          } catch (err) {
+            enc.write(ErrorResponse(err.message))
+            break
+          }
           break
         }
         case Request.Type.DHT: {
