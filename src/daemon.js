@@ -366,9 +366,7 @@ class Daemon {
           enc.write(OkResponse({
             identify: {
               id: this.libp2p.peerInfo.id.toBytes(),
-              // temporary removal of "/ipfs/..." from multiaddrs
-              // this will be solved in: https://github.com/libp2p/js-libp2p/issues/323
-              addrs: this.libp2p.peerInfo.multiaddrs.toArray().map(m => m.decapsulate('ipfs').buffer)
+              addrs: this.libp2p.peerInfo.multiaddrs.toArray().map(m => m.buffer)
             }
           }))
           break

@@ -227,6 +227,20 @@ class DaemonLibp2p extends Libp2p {
     return new Promise((resolve, reject) => {
       super.start((err) => {
         if (err) return reject(err)
+
+        // temporary removal of "/ipfs/..." from multiaddrs
+        // this will be solved in: https://github.com/libp2p/js-libp2p/issues/323
+        this.peerInfo.multiaddrs.toArray().forEach(m => {
+          let ma
+          try {
+            ma = m.decapsulate('ipfs')
+          } catch (_) {
+            ma = m
+          }
+
+          this.peerInfo.multiaddrs.replace(m, ma)
+        })
+
         resolve()
       })
     })
