@@ -183,7 +183,12 @@ class Daemon {
     return new Promise((resolve, reject) => {
       this.server.listen(path.resolve(this.socketPath), (err) => {
         if (err) return reject(err)
-        resolve()
+
+        this.server.getConnections((err, count) => {
+          console.log('__daemon__start connections', count)
+
+          resolve()
+        })
       })
     })
   }
@@ -196,13 +201,24 @@ class Daemon {
    * @returns {Promise<void>}
    */
   async stop (options = { exit: false }) {
+    console.log('__daemon__will stop libp2p')
     await this.libp2p.stop()
+    await new Promise((resolve) => {
+      this.server.getConnections((err, count) => {
+        console.log('__daemon__will connections', count)
+
+        resolve()
+      })
+    })
     return new Promise((resolve) => {
+      console.log('__daemon__will close server')
       this.server.close(() => {
         if (options.exit) {
           log('server closed, exiting')
           // return process.exit(0)
         }
+
+        console.log('__daemon__will finish')
         resolve()
       })
     })
