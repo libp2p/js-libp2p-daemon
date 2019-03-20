@@ -1,3 +1,40 @@
+<a name="0.2.0"></a>
+# [0.2.0](https://github.com/libp2p/js-libp2p-daemon/compare/v0.1.2...v0.2.0) (2019-03-20)
+
+
+### Bug Fixes
+
+* decapsulate ipfs protocol on daemon startup ([#11](https://github.com/libp2p/js-libp2p-daemon/issues/11)) ([190df09](https://github.com/libp2p/js-libp2p-daemon/commit/190df09))
+
+
+### Features
+
+* add pubsub support ([#12](https://github.com/libp2p/js-libp2p-daemon/issues/12)) ([5d27b90](https://github.com/libp2p/js-libp2p-daemon/commit/5d27b90))
+* add support for unix multiaddr listen ([#10](https://github.com/libp2p/js-libp2p-daemon/issues/10)) ([9106d68](https://github.com/libp2p/js-libp2p-daemon/commit/9106d68))
+
+
+### BREAKING CHANGES
+
+* The --sock param/flag has been replaced by --listen, which now expects a multiaddr string.
+
+Example: `jsp2pd --sock=/tmp/p2p.sock` would now be `jsp2pd --listen=/unix/tmp/p2p.sock`
+
+* feat: add support for unix multiaddr listen
+* feat: add support for hostAddrs flag
+* feat: add support for websockets
+* feat: add announceAddrs support
+* test: split up tests into files
+* feat: use multiaddr instead of path for everything
+* feat: update stream handler to use multiaddr bytes
+* chore: fix lint
+* chore: update multiaddr dep
+* test: fix test runners
+* fix: add a default host address
+* fix: catch decapsulate errors when no ipfs present
+* chore: fix feedback
+
+
+
 <a name="0.1.2"></a>
 ## [0.1.2](https://github.com/libp2p/js-libp2p-daemon/compare/v0.1.1...v0.1.2) (2019-02-14)
 
