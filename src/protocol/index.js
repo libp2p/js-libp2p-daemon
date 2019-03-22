@@ -162,9 +162,8 @@ message PSResponse {
 
 message PeerstoreRequest {
   enum Type {
-    ADD_PROTOCOLS = 1;
-    GET_PROTOCOLS = 2;
-    GET_PEER_INFO = 3;
+    GET_PROTOCOLS = 1;
+    GET_PEER_INFO = 2;
   }
 
   required Type type = 1;
