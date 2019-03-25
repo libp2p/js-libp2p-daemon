@@ -237,6 +237,9 @@ class Daemon {
         })
         break
       }
+      case PeerstoreRequest.Type.GET_PEER_INFO: {
+        throw new Error('ERR_NOT_IMPLEMENTED')
+      }
       default: {
         throw new Error('ERR_INVALID_REQUEST_TYPE')
       }

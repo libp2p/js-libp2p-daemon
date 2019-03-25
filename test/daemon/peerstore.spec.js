@@ -104,4 +104,25 @@ describe('peerstore features', () => {
     })
     stream.end()
   })
+
+  it('NOT IMPLEMENTED get peer info', async () => {
+    client = new Client(daemonAddr)
+
+    await client.attach()
+
+    const request = {
+      type: Request.Type.PEERSTORE,
+      peerStore: {
+        type: PeerstoreRequest.Type.GET_PEER_INFO,
+        id: Buffer.from(libp2pPeer.peerInfo.id.toBytes())
+      }
+    }
+
+    const stream = client.send(request)
+
+    const message = await stream.first()
+    let response = Response.decode(message)
+    expect(response.type).to.eql(Response.Type.ERROR)
+    expect(response.error.msg).to.eql('ERR_NOT_IMPLEMENTED')
+  })
 })
