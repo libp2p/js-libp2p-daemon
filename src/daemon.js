@@ -13,6 +13,7 @@ const { multiaddrToNetConfig } = require('./util')
 const {
   Request,
   DHTRequest,
+  PeerstoreRequest,
   PSRequest,
   Response,
   DHTResponse,
@@ -213,6 +214,36 @@ class Daemon {
         resolve()
       })
     })
+  }
+
+  async handlePeerstoreRequest ({ peerStore }, enc) {
+    switch (peerStore.type) {
+      case PeerstoreRequest.Type.GET_PROTOCOLS: {
+        let protos
+        try {
+          const peerId = PeerId.createFromBytes(peerStore.id)
+          const peerInfo = this.libp2p.peerBook.get(peerId)
+          protos = Array.from(peerInfo.protocols)
+        } catch (err) {
+          throw new Error('ERR_INVALID_PEERSTORE_REQUEST')
+        }
+
+        await new Promise((resolve) => {
+          enc.write(
+            OkResponse({
+              peerStore: { protos }
+            }),
+            resolve)
+        })
+        break
+      }
+      case PeerstoreRequest.Type.GET_PEER_INFO: {
+        throw new Error('ERR_NOT_IMPLEMENTED')
+      }
+      default: {
+        throw new Error('ERR_INVALID_REQUEST_TYPE')
+      }
+    }
   }
 
   /**
@@ -484,6 +515,15 @@ class Daemon {
 
           // write the response
           enc.write(OkResponse())
+          break
+        }
+        case Request.Type.PEERSTORE: {
+          try {
+            await this.handlePeerstoreRequest(request, enc)
+          } catch (err) {
+            enc.write(ErrorResponse(err.message))
+            break
+          }
           break
         }
         case Request.Type.PUBSUB: {

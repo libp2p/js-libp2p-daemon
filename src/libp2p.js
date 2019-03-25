@@ -451,10 +451,10 @@ const createLibp2p = async ({
         }
       },
       dht: {
+        enabled: dht,
         kBucketSize: 20
       },
       EXPERIMENTAL: {
-        dht: dht,
         pubsub: pubsub
       }
     }

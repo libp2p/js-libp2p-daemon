@@ -13,6 +13,7 @@ message Request {
     CONNMANAGER    = 6;
     DISCONNECT     = 7;
     PUBSUB         = 8;
+    PEERSTORE      = 9;
   }
 
   required Type type = 1;
@@ -24,6 +25,7 @@ message Request {
   optional ConnManagerRequest connManager = 6;
   optional DisconnectRequest disconnect = 7;
   optional PSRequest pubsub = 8;
+  optional PeerstoreRequest peerStore = 9;
 }
 
 message Response {
@@ -39,6 +41,7 @@ message Response {
   optional DHTResponse dht = 5;
   repeated PeerInfo peers = 6;
   optional PSResponse pubsub = 7;
+  optional PeerstoreResponse peerStore = 8;
 }
 
 message IdentifyResponse {
@@ -49,11 +52,13 @@ message IdentifyResponse {
 message ConnectRequest {
   required bytes peer = 1;
   repeated bytes addrs = 2;
+  optional int64 timeout = 3;
 }
 
 message StreamOpenRequest {
   required bytes peer = 1;
   repeated string proto = 2;
+  optional int64 timeout = 3;
 }
 
 message StreamHandlerRequest {
@@ -87,7 +92,7 @@ message DHTRequest {
   required Type type = 1;
   optional bytes peer = 2;
   optional bytes cid = 3;
-  optional string key = 4;
+  optional bytes key = 4;
   optional bytes value = 5;
   optional int32 count = 6;
   optional int64 timeout = 7;
@@ -112,9 +117,9 @@ message PeerInfo {
 
 message ConnManagerRequest {
   enum Type {
-    TAG_PEER   = 0;
-    UNTAG_PEER = 1;
-    TRIM       = 2;
+    TAG_PEER        = 0;
+    UNTAG_PEER      = 1;
+    TRIM            = 2;
   }
 
   required Type type = 1;
@@ -153,5 +158,21 @@ message PSMessage {
 message PSResponse {
   repeated string topics = 1;
   repeated bytes peerIDs = 2;
+}
+
+message PeerstoreRequest {
+  enum Type {
+    GET_PROTOCOLS = 1;
+    GET_PEER_INFO = 2;
+  }
+
+  required Type type = 1;
+  optional bytes id = 2;
+  repeated string protos = 3;
+}
+
+message PeerstoreResponse {
+  optional PeerInfo peer = 1;
+  repeated string protos = 2;
 }
 `)
