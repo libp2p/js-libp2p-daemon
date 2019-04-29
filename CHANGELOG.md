@@ -1,3 +1,18 @@
+<a name="0.2.1"></a>
+## [0.2.1](https://github.com/libp2p/js-libp2p-daemon/compare/v0.2.0...v0.2.1) (2019-04-29)
+
+
+### Bug Fixes
+
+* peer info ([#17](https://github.com/libp2p/js-libp2p-daemon/issues/17)) ([69cf26b](https://github.com/libp2p/js-libp2p-daemon/commit/69cf26b))
+
+
+### Features
+
+* add support initial peerstore support ([#14](https://github.com/libp2p/js-libp2p-daemon/issues/14)) ([36a520c](https://github.com/libp2p/js-libp2p-daemon/commit/36a520c))
+
+
+
 <a name="0.2.0"></a>
 # [0.2.0](https://github.com/libp2p/js-libp2p-daemon/compare/v0.1.2...v0.2.0) (2019-03-20)
 
