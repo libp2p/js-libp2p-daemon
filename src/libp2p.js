@@ -342,11 +342,15 @@ class DaemonLibp2p extends Libp2p {
         if (err) return reject(err)
         if (!conn) return resolve()
 
-        // Convert the pull stream to an iterable node stream
-        const connection = pullToStream(conn)
-        connection.peerInfo = conn.peerInfo
+        conn.getPeerInfo((err, peerInfo) => {
+          if (err) return reject(err)
 
-        resolve(connection)
+          // Convert the pull stream to an iterable node stream
+          const connection = pullToStream(conn)
+          connection.peerInfo = peerInfo
+
+          resolve(connection)
+        })
       })
     })
   }
