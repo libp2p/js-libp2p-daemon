@@ -7,6 +7,8 @@ const Bootstrap = require('libp2p-bootstrap')
 const MPLEX = require('pull-mplex')
 const SECIO = require('libp2p-secio')
 const KadDHT = require('libp2p-kad-dht')
+const FloodSub = require('libp2p-floodsub')
+const GossipSub = require('libp2p-gossipsub')
 const pullToStream = require('pull-stream-to-stream')
 const PeerBook = require('peer-book')
 const PeerInfo = require('peer-info')
@@ -122,7 +124,7 @@ class Pubsub {
    */
   subscribe (topic, options, handler) {
     return new Promise((resolve, reject) => {
-      this.libp2p._pubsub.subscribe(topic, options, handler, (err) => {
+      this.libp2p._pubSub.subscribe(topic, options, handler, (err) => {
         if (err) return reject(err)
         resolve()
       })
@@ -137,7 +139,7 @@ class Pubsub {
    */
   publish (topic, data) {
     return new Promise((resolve, reject) => {
-      this.libp2p._pubsub.publish(topic, data, (err) => {
+      this.libp2p._pubSub.publish(topic, data, (err) => {
         if (err) return reject(err)
         resolve()
       })
@@ -150,7 +152,7 @@ class Pubsub {
    */
   getTopics () {
     return new Promise((resolve, reject) => {
-      this.libp2p._pubsub.ls((err, topics) => {
+      this.libp2p._pubSub.ls((err, topics) => {
         if (err) return reject(err)
         resolve(topics)
       })
@@ -253,8 +255,8 @@ class DaemonLibp2p extends Libp2p {
   constructor (libp2pOpts, { announceAddrs }) {
     super(libp2pOpts)
     this.announceAddrs = announceAddrs
-    this.needsPullStream = libp2pOpts.config.EXPERIMENTAL.pubsub
-    this._pubsub = this.pubsub
+    this.needsPullStream = libp2pOpts.config.pubsub.enabled
+    this._pubSub = this.pubsub
     this.pubsub = new Pubsub(this)
   }
   get contentRouting () {
@@ -384,6 +386,8 @@ class DaemonLibp2p extends Libp2p {
  * @param {string} opts.id
  * @param {string} opts.bootstrapPeers
  * @param {string} opts.hostAddrs
+ * @param {boolean} opts.pubsub
+ * @param {string} opts.pubsubRouter
  * @returns {Libp2p}
  */
 const createLibp2p = async ({
@@ -395,7 +399,8 @@ const createLibp2p = async ({
   connMgrLo,
   connMgrHi,
   id,
-  pubsub
+  pubsub,
+  pubsubRouter
 } = {}) => {
   const peerInfo = await getPeerInfo(id)
   const peerBook = new PeerBook()
@@ -430,7 +435,8 @@ const createLibp2p = async ({
       peerDiscovery: [
         Bootstrap
       ],
-      dht: KadDHT
+      dht: KadDHT,
+      pubsub: pubsubRouter === 'floodsub' ? GossipSub : FloodSub
     },
     config: {
       peerDiscovery: {
@@ -451,8 +457,8 @@ const createLibp2p = async ({
         enabled: dht,
         kBucketSize: 20
       },
-      EXPERIMENTAL: {
-        pubsub: pubsub
+      pubsub: {
+        enabled: pubsub
       }
     }
   }, {
