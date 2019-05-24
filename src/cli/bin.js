@@ -78,6 +78,11 @@ const main = async (processArgs) => {
       type: 'boolean',
       default: false
     })
+    .option('pubsubRouter', {
+      desc: 'Specifies the pubsub router implementation',
+      type: 'string',
+      default: 'gossipsub'
+    })
     .fail((msg, err, yargs) => {
       if (err) {
         throw err // preserve stack
