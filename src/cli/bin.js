@@ -112,4 +112,7 @@ const main = async (processArgs) => {
 module.exports = main
 if (require.main === module) {
   main(process.argv)
+    .catch((err) => {
+      console.error(err)
+    })
 }
