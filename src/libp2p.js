@@ -11,32 +11,29 @@ const pullToStream = require('pull-stream-to-stream')
 const PeerBook = require('peer-book')
 const PeerInfo = require('peer-info')
 const PeerID = require('peer-id')
-const path = require('path')
 const multiaddr = require('multiaddr')
+const fsPromises = require('fs').promises
+const util = require('util')
 
 /**
  * Creates a PeerInfo from scratch, or via the supplied private key
- * @param {string} privateKey Path to private key
+ * @param {string} privateKeyPath Path to private key
  * @returns {Promise} Resolves the created PeerInfo
  */
-const getPeerInfo = (privateKey) => {
-  return new Promise((resolve, reject) => {
-    if (!privateKey) {
-      PeerInfo.create((err, peerInfo) => {
-        if (err) {
-          return reject(err)
-        }
-        resolve(peerInfo)
-      })
-    } else {
-      PeerID.createFromPrivKey(path.resolve(privateKey), (err, peerId) => {
-        if (err) {
-          return reject(err)
-        }
-        resolve(new PeerInfo(peerId))
-      })
-    }
-  })
+const getPeerInfo = async (privateKeyPath) => {
+  if (!privateKeyPath) {
+    return util.promisify(PeerInfo.create)()
+  }
+
+  const pkFile = await fsPromises.open(privateKeyPath, 'r')
+  let buf
+  try {
+    buf = await pkFile.readFile()
+  } finally {
+    pkFile.close()
+  }
+  const peerId = await util.promisify(PeerID.createFromPrivKey)(buf)
+  return new PeerInfo(peerId)
 }
 
 class PeerRouting {
