@@ -114,5 +114,6 @@ if (require.main === module) {
   main(process.argv)
     .catch((err) => {
       console.error(err)
+      process.exit(1)
     })
 }
