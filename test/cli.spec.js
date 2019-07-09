@@ -14,7 +14,7 @@ describe('cli', () => {
   })
 
   it('should create a daemon with default options', async () => {
-    sinon.stub(daemon, 'createDaemon').callsFake(async (options) => {
+    sinon.stub(daemon, 'createDaemon').callsFake((options) => {
       expect(options).to.include({
         b: false,
         bootstrap: false,
@@ -45,7 +45,7 @@ describe('cli', () => {
   })
 
   it('should be able to specify options', async () => {
-    sinon.stub(daemon, 'createDaemon').callsFake(async (options) => {
+    sinon.stub(daemon, 'createDaemon').callsFake((options) => {
       expect(options).to.include({
         b: true,
         bootstrap: true,
