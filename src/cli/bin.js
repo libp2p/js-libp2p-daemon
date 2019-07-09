@@ -1,4 +1,5 @@
 #! /usr/bin/env node
+/* eslint no-console: ["error", { allow: ["log", "warn", "error"] }] */
 'use strict'
 
 const yargs = require('yargs')
