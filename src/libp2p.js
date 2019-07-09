@@ -379,9 +379,7 @@ class DaemonLibp2p extends Libp2p {
  * @param {boolean} opts.quiet
  * @param {boolean} opts.bootstrap
  * @param {boolean} opts.dht
- * @param {boolean} opts.dhtClient
  * @param {boolean} opts.connMgr
- * @param {number} opts.connMgrLo
  * @param {number} opts.connMgrHi
  * @param {string} opts.id
  * @param {string} opts.bootstrapPeers
@@ -394,8 +392,6 @@ const createLibp2p = async ({
   hostAddrs,
   announceAddrs,
   dht,
-  dhtClient,
-  connMgr,
   connMgrLo,
   connMgrHi,
   id,
