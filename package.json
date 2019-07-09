@@ -11,7 +11,7 @@
     "dist",
     "src"
   ],
-  "main": "daemon.js",
+  "main": "src/daemon.js",
   "bin": {
     "jsp2pd": "src/cli/bin.js"
   },
