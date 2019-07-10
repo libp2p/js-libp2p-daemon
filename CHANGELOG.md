@@ -1,3 +1,16 @@
+<a name="0.2.2"></a>
+## [0.2.2](https://github.com/libp2p/js-libp2p-daemon/compare/v0.2.1...v0.2.2) (2019-07-10)
+
+
+### Bug Fixes
+
+* **bin:** exit with status 1 on unhandled rejection ([#23](https://github.com/libp2p/js-libp2p-daemon/issues/23)) ([596005d](https://github.com/libp2p/js-libp2p-daemon/commit/596005d))
+* **main:** deal with unhandled rejections ([#20](https://github.com/libp2p/js-libp2p-daemon/issues/20)) ([49e685a](https://github.com/libp2p/js-libp2p-daemon/commit/49e685a))
+* **package.json:** fix main property ([#22](https://github.com/libp2p/js-libp2p-daemon/issues/22)) ([1d505b8](https://github.com/libp2p/js-libp2p-daemon/commit/1d505b8))
+* resolve loading of private key from file ([#21](https://github.com/libp2p/js-libp2p-daemon/issues/21)) ([3e70ace](https://github.com/libp2p/js-libp2p-daemon/commit/3e70ace))
+
+
+
 <a name="0.2.1"></a>
 ## [0.2.1](https://github.com/libp2p/js-libp2p-daemon/compare/v0.2.0...v0.2.1) (2019-04-29)
 
