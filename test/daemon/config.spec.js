@@ -43,4 +43,25 @@ describe('configuration', () => {
       ma('/dns/ipfs.io')
     ])
   })
+
+  it('should be able to load a private key', async () => {
+    daemon = await createDaemon({
+      quiet: false,
+      q: false,
+      bootstrap: false,
+      hostAddrs: '',
+      announceAddrs: '',
+      b: false,
+      dht: true,
+      dhtClient: false,
+      connMgr: false,
+      listen: daemonAddr.toString(),
+      id: path.join(__dirname, '../resources/rsa.key'),
+      bootstrapPeers: ''
+    })
+    await daemon.start()
+
+    const peerId = daemon.libp2p.peerInfo.id
+    expect(peerId.toB58String()).to.eql('QmPFdSzvgd1HbZSd6oX2N2vCSnhSEeocbQZsMB42UG8smE')
+  })
 })
