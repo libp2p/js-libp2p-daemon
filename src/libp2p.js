@@ -124,7 +124,7 @@ class Pubsub {
    */
   subscribe (topic, options, handler) {
     return new Promise((resolve, reject) => {
-      this.libp2p._pubSub.subscribe(topic, options, handler, (err) => {
+      this.libp2p._pubsub.subscribe(topic, options, handler, (err) => {
         if (err) return reject(err)
         resolve()
       })
@@ -139,7 +139,7 @@ class Pubsub {
    */
   publish (topic, data) {
     return new Promise((resolve, reject) => {
-      this.libp2p._pubSub.publish(topic, data, (err) => {
+      this.libp2p._pubsub.publish(topic, data, (err) => {
         if (err) return reject(err)
         resolve()
       })
@@ -152,11 +152,19 @@ class Pubsub {
    */
   getTopics () {
     return new Promise((resolve, reject) => {
-      this.libp2p._pubSub.ls((err, topics) => {
+      this.libp2p._pubsub.ls((err, topics) => {
         if (err) return reject(err)
         resolve(topics)
       })
     })
+  }
+
+  start (cb) {
+    this.libp2p._pubsub.start(cb)
+  }
+
+  stop (cb) {
+    this.libp2p._pubsub.stop(cb)
   }
 }
 
@@ -256,8 +264,11 @@ class DaemonLibp2p extends Libp2p {
     super(libp2pOpts)
     this.announceAddrs = announceAddrs
     this.needsPullStream = libp2pOpts.config.pubsub.enabled
-    this._pubSub = this.pubsub
-    this.pubsub = new Pubsub(this)
+
+    if (libp2pOpts.config.pubsub.enabled) {
+      this._pubsub = this.pubsub
+      this.pubsub = new Pubsub(this)
+    }
   }
   get contentRouting () {
     return this._contentRouting
