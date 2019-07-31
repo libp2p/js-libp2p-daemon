@@ -173,7 +173,7 @@ describe('streams', function () {
 
     // Open a connection between the peer and our daemon
     // Then send hello from the peer to the daemon
-    const connection = await libp2pPeer._dial(daemon.libp2p.peerInfo, '/echo/1.0.0')
+    const connection = await libp2pPeer.dial(daemon.libp2p.peerInfo, '/echo/1.0.0')
     const hello = Buffer.from('hello, peer')
     connection.write(hello)
 

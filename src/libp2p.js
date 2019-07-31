@@ -107,52 +107,6 @@ class ContentRouting {
   }
 }
 
-class Pubsub {
-  /**
-   * @param {Libp2p} libp2p The libp2p instance to use
-   */
-  constructor (libp2p) {
-    this.libp2p = libp2p
-  }
-
-  /**
-   * Subscribe to a pubsub topic
-   * @param {string} topic
-   * @param {Object} options
-   * @param {function(msg)} handler handle received messages
-   * @returns { Promise<void>}
-   */
-  subscribe (topic, options, handler) {
-    return this.libp2p._pubsub.subscribe(topic, handler, options)
-  }
-
-  /**
-   * Publish data in the context of a topic
-   * @param {string} topic
-   * @param {Buffer} data
-   * @returns {Promise<void>}
-   */
-  publish (topic, data) {
-    return this.libp2p._pubsub.publish(topic, data)
-  }
-
-  /**
-   * Get the list of subscriptions the peer is subscribed to.
-   * @returns {Promise<Array<string>>}
-   */
-  getTopics () {
-    return this.libp2p._pubsub.ls()
-  }
-
-  start (cb) {
-    this.libp2p._pubsub.start(cb)
-  }
-
-  stop (cb) {
-    this.libp2p._pubsub.stop(cb)
-  }
-}
-
 class DHT {
   /**
    * @param {Libp2p} libp2p The libp2p instance to use
@@ -249,11 +203,6 @@ class DaemonLibp2p extends Libp2p {
     super(libp2pOpts)
     this.announceAddrs = announceAddrs
     this.needsPullStream = libp2pOpts.config.pubsub.enabled
-
-    if (libp2pOpts.config.pubsub.enabled) {
-      this._pubsub = this.pubsub
-      this.pubsub = new Pubsub(this)
-    }
   }
   get contentRouting () {
     return this._contentRouting
@@ -279,7 +228,7 @@ class DaemonLibp2p extends Libp2p {
    *
    * @returns {Promise<void>}
    */
-  _start () {
+  start () {
     return new Promise((resolve, reject) => {
       super.start((err) => {
         if (err) return reject(err)
@@ -317,7 +266,7 @@ class DaemonLibp2p extends Libp2p {
    * @param {string} protocol
    * @returns {Promise<Connection>}
    */
-  _dial (peerInfo, protocol) {
+  dial (peerInfo, protocol) {
     return new Promise((resolve, reject) => {
       this.dialProtocol(peerInfo, protocol, (err, conn) => {
         if (err) return reject(err)

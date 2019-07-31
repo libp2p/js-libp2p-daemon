@@ -196,10 +196,10 @@ const testPubsub = (router) => {
         stream.end()
 
         // subscribe topic
-        await libp2pPeer.pubsub.subscribe(topic, {}, (msg) => {
+        await libp2pPeer.pubsub.subscribe(topic, (msg) => {
           expect(msg.data).to.equalBytes(data)
           resolve()
-        })
+        }, {})
 
         // wait to pubsub to propagate messages
         await new Promise(resolve => setTimeout(resolve, 1000))

@@ -87,7 +87,7 @@ class Daemon {
     let successfulProto
     for (const protocol of proto) {
       try {
-        connection = await this.libp2p._dial(peerInfo, protocol)
+        connection = await this.libp2p.dial(peerInfo, protocol)
         successfulProto = protocol
         break
       } catch (err) {
@@ -186,7 +186,7 @@ class Daemon {
    * @returns {Promise<void>}
    */
   async start () {
-    await this.libp2p._start()
+    await this.libp2p.start()
     return new Promise((resolve, reject) => {
       const options = multiaddrToNetConfig(this.multiaddr)
       this.server.listen(options, (err) => {
@@ -256,7 +256,7 @@ class Daemon {
   async handlePubsubRequest ({ pubsub }, enc) {
     switch (pubsub.type) {
       case PSRequest.Type.GET_TOPICS: {
-        const topics = await this.libp2p.pubsub.getTopics()
+        const topics = await this.libp2p.pubsub.ls()
 
         await new Promise((resolve) => {
           enc.write(
@@ -283,7 +283,7 @@ class Daemon {
       case PSRequest.Type.SUBSCRIBE: {
         const topic = pubsub.topic
 
-        await this.libp2p.pubsub.subscribe(topic, {}, async (msg) => {
+        await this.libp2p.pubsub.subscribe(topic, async (msg) => {
           await new Promise((resolve) => {
             enc.write(PSMessage.encode({
               from: msg.from && Buffer.from(msg.from),
@@ -294,7 +294,7 @@ class Daemon {
               key: msg.key
             }), resolve)
           })
-        })
+        }, {})
 
         await new Promise((resolve) => {
           enc.write(OkResponse(), resolve)
