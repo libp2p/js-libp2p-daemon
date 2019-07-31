@@ -123,12 +123,7 @@ class Pubsub {
    * @returns { Promise<void>}
    */
   subscribe (topic, options, handler) {
-    return new Promise((resolve, reject) => {
-      this.libp2p._pubsub.subscribe(topic, options, handler, (err) => {
-        if (err) return reject(err)
-        resolve()
-      })
-    })
+    return this.libp2p._pubsub.subscribe(topic, handler, options)
   }
 
   /**
@@ -138,12 +133,7 @@ class Pubsub {
    * @returns {Promise<void>}
    */
   publish (topic, data) {
-    return new Promise((resolve, reject) => {
-      this.libp2p._pubsub.publish(topic, data, (err) => {
-        if (err) return reject(err)
-        resolve()
-      })
-    })
+    return this.libp2p._pubsub.publish(topic, data)
   }
 
   /**
@@ -151,12 +141,7 @@ class Pubsub {
    * @returns {Promise<Array<string>>}
    */
   getTopics () {
-    return new Promise((resolve, reject) => {
-      this.libp2p._pubsub.ls((err, topics) => {
-        if (err) return reject(err)
-        resolve(topics)
-      })
-    })
+    return this.libp2p._pubsub.ls()
   }
 
   start (cb) {
@@ -294,7 +279,7 @@ class DaemonLibp2p extends Libp2p {
    *
    * @returns {Promise<void>}
    */
-  start () {
+  _start () {
     return new Promise((resolve, reject) => {
       super.start((err) => {
         if (err) return reject(err)
@@ -326,27 +311,13 @@ class DaemonLibp2p extends Libp2p {
   }
 
   /**
-   * Stops the libp2p node
-   *
-   * @returns {Promise<void>}
-   */
-  stop () {
-    return new Promise((resolve, reject) => {
-      super.stop((err) => {
-        if (err) return reject(err)
-        resolve()
-      })
-    })
-  }
-
-  /**
    * Dials the given peer on protocol. The promise will resolve with the connection
    *
    * @param {PeerInfo} peerInfo
    * @param {string} protocol
    * @returns {Promise<Connection>}
    */
-  dial (peerInfo, protocol) {
+  _dial (peerInfo, protocol) {
     return new Promise((resolve, reject) => {
       this.dialProtocol(peerInfo, protocol, (err, conn) => {
         if (err) return reject(err)
@@ -469,7 +440,7 @@ const createLibp2p = async ({
         kBucketSize: 20
       },
       pubsub: {
-        enabled: pubsub
+        enabled: Boolean(pubsub)
       }
     }
   }, {

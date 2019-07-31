@@ -87,7 +87,7 @@ class Daemon {
     let successfulProto
     for (const protocol of proto) {
       try {
-        connection = await this.libp2p.dial(peerInfo, protocol)
+        connection = await this.libp2p._dial(peerInfo, protocol)
         successfulProto = protocol
         break
       } catch (err) {
@@ -186,7 +186,7 @@ class Daemon {
    * @returns {Promise<void>}
    */
   async start () {
-    await this.libp2p.start()
+    await this.libp2p._start()
     return new Promise((resolve, reject) => {
       const options = multiaddrToNetConfig(this.multiaddr)
       this.server.listen(options, (err) => {
