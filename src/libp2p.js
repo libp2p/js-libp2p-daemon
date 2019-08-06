@@ -225,62 +225,60 @@ class DaemonLibp2p extends Libp2p {
 
   /**
    * Starts the libp2p node
+   * NOTE: This is currently promisified internally by libp2p
    *
-   * @returns {Promise<void>}
+   * @param {function(Error)} callback
    */
-  start () {
-    return new Promise((resolve, reject) => {
-      super.start((err) => {
-        if (err) return reject(err)
+  start (callback) {
+    super.start((err) => {
+      if (err) return callback(err)
 
-        // replace with announce addrs until libp2p supports this directly
-        if (this.announceAddrs.length > 0) {
-          this.peerInfo.multiaddrs.clear()
-          this.announceAddrs.forEach(addr => {
-            this.peerInfo.multiaddrs.add(addr)
-          })
+      // replace with announce addrs until libp2p supports this directly
+      if (this.announceAddrs.length > 0) {
+        this.peerInfo.multiaddrs.clear()
+        this.announceAddrs.forEach(addr => {
+          this.peerInfo.multiaddrs.add(addr)
+        })
+      }
+
+      // temporary removal of "/ipfs/..." from multiaddrs
+      // this will be solved in: https://github.com/libp2p/js-libp2p/issues/323
+      this.peerInfo.multiaddrs.toArray().forEach(m => {
+        let ma
+        try {
+          ma = m.decapsulate('ipfs')
+        } catch (_) {
+          ma = m
         }
 
-        // temporary removal of "/ipfs/..." from multiaddrs
-        // this will be solved in: https://github.com/libp2p/js-libp2p/issues/323
-        this.peerInfo.multiaddrs.toArray().forEach(m => {
-          let ma
-          try {
-            ma = m.decapsulate('ipfs')
-          } catch (_) {
-            ma = m
-          }
-
-          this.peerInfo.multiaddrs.replace(m, ma)
-        })
-
-        resolve()
+        this.peerInfo.multiaddrs.replace(m, ma)
       })
+
+      callback()
     })
   }
 
   /**
    * Dials the given peer on protocol. The promise will resolve with the connection
+   * NOTE: This is currently promisified internally by libp2p
    *
    * @param {PeerInfo} peerInfo
    * @param {string} protocol
-   * @returns {Promise<Connection>}
+   * @param {function(Error, Connection)} callback
    */
-  dial (peerInfo, protocol) {
-    return new Promise((resolve, reject) => {
-      this.dialProtocol(peerInfo, protocol, (err, conn) => {
-        if (err) return reject(err)
-        if (!conn) return resolve()
+  dial (peerInfo, protocol, callback) {
+    this.dialProtocol(peerInfo, protocol, (err, conn) => {
+      if (err) return callback(err)
+      if (!conn) return callback()
 
-        conn.getPeerInfo((err, peerInfo) => {
-          if (err) return reject(err)
+      conn.getPeerInfo((err, peerInfo) => {
+        if (err) return callback(err)
 
-          // Convert the pull stream to an iterable node stream
-          const connection = pullToStream(conn)
-          connection.peerInfo = peerInfo
+        // Convert the pull stream to an iterable node stream
+        const connection = pullToStream(conn)
+        connection.peerInfo = peerInfo
 
-          resolve(connection)
-        })
+        callback(null, connection)
       })
     })
   }
