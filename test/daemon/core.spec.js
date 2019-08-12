@@ -90,7 +90,7 @@ describe('core features', () => {
     const stream = client.send(request)
 
     const message = await stream.first()
-    let response = Response.decode(message)
+    const response = Response.decode(message)
     expect(response.type).to.eql(Response.Type.OK)
     stream.end()
   })

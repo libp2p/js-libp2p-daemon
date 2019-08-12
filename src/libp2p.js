@@ -204,21 +204,27 @@ class DaemonLibp2p extends Libp2p {
     this.announceAddrs = announceAddrs
     this.needsPullStream = libp2pOpts.config.pubsub.enabled
   }
+
   get contentRouting () {
     return this._contentRouting
   }
+
   set contentRouting (routing) {
     this._contentRouting = new ContentRouting(routing)
   }
+
   get peerRouting () {
     return this._peerRouting
   }
+
   set peerRouting (routing) {
     this._peerRouting = new PeerRouting(routing)
   }
+
   get dht () {
     return this._kadDHT
   }
+
   set dht (_) {
     this._kadDHT = new DHT(this)
   }
@@ -295,7 +301,7 @@ class DaemonLibp2p extends Libp2p {
         handler(protocol, conn)
       } else {
         conn.getPeerInfo((_, peerInfo) => {
-          let connection = pullToStream(conn)
+          const connection = pullToStream(conn)
           connection.peerInfo = peerInfo
           handler(protocol, connection)
         })

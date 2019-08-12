@@ -168,6 +168,7 @@ const testPubsub = (router) => {
       const topic = 'test-topic'
       const data = Buffer.from('test-data')
 
+      // eslint-disable-next-line no-async-promise-executor
       return new Promise(async (resolve, reject) => {
         client = new Client(daemonAddr)
 
@@ -190,7 +191,7 @@ const testPubsub = (router) => {
 
         let stream = client.send(request)
 
-        let message = await stream.first()
+        const message = await stream.first()
         let response = Response.decode(message)
         expect(response.type).to.eql(Response.Type.OK)
         stream.end()
@@ -234,6 +235,7 @@ const testPubsub = (router) => {
       const topic = 'test-topic'
       const data = Buffer.from('test-data')
 
+      // eslint-disable-next-line no-async-promise-executor
       return new Promise(async (resolve) => {
         client = new Client(daemonAddr)
 
@@ -250,7 +252,7 @@ const testPubsub = (router) => {
 
         let stream = client.send(request)
 
-        let message = await stream.first()
+        const message = await stream.first()
         let response = Response.decode(message)
         expect(response.type).to.eql(Response.Type.OK)
         stream.end()
