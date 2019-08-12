@@ -38,6 +38,7 @@ describe('configuration', () => {
     })
 
     await daemon.start()
+
     const addrs = daemon.libp2p.peerInfo.multiaddrs.toArray()
     expect(addrs).to.eql([
       ma('/dns/ipfs.io')

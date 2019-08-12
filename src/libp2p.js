@@ -7,6 +7,8 @@ const Bootstrap = require('libp2p-bootstrap')
 const MPLEX = require('pull-mplex')
 const SECIO = require('libp2p-secio')
 const KadDHT = require('libp2p-kad-dht')
+const FloodSub = require('libp2p-floodsub')
+const GossipSub = require('libp2p-gossipsub')
 const pullToStream = require('pull-stream-to-stream')
 const PeerBook = require('peer-book')
 const PeerInfo = require('peer-info')
@@ -100,59 +102,6 @@ class ContentRouting {
       this._routing.provide(cid, (err) => {
         if (err) return reject(err)
         resolve()
-      })
-    })
-  }
-}
-
-class Pubsub {
-  /**
-   * @param {Libp2p} libp2p The libp2p instance to use
-   */
-  constructor (libp2p) {
-    this.libp2p = libp2p
-  }
-
-  /**
-   * Subscribe to a pubsub topic
-   * @param {string} topic
-   * @param {Object} options
-   * @param {function(msg)} handler handle received messages
-   * @returns { Promise<void>}
-   */
-  subscribe (topic, options, handler) {
-    return new Promise((resolve, reject) => {
-      this.libp2p._pubsub.subscribe(topic, options, handler, (err) => {
-        if (err) return reject(err)
-        resolve()
-      })
-    })
-  }
-
-  /**
-   * Publish data in the context of a topic
-   * @param {string} topic
-   * @param {Buffer} data
-   * @returns {Promise<void>}
-   */
-  publish (topic, data) {
-    return new Promise((resolve, reject) => {
-      this.libp2p._pubsub.publish(topic, data, (err) => {
-        if (err) return reject(err)
-        resolve()
-      })
-    })
-  }
-
-  /**
-   * Get the list of subscriptions the peer is subscribed to.
-   * @returns {Promise<Array<string>>}
-   */
-  getTopics () {
-    return new Promise((resolve, reject) => {
-      this.libp2p._pubsub.ls((err, topics) => {
-        if (err) return reject(err)
-        resolve(topics)
       })
     })
   }
@@ -253,9 +202,7 @@ class DaemonLibp2p extends Libp2p {
   constructor (libp2pOpts, { announceAddrs }) {
     super(libp2pOpts)
     this.announceAddrs = announceAddrs
-    this.needsPullStream = libp2pOpts.config.EXPERIMENTAL.pubsub
-    this._pubsub = this.pubsub
-    this.pubsub = new Pubsub(this)
+    this.needsPullStream = libp2pOpts.config.pubsub.enabled
   }
   get contentRouting () {
     return this._contentRouting
@@ -278,76 +225,60 @@ class DaemonLibp2p extends Libp2p {
 
   /**
    * Starts the libp2p node
+   * NOTE: This is currently promisified internally by libp2p
    *
-   * @returns {Promise<void>}
+   * @param {function(Error)} callback
    */
-  start () {
-    return new Promise((resolve, reject) => {
-      super.start((err) => {
-        if (err) return reject(err)
+  start (callback) {
+    super.start((err) => {
+      if (err) return callback(err)
 
-        // replace with announce addrs until libp2p supports this directly
-        if (this.announceAddrs.length > 0) {
-          this.peerInfo.multiaddrs.clear()
-          this.announceAddrs.forEach(addr => {
-            this.peerInfo.multiaddrs.add(addr)
-          })
+      // replace with announce addrs until libp2p supports this directly
+      if (this.announceAddrs.length > 0) {
+        this.peerInfo.multiaddrs.clear()
+        this.announceAddrs.forEach(addr => {
+          this.peerInfo.multiaddrs.add(addr)
+        })
+      }
+
+      // temporary removal of "/ipfs/..." from multiaddrs
+      // this will be solved in: https://github.com/libp2p/js-libp2p/issues/323
+      this.peerInfo.multiaddrs.toArray().forEach(m => {
+        let ma
+        try {
+          ma = m.decapsulate('ipfs')
+        } catch (_) {
+          ma = m
         }
 
-        // temporary removal of "/ipfs/..." from multiaddrs
-        // this will be solved in: https://github.com/libp2p/js-libp2p/issues/323
-        this.peerInfo.multiaddrs.toArray().forEach(m => {
-          let ma
-          try {
-            ma = m.decapsulate('ipfs')
-          } catch (_) {
-            ma = m
-          }
-
-          this.peerInfo.multiaddrs.replace(m, ma)
-        })
-
-        resolve()
+        this.peerInfo.multiaddrs.replace(m, ma)
       })
-    })
-  }
 
-  /**
-   * Stops the libp2p node
-   *
-   * @returns {Promise<void>}
-   */
-  stop () {
-    return new Promise((resolve, reject) => {
-      super.stop((err) => {
-        if (err) return reject(err)
-        resolve()
-      })
+      callback()
     })
   }
 
   /**
    * Dials the given peer on protocol. The promise will resolve with the connection
+   * NOTE: This is currently promisified internally by libp2p
    *
    * @param {PeerInfo} peerInfo
    * @param {string} protocol
-   * @returns {Promise<Connection>}
+   * @param {function(Error, Connection)} callback
    */
-  dial (peerInfo, protocol) {
-    return new Promise((resolve, reject) => {
-      this.dialProtocol(peerInfo, protocol, (err, conn) => {
-        if (err) return reject(err)
-        if (!conn) return resolve()
+  dial (peerInfo, protocol, callback) {
+    this.dialProtocol(peerInfo, protocol, (err, conn) => {
+      if (err) return callback(err)
+      if (!conn) return callback()
 
-        conn.getPeerInfo((err, peerInfo) => {
-          if (err) return reject(err)
+      conn.getPeerInfo((err, peerInfo) => {
+        if (err) return callback(err)
 
-          // Convert the pull stream to an iterable node stream
-          const connection = pullToStream(conn)
-          connection.peerInfo = peerInfo
+        // Convert the pull stream to an iterable node stream
+        const connection = pullToStream(conn)
+        connection.peerInfo = peerInfo
 
-          resolve(connection)
-        })
+        callback(null, connection)
       })
     })
   }
@@ -384,6 +315,8 @@ class DaemonLibp2p extends Libp2p {
  * @param {string} opts.id
  * @param {string} opts.bootstrapPeers
  * @param {string} opts.hostAddrs
+ * @param {boolean} opts.pubsub
+ * @param {string} opts.pubsubRouter
  * @returns {Libp2p}
  */
 const createLibp2p = async ({
@@ -395,7 +328,8 @@ const createLibp2p = async ({
   connMgrLo,
   connMgrHi,
   id,
-  pubsub
+  pubsub,
+  pubsubRouter
 } = {}) => {
   const peerInfo = await getPeerInfo(id)
   const peerBook = new PeerBook()
@@ -430,7 +364,8 @@ const createLibp2p = async ({
       peerDiscovery: [
         Bootstrap
       ],
-      dht: KadDHT
+      dht: KadDHT,
+      pubsub: pubsubRouter === 'floodsub' ? GossipSub : FloodSub
     },
     config: {
       peerDiscovery: {
@@ -451,8 +386,8 @@ const createLibp2p = async ({
         enabled: dht,
         kBucketSize: 20
       },
-      EXPERIMENTAL: {
-        pubsub: pubsub
+      pubsub: {
+        enabled: Boolean(pubsub)
       }
     }
   }, {
