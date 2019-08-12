@@ -85,4 +85,25 @@ describe('configuration', () => {
     const peerId = daemon.libp2p.peerInfo.id
     expect(peerId.toB58String()).to.eql('16Uiu2HAm7txvwZbeK5g3oB3DrRhnARTEjTNorVreWJomfHJHbEu2')
   })
+
+  it('should be able to load a ED25519 private key', async () => {
+    daemon = await createDaemon({
+      quiet: false,
+      q: false,
+      bootstrap: false,
+      hostAddrs: '',
+      announceAddrs: '',
+      b: false,
+      dht: true,
+      dhtClient: false,
+      connMgr: false,
+      listen: daemonAddr.toString(),
+      id: path.join(__dirname, '../resources/ed25519.key'),
+      bootstrapPeers: ''
+    })
+    await daemon.start()
+
+    const peerId = daemon.libp2p.peerInfo.id
+    expect(peerId.toB58String()).to.eql('12D3KooWBuenaRQwFt2Wfjvybvxo2Vt4zTgt2yy93gxw75azwS9X')
+  })
 })
