@@ -29,7 +29,7 @@ describe('peerstore features', () => {
   let client
 
   before(async function () {
-    // this.timeout(20e3)
+    this.timeout(20e3)
     daemon = await createDaemon({
       quiet: false,
       q: false,
