@@ -96,22 +96,18 @@ const main = async (processArgs) => {
       yargs.showHelp()
     })
 
-  try {
-    const { data, argv } = await parser.parse(processArgs)
-    if (data) {
-      // Log help and exit
-      // eslint-disable-next-line
-      log(data)
-      process.exit(0)
-    }
-    const daemon = await Daemon.createDaemon(argv)
-    await daemon.start()
-    if (!argv.quiet) {
-      // eslint-disable-next-line
-      log('daemon has started')
-    }
-  } catch (err) {
-    throw err
+  const { data, argv } = await parser.parse(processArgs)
+  if (data) {
+    // Log help and exit
+    // eslint-disable-next-line
+    log(data)
+    process.exit(0)
+  }
+  const daemon = await Daemon.createDaemon(argv)
+  await daemon.start()
+  if (!argv.quiet) {
+    // eslint-disable-next-line
+    log('daemon has started')
   }
 }
 

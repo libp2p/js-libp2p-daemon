@@ -319,7 +319,7 @@ class Daemon {
     switch (dht.type) {
       case DHTRequest.Type.FIND_PEER: {
         const peerId = PeerId.createFromBytes(dht.peer)
-        let peer = await this.libp2p.peerRouting.findPeer(peerId)
+        const peer = await this.libp2p.peerRouting.findPeer(peerId)
 
         return [OkResponse({
           dht: {
@@ -337,7 +337,7 @@ class Daemon {
         // Currently the dht doesn't provide a streaming interface.
         // So we need to collect all of the responses and then compose
         // the response 'stream' to the client
-        let responses = [OkResponse({
+        const responses = [OkResponse({
           dht: {
             type: DHTResponse.Type.BEGIN
           }
@@ -373,7 +373,7 @@ class Daemon {
           Buffer.from(dht.key)
         )
 
-        let responses = [OkResponse({
+        const responses = [OkResponse({
           dht: {
             type: DHTResponse.Type.BEGIN
           }

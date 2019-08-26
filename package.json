@@ -37,13 +37,13 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "aegir": "^19.0.5",
+    "aegir": "^20.0.0",
     "chai": "^4.2.0",
     "chai-bytes": "~0.1.2",
     "dirty-chai": "^2.0.1",
     "mocha": "^6.1.2",
     "multihashes": "~0.4.14",
-    "sinon": "^7.3.1"
+    "sinon": "^7.4.1"
   },
   "dependencies": {
     "cids": "~0.6.0",

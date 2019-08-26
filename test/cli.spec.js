@@ -7,7 +7,7 @@ const sinon = require('sinon')
 const cli = require('../src/cli/bin')
 
 describe('cli', () => {
-  let daemon = require('../src/daemon')
+  const daemon = require('../src/daemon')
 
   afterEach(() => {
     sinon.restore()

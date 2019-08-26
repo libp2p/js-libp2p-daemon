@@ -15,7 +15,9 @@ const daemonAddr = isWindows
   ? ma('/ip4/0.0.0.0/tcp/8080')
   : ma(`/unix${path.resolve(os.tmpdir(), '/tmp/p2pd.sock')}`)
 
-describe('configuration', () => {
+describe('configuration', function () {
+  this.timeout(10e3)
+
   let daemon
   afterEach(async () => {
     await daemon && daemon.stop()

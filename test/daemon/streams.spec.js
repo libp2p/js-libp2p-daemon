@@ -137,7 +137,7 @@ describe('streams', function () {
 
       // Read the stream info from the daemon, then pipe to echo
       const message = await ends(dec).first()
-      let response = StreamInfo.decode(message)
+      const response = StreamInfo.decode(message)
 
       expect(response.peer).to.eql(libp2pPeer.peerInfo.id.toBytes())
       expect(response.proto).to.eql('/echo/1.0.0')
