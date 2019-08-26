@@ -1,3 +1,18 @@
+<a name="0.2.3"></a>
+## [0.2.3](https://github.com/libp2p/js-libp2p-daemon/compare/v0.2.2...v0.2.3) (2019-08-26)
+
+
+### Bug Fixes
+
+* **tests:** fix secp256k1 test ([#26](https://github.com/libp2p/js-libp2p-daemon/issues/26)) ([fc46dbb](https://github.com/libp2p/js-libp2p-daemon/commit/fc46dbb))
+
+
+### Features
+
+* integrate gossipsub by default ([#19](https://github.com/libp2p/js-libp2p-daemon/issues/19)) ([2959fc8](https://github.com/libp2p/js-libp2p-daemon/commit/2959fc8))
+
+
+
 <a name="0.2.2"></a>
 ## [0.2.2](https://github.com/libp2p/js-libp2p-daemon/compare/v0.2.1...v0.2.2) (2019-07-10)
 
