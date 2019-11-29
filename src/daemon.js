@@ -87,7 +87,7 @@ class Daemon {
     let successfulProto
     for (const protocol of proto) {
       try {
-        connection = await this.libp2p.dial(peerInfo, protocol)
+        connection = await this.libp2p.dialProtocol(peerInfo, protocol)
         successfulProto = protocol
         break
       } catch (err) {
@@ -222,7 +222,7 @@ class Daemon {
         let protos
         try {
           const peerId = PeerId.createFromBytes(peerStore.id)
-          const peerInfo = this.libp2p.peerBook.get(peerId)
+          const peerInfo = this.libp2p.peerStore.get(peerId)
           protos = Array.from(peerInfo.protocols)
         } catch (err) {
           throw new Error('ERR_INVALID_PEERSTORE_REQUEST')
@@ -256,7 +256,7 @@ class Daemon {
   async handlePubsubRequest ({ pubsub }, enc) {
     switch (pubsub.type) {
       case PSRequest.Type.GET_TOPICS: {
-        const topics = await this.libp2p.pubsub.ls()
+        const topics = await this.libp2p.pubsub.getTopics()
 
         await new Promise((resolve) => {
           enc.write(
@@ -473,7 +473,7 @@ class Daemon {
         }
         // Get a list of our current peers
         case Request.Type.LIST_PEERS: {
-          const peers = this.libp2p.peerBook.getAllArray().map((pi) => {
+          const peers = Array.from(this.libp2p.peerStore.peers.values()).map((pi) => {
             const addr = pi.isConnected()
             return {
               id: pi.id.toBytes(),
