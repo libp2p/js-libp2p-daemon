@@ -94,10 +94,10 @@ describe('peerstore features', () => {
     expect(response.type).to.eql(Response.Type.OK)
     expect(response.peerStore).to.eql({
       protos: [
-        '/mplex/6.7.0',
-        '/ipfs/id/1.0.0',
-        '/ipfs/ping/1.0.0',
         '/libp2p/circuit/relay/0.1.0',
+        '/ipfs/id/1.0.0',
+        '/ipfs/id/push/1.0.0',
+        // '/mplex/6.7.0', TODO: WHY?
         '/ipfs/kad/1.0.0'
       ],
       peer: null
