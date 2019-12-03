@@ -174,28 +174,6 @@ const testPubsub = (router) => {
 
         await client.attach()
 
-        // connect peers
-        let request = {
-          type: Request.Type.CONNECT,
-          connect: {
-            peer: Buffer.from(libp2pPeer.peerInfo.id.toBytes()),
-            addrs: libp2pPeer.peerInfo.multiaddrs.toArray().map(addr => addr.buffer)
-          },
-          streamOpen: null,
-          streamHandler: null,
-          dht: null,
-          disconnect: null,
-          pubsub: null,
-          connManager: null
-        }
-
-        let stream = client.send(request)
-
-        const message = await stream.first()
-        let response = Response.decode(message)
-        expect(response.type).to.eql(Response.Type.OK)
-        stream.end()
-
         // subscribe topic
         await libp2pPeer.pubsub.subscribe(topic, (msg) => {
           expect(msg.data).to.equalBytes(data)
@@ -206,7 +184,7 @@ const testPubsub = (router) => {
         await new Promise(resolve => setTimeout(resolve, 1000))
 
         // publish topic
-        request = {
+        const request = {
           type: Request.Type.PUBSUB,
           connect: null,
           streamOpen: null,
@@ -220,9 +198,9 @@ const testPubsub = (router) => {
           connManager: null
         }
 
-        stream = client.send(request)
+        const stream = client.send(request)
 
-        response = Response.decode(await stream.first())
+        const response = Response.decode(await stream.first())
         expect(response.type).to.eql(Response.Type.OK)
 
         stream.end()
@@ -241,24 +219,8 @@ const testPubsub = (router) => {
 
         await client.attach()
 
-        // connect peers
-        let request = {
-          type: Request.Type.CONNECT,
-          connect: {
-            peer: Buffer.from(libp2pPeer.peerInfo.id.toBytes()),
-            addrs: libp2pPeer.peerInfo.multiaddrs.toArray().map(addr => addr.buffer)
-          }
-        }
-
-        let stream = client.send(request)
-
-        const message = await stream.first()
-        let response = Response.decode(message)
-        expect(response.type).to.eql(Response.Type.OK)
-        stream.end()
-
         // subscribe topic
-        request = {
+        const request = {
           type: Request.Type.PUBSUB,
           connect: null,
           streamOpen: null,
@@ -271,13 +233,13 @@ const testPubsub = (router) => {
           connManager: null
         }
 
-        stream = client.send(request)
+        const stream = client.send(request)
 
         let subscribed = false
 
         for await (const msg of stream) {
           if (subscribed) {
-            response = PSMessage.decode(msg)
+            const response = PSMessage.decode(msg)
 
             expect(response).to.exist()
             expect(response.from.toString()).to.eql(libp2pPeer.peerInfo.id.toB58String())
@@ -289,7 +251,7 @@ const testPubsub = (router) => {
             stream.end()
             resolve()
           } else {
-            response = Response.decode(msg)
+            const response = Response.decode(msg)
             expect(response.type).to.eql(Response.Type.OK)
             subscribed = true
 

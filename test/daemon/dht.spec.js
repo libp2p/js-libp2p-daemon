@@ -139,7 +139,10 @@ describe('dht', () => {
     stream.end()
 
     // The peer should be able to find our daemon as a provider
-    const providers = await libp2pPeer.contentRouting.findProviders(cid, { maxNumProviders: 1 })
+    const providers = []
+    for await (const provider of libp2pPeer.contentRouting.findProviders(cid, { maxNumProviders: 1 })) {
+      providers.push(provider)
+    }
     expect(daemon.libp2p.peerInfo.id.isEqual(providers[0].id)).to.eql(true)
   })
 
@@ -285,7 +288,7 @@ describe('dht', () => {
 
     await client.attach()
 
-    await libp2pPeer.dht.put(Buffer.from('/hello'), Buffer.from('world'))
+    await libp2pPeer.contentRouting.put(Buffer.from('/hello'), Buffer.from('world'))
 
     const request = {
       type: Request.Type.DHT,
@@ -366,7 +369,7 @@ describe('dht', () => {
     expect(response.dht).to.eql(null)
     stream.end()
 
-    const value = await libp2pPeer.dht.get(Buffer.from('/hello2'))
+    const value = await libp2pPeer.contentRouting.get(Buffer.from('/hello2'))
     expect(value).to.eql(Buffer.from('world2'))
   })
 })

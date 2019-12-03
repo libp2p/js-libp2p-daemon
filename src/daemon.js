@@ -79,34 +79,21 @@ class Daemon {
    */
   async openStream (request) {
     const { peer, proto } = request.streamOpen
+
     const peerInfo = new PeerInfo(
-      PeerId.createFromB58String(peer)
+      PeerId.createFromB58String(peer.toString())
     )
 
-    let connection
-    let successfulProto
-    for (const protocol of proto) {
-      try {
-        connection = await this.libp2p.dialProtocol(peerInfo, protocol)
-        successfulProto = protocol
-        break
-      } catch (err) {
-        log(err)
-        // We can ignore this, and try other protos
-      }
-    }
-
-    if (!connection) {
-      throw new Error('no protocols could be dialed')
-    }
+    const connection = await this.libp2p.dial(peerInfo)
+    const { stream, protocol } = await connection.newStream(proto)
 
     return {
       streamInfo: {
         peer: peerInfo.id.toBytes(),
-        addr: connection.peerInfo.isConnected().buffer,
-        proto: successfulProto
+        addr: connection.remoteAddr.buffer,
+        proto: protocol
       },
-      connection: connection
+      connection: stream
     }
   }
 
@@ -222,7 +209,7 @@ class Daemon {
         let protos
         try {
           const peerId = PeerId.createFromBytes(peerStore.id)
-          const peerInfo = this.libp2p.peerStore.get(peerId)
+          const peerInfo = this.libp2p.peerStore.get(peerId.toB58String())
           protos = Array.from(peerInfo.protocols)
         } catch (err) {
           throw new Error('ERR_INVALID_PEERSTORE_REQUEST')
@@ -343,11 +330,9 @@ class Daemon {
           }
         })]
 
-        const providers = await this.libp2p.contentRouting.findProviders(cid, {
+        for await (const provider of this.libp2p.contentRouting.findProviders(cid, {
           maxNumProviders
-        })
-
-        providers.forEach(provider => {
+        })) {
           responses.push(DHTResponse.encode({
             type: DHTResponse.Type.VALUE,
             peer: {
@@ -355,7 +340,7 @@ class Daemon {
               addrs: provider.multiaddrs.toArray().map(m => m.buffer)
             }
           }))
-        })
+        }
 
         responses.push(DHTResponse.encode({
           type: DHTResponse.Type.END
@@ -369,22 +354,18 @@ class Daemon {
         return [OkResponse()]
       }
       case DHTRequest.Type.GET_CLOSEST_PEERS: {
-        const peerIds = await this.libp2p.dht.getClosestPeers(
-          Buffer.from(dht.key)
-        )
-
         const responses = [OkResponse({
           dht: {
             type: DHTResponse.Type.BEGIN
           }
         })]
 
-        peerIds.forEach(peerId => {
+        for await (const peerId of this.libp2p._dht.getClosestPeers(Buffer.from(dht.key))) {
           responses.push(DHTResponse.encode({
             type: DHTResponse.Type.VALUE,
             value: peerId.toB58String()
           }))
-        })
+        }
 
         responses.push(DHTResponse.encode({
           type: DHTResponse.Type.END
@@ -394,7 +375,7 @@ class Daemon {
       }
       case DHTRequest.Type.GET_PUBLIC_KEY: {
         const peerId = PeerId.createFromBytes(dht.peer)
-        const pubKey = await this.libp2p.dht.getPublicKey(peerId)
+        const pubKey = await this.libp2p._dht.getPublicKey(peerId)
 
         return [OkResponse({
           dht: {
@@ -404,7 +385,7 @@ class Daemon {
         })]
       }
       case DHTRequest.Type.GET_VALUE: {
-        const value = await this.libp2p.dht.get(
+        const value = await this.libp2p.contentRouting.get(
           Buffer.from(dht.key)
         )
 
@@ -416,7 +397,7 @@ class Daemon {
         })]
       }
       case DHTRequest.Type.PUT_VALUE: {
-        await this.libp2p.dht.put(
+        await this.libp2p.contentRouting.put(
           Buffer.from(dht.key),
           dht.value
         )
