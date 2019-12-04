@@ -87,9 +87,9 @@ describe('peerstore features', () => {
       }
     }
 
-    const stream = client.send(request)
+    client.send(request)
 
-    const message = await stream.first()
+    const message = await client.read()
     const response = Response.decode(message)
     expect(response.type).to.eql(Response.Type.OK)
     expect(response.peerStore).to.eql({
@@ -102,7 +102,7 @@ describe('peerstore features', () => {
       ],
       peer: null
     })
-    stream.end()
+    client.streamHandler.close()
   })
 
   it('NOT IMPLEMENTED get peer info', async () => {
@@ -118,9 +118,9 @@ describe('peerstore features', () => {
       }
     }
 
-    const stream = client.send(request)
+    client.send(request)
 
-    const message = await stream.first()
+    const message = await client.read()
     const response = Response.decode(message)
     expect(response.type).to.eql(Response.Type.ERROR)
     expect(response.error.msg).to.eql('ERR_NOT_IMPLEMENTED')

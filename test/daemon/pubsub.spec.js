@@ -10,6 +10,7 @@ const expect = chai.expect
 const os = require('os')
 const path = require('path')
 const ma = require('multiaddr')
+const delay = require('delay')
 
 const { createDaemon } = require('../../src/daemon')
 const { createLibp2p } = require('../../src/libp2p')
@@ -95,12 +96,12 @@ const testPubsub = (router) => {
         }
       }
 
-      const stream = client.send(request)
+      client.send(request)
 
-      const response = Response.decode(await stream.first())
+      const response = Response.decode(await client.read())
       expect(response.type).to.eql(Response.Type.OK)
 
-      stream.end()
+      client.streamHandler.close()
     })
 
     it('should get subscribed topics', async () => {
@@ -124,7 +125,7 @@ const testPubsub = (router) => {
       // Get empty subscriptions
       let stream = client.send(requestGetTopics)
 
-      let response = Response.decode(await stream.first())
+      let response = Response.decode(await client.read())
       expect(response.type).to.eql(Response.Type.OK)
       expect(response.pubsub.topics).to.have.lengthOf(0)
 
@@ -141,25 +142,25 @@ const testPubsub = (router) => {
         connManager: null
       }
 
-      stream.end()
+      client.streamHandler.close()
 
       // Subscribe
       stream = client.send(requestSubscribe)
 
-      response = Response.decode(await stream.first())
+      response = Response.decode(await client.read())
       expect(response.type).to.eql(Response.Type.OK)
 
-      stream.end()
+      client.streamHandler.close()
 
       // Get new subscription
       stream = client.send(requestGetTopics)
 
-      response = Response.decode(await stream.first())
+      response = Response.decode(await client.read())
       expect(response.type).to.eql(Response.Type.OK)
       expect(response.pubsub.topics).to.have.lengthOf(1)
       expect(response.pubsub.topics[0]).to.eql(topic)
 
-      stream.end()
+      client.streamHandler.close()
     })
 
     it('should be able to publish messages', function () {
@@ -181,7 +182,7 @@ const testPubsub = (router) => {
         }, {})
 
         // wait to pubsub to propagate messages
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        await delay(1000)
 
         // publish topic
         const request = {
@@ -198,12 +199,12 @@ const testPubsub = (router) => {
           connManager: null
         }
 
-        const stream = client.send(request)
+        client.send(request)
 
-        const response = Response.decode(await stream.first())
+        const response = Response.decode(await client.read())
         expect(response.type).to.eql(Response.Type.OK)
 
-        stream.end()
+        client.streamHandler.close()
       })
     })
 
@@ -233,7 +234,7 @@ const testPubsub = (router) => {
           connManager: null
         }
 
-        const stream = client.send(request)
+        client.send(request)
 
         let subscribed = false
 
@@ -248,7 +249,7 @@ const testPubsub = (router) => {
             expect(response.topicIDs).to.eql([topic])
             expect(response.seqno).to.exist()
 
-            stream.end()
+            client.streamHandler.close()
             resolve()
           } else {
             const response = Response.decode(msg)
@@ -256,7 +257,7 @@ const testPubsub = (router) => {
             subscribed = true
 
             // wait to pubsub to propagate messages
-            await new Promise(resolve => setTimeout(resolve, 1000))
+            await delay(1000)
 
             await libp2pPeer.pubsub.publish(topic, data)
           }

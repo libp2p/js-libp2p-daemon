@@ -9,6 +9,7 @@ const os = require('os')
 const path = require('path')
 const CID = require('cids')
 const ma = require('multiaddr')
+const delay = require('delay')
 
 const { createDaemon } = require('../../src/daemon')
 const { createLibp2p } = require('../../src/libp2p')
@@ -98,9 +99,9 @@ describe('dht', () => {
       connManager: null
     }
 
-    const stream = client.send(request)
+    client.send(request)
 
-    const response = Response.decode(await stream.first())
+    const response = Response.decode(await client.read())
     expect(response.type).to.eql(Response.Type.OK)
     expect(response.dht).to.eql({
       type: DHTResponse.Type.VALUE,
@@ -110,7 +111,7 @@ describe('dht', () => {
       },
       value: null
     })
-    stream.end()
+    client.streamHandler.close()
   })
 
   it('should be able to register as a provider', async () => {
@@ -132,11 +133,11 @@ describe('dht', () => {
       connManager: null
     }
 
-    const stream = client.send(request)
+    client.send(request)
 
-    const response = Response.decode(await stream.first())
+    const response = Response.decode(await client.read())
     expect(response.type).to.eql(Response.Type.OK)
-    stream.end()
+    client.streamHandler.close()
 
     // The peer should be able to find our daemon as a provider
     const providers = []
@@ -171,7 +172,7 @@ describe('dht', () => {
       connManager: null
     }
 
-    const stream = client.send(request)
+    client.send(request)
 
     const expectedResponses = [
       (message) => {
@@ -194,12 +195,13 @@ describe('dht', () => {
       (message) => {
         const response = DHTResponse.decode(message)
         expect(response.type).to.eql(DHTResponse.Type.END)
-        stream.end()
       }
     ]
 
-    for await (const message of stream) {
-      expectedResponses.shift()(message)
+    while (true) {
+      if (expectedResponses.length === 0) break
+      const message = await client.read()
+      expectedResponses.shift()(message.slice())
     }
   })
 
@@ -223,7 +225,7 @@ describe('dht', () => {
       connManager: null
     }
 
-    const stream = client.send(request)
+    client.send(request)
 
     const expectedResponses = [
       (message) => {
@@ -243,12 +245,13 @@ describe('dht', () => {
       (message) => {
         const response = DHTResponse.decode(message)
         expect(response.type).to.eql(DHTResponse.Type.END)
-        stream.end()
       }
     ]
 
-    for await (const message of stream) {
-      expectedResponses.shift()(message)
+    while (true) {
+      if (expectedResponses.length === 0) break
+      const message = await client.read()
+      expectedResponses.shift()(message.slice())
     }
   })
 
@@ -271,16 +274,16 @@ describe('dht', () => {
       connManager: null
     }
 
-    const stream = client.send(request)
+    client.send(request)
 
-    const response = Response.decode(await stream.first())
+    const response = Response.decode(await client.read())
     expect(response.type).to.eql(Response.Type.OK)
     expect(response.dht).to.eql({
       type: DHTResponse.Type.VALUE,
       peer: null,
       value: libp2pPeer.peerInfo.id.pubKey.bytes
     })
-    stream.end()
+    client.streamHandler.close()
   })
 
   it('should be able to get a value from the dht', async () => {
@@ -304,16 +307,16 @@ describe('dht', () => {
       connManager: null
     }
 
-    const stream = client.send(request)
+    client.send(request)
 
-    const response = Response.decode(await stream.first())
+    const response = Response.decode(await client.read())
     expect(response.type).to.eql(Response.Type.OK)
     expect(response.dht).to.eql({
       type: DHTResponse.Type.VALUE,
       peer: null,
       value: Buffer.from('world')
     })
-    stream.end()
+    client.streamHandler.close()
   })
 
   it('should error when it cannot find a value', async () => {
@@ -335,11 +338,11 @@ describe('dht', () => {
       connManager: null
     }
 
-    const stream = client.send(request)
+    client.send(request)
 
-    const response = Response.decode(await stream.first())
+    const response = Response.decode(await client.read())
     expect(response.type).to.eql(Response.Type.ERROR)
-    stream.end()
+    client.streamHandler.close()
   })
 
   it('should be able to put a value to the dht', async () => {
@@ -362,12 +365,12 @@ describe('dht', () => {
       connManager: null
     }
 
-    const stream = client.send(request)
+    client.send(request)
 
-    const response = Response.decode(await stream.first())
+    const response = Response.decode(await client.read())
     expect(response.type).to.eql(Response.Type.OK)
     expect(response.dht).to.eql(null)
-    stream.end()
+    client.streamHandler.close()
 
     const value = await libp2pPeer.contentRouting.get(Buffer.from('/hello2'))
     expect(value).to.eql(Buffer.from('world2'))

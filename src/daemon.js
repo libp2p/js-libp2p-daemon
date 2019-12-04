@@ -394,12 +394,6 @@ class Daemon {
     const conn = toIterable(socket)
     const streamHandler = new StreamHandler({ stream: conn, maxLength: LIMIT })
 
-    // const inbound = pipe(
-    //   conn.source,
-    //   lp.decode({ maxDataLength: LIMIT }),
-    //   toBuffer
-    // )
-
     // Iterate over multiple requests until a stream open is requested,
     // at which point the connection should be short circuited
     while (true) {
