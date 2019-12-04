@@ -5,6 +5,7 @@ const Socket = net.Socket
 const StreamHandler = require('./stream-handler')
 const LIMIT = 1 << 22 // 4MB
 
+const { Request } = require('./protocol')
 const { ends, multiaddrToNetConfig } = require('./util')
 const toIterable = require('./socket-to-iterable')
 const promisify = require('promisify-es6')
@@ -56,7 +57,7 @@ class Client {
    * @async
    */
   async stopServer () {
-    if (!this.server) return
+    if (!this.server || !this.server.listening) return
     await promisify(this.server.close, { context: this.server })()
     this.server = null
   }
@@ -70,6 +71,31 @@ class Client {
     return new Promise((resolve) => {
       this._socket.end(resolve)
     })
+  }
+
+  /**
+   * Sends the request to the daemon. This
+   * should only be used when sending daemon requests.
+   * @param {Request} request A plain request object that will be protobuf encoded
+   */
+  send (request) {
+    this.streamHandler.write(Request.encode(request))
+  }
+
+  /**
+   * Reads from the internal handshake
+   * @returns {Promise<BufferList>}
+   */
+  read () {
+    return this.streamHandler.read()
+  }
+
+  /**
+   * Returns the underlying duplex iterable.
+   * @returns {*} Duplex iterable
+   */
+  getStream () {
+    return this.streamHandler.rest()
   }
 }
 

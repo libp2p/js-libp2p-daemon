@@ -133,15 +133,11 @@ class Daemon {
 
     protocols.forEach((proto) => {
       // Connect the client socket with the libp2p connection
-      this.libp2p.handle(proto, ({ stream, protocol }) => {
-        // const streamHandler = new StreamHandler(stream, { maxLength: LIMIT })
-
-
-        const addr = conn.peerInfo.isConnected()
+      this.libp2p.handle(proto, ({ connection, stream, protocol }) => {
         const message = StreamInfo.encode({
-          peer: conn.peerInfo.id.toBytes(),
-          addr: addr ? addr.buffer : Buffer.alloc(0),
-          proto: proto
+          peer: connection.remotePeer.toBytes(),
+          addr: connection.remoteAddr.buffer,
+          proto: protocol
         })
         const encodedMessage = lp.encode.single(message)
 
