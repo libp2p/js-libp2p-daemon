@@ -17,7 +17,7 @@ const StreamHandler = require('../../src/stream-handler')
 const Client = require('../../src/client')
 const { createDaemon } = require('../../src/daemon')
 const { createLibp2p } = require('../../src/libp2p')
-const { ends, isWindows } = require('../../src/util')
+const { isWindows } = require('../../src/util')
 const { connect } = require('../util')
 const {
   Request,

@@ -87,12 +87,12 @@ describe('core features', () => {
       connManager: null
     }
 
-    const stream = client.send(request)
+    client.send(request)
 
-    const message = await stream.first()
+    const message = await client.read()
     const response = Response.decode(message)
     expect(response.type).to.eql(Response.Type.OK)
-    stream.end()
+    client.streamHandler.close()
   })
 
   it('should be able to list peers', async () => {
@@ -111,13 +111,13 @@ describe('core features', () => {
       connManager: null
     }
 
-    const stream = client.send(request)
+    client.send(request)
 
-    const message = await stream.first()
+    const message = await client.read()
     const response = Response.decode(message)
     expect(response.type).to.eql(Response.Type.OK)
     expect(response.peers).to.have.length(1)
-    stream.end()
+    client.streamHandler.close()
   })
 
   it('should be able to identify', async () => {
@@ -136,15 +136,15 @@ describe('core features', () => {
       connManager: null
     }
 
-    const stream = client.send(request)
+    client.send(request)
 
-    const response = Response.decode(await stream.first())
+    const response = Response.decode(await client.read())
     expect(response.type).to.eql(Response.Type.OK)
 
     expect(response.identify).to.eql({
       id: daemon.libp2p.peerInfo.id.toBytes(),
       addrs: daemon.libp2p.peerInfo.multiaddrs.toArray().map(m => m.buffer)
     })
-    stream.end()
+    client.streamHandler.close()
   })
 })
