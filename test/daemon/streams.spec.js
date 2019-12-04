@@ -7,10 +7,10 @@ chai.use(require('dirty-chai'))
 const expect = chai.expect
 const os = require('os')
 const path = require('path')
-const { decode } = require('length-prefixed-stream')
-const { pipeline } = require('readable-stream')
 const pipe = require('it-pipe')
 const ma = require('multiaddr')
+const { collect } = require('streaming-iterables')
+const { toBuffer } = require('it-buffer')
 
 const Client = require('../../src/client')
 const { createDaemon } = require('../../src/daemon')
@@ -103,10 +103,11 @@ describe('streams', function () {
     }
 
     // Open a stream from the daemon to the peer node
-    const stream = client.send(request)
+    client.streamHandler.write(Request.encode(request))
 
     // Verify the response
-    const response = Response.decode(await stream.first())
+    const response = Response.decode(await client.streamHandler.read())
+    console.log(response)
     expect(response.type).to.eql(Response.Type.OK)
     expect(response.streamInfo).to.eql({
       peer: libp2pPeer.peerInfo.id.toBytes(),
@@ -114,75 +115,78 @@ describe('streams', function () {
       proto: '/echo/1.0.0'
     })
 
-    const peerStream = client.write(hello)
-    for await (const message of peerStream) {
-      expect(message).to.eql(hello)
-      peerStream.end()
-    }
+    const stream = client.streamHandler.rest()
+    const output = await pipe(
+      [hello],
+      stream,
+      toBuffer,
+      collect
+    )
+    expect(output).to.eql([hello])
   })
 
   it.skip('should be able to register a stream handler and echo with it', async () => {
-    client = new Client(daemonAddr)
-    const addr = isWindows
-      ? ma('/ip4/0.0.0.0/tcp/9090')
-      : ma(`/unix${path.resolve(os.tmpdir(), '/tmp/p2p-echo-handler.sock')}`)
+    // client = new Client(daemonAddr)
+    // const addr = isWindows
+    //   ? ma('/ip4/0.0.0.0/tcp/9090')
+    //   : ma(`/unix${path.resolve(os.tmpdir(), '/tmp/p2p-echo-handler.sock')}`)
 
-    await client.attach()
-    // Start an echo server, where we will handle streams from the daemon
-    await client.startServer(addr, async (conn) => {
-      // Decode the stream
-      const dec = decode()
-      conn.pipe(dec)
+    // await client.attach()
+    // // Start an echo server, where we will handle streams from the daemon
+    // await client.startServer(addr, async (conn) => {
+    //   // Decode the stream
+    //   const dec = decode()
+    //   conn.pipe(dec)
 
-      // Read the stream info from the daemon, then pipe to echo
-      const message = await ends(dec).first()
-      const response = StreamInfo.decode(message)
+    //   // Read the stream info from the daemon, then pipe to echo
+    //   const message = await ends(dec).first()
+    //   const response = StreamInfo.decode(message)
 
-      expect(response.peer).to.eql(libp2pPeer.peerInfo.id.toBytes())
-      expect(response.proto).to.eql('/echo/1.0.0')
+    //   expect(response.peer).to.eql(libp2pPeer.peerInfo.id.toBytes())
+    //   expect(response.proto).to.eql('/echo/1.0.0')
 
-      conn.unpipe(dec)
+    //   conn.unpipe(dec)
 
-      // Echo messages
-      pipeline(
-        conn,
-        conn,
-        (err) => {
-          expect(err).to.not.exist()
-        }
-      )
-    })
+    //   // Echo messages
+    //   pipeline(
+    //     conn,
+    //     conn,
+    //     (err) => {
+    //       expect(err).to.not.exist()
+    //     }
+    //   )
+    // })
 
-    const request = {
-      type: Request.Type.STREAM_HANDLER,
-      connect: null,
-      streamOpen: null,
-      streamHandler: {
-        addr: addr.buffer,
-        proto: ['/echo/1.0.0']
-      },
-      dht: null,
-      connManager: null
-    }
+    // const request = {
+    //   type: Request.Type.STREAM_HANDLER,
+    //   connect: null,
+    //   streamOpen: null,
+    //   streamHandler: {
+    //     addr: addr.buffer,
+    //     proto: ['/echo/1.0.0']
+    //   },
+    //   dht: null,
+    //   connManager: null
+    // }
 
-    // Register the stream handler
-    const stream = client.send(request)
-    const response = Response.decode(await stream.first())
-    expect(response.type).to.eql(Response.Type.OK)
+    // // Register the stream handler
+    // const stream = client.send(request)
+    // const response = Response.decode(await stream.first())
+    // expect(response.type).to.eql(Response.Type.OK)
 
-    // Open a connection between the peer and our daemon
-    // Then send hello from the peer to the daemon
-    const connection = await libp2pPeer.dial(daemon.libp2p.peerInfo, '/echo/1.0.0')
-    const hello = Buffer.from('hello, peer')
-    connection.write(hello)
+    // // Open a connection between the peer and our daemon
+    // // Then send hello from the peer to the daemon
+    // const connection = await libp2pPeer.dial(daemon.libp2p.peerInfo, '/echo/1.0.0')
+    // const hello = Buffer.from('hello, peer')
+    // connection.write(hello)
 
-    // TODO: The connection from dial should be async iterable
-    return new Promise((resolve) => {
-      connection.on('data', message => {
-        expect(message).to.eql(hello)
-        connection.end()
-        resolve()
-      })
-    })
+    // // TODO: The connection from dial should be async iterable
+    // return new Promise((resolve) => {
+    //   connection.on('data', message => {
+    //     expect(message).to.eql(hello)
+    //     connection.end()
+    //     resolve()
+    //   })
+    // })
   })
 })

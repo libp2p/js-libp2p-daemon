@@ -33,12 +33,12 @@ async function connect ({
     }
   }
 
-  const stream = client.send(request)
+  client.streamHandler.write(Request.encode(request))
 
-  const message = await stream.first()
+  const message = await client.streamHandler.read()
   const response = Response.decode(message)
   expect(response.type).to.eql(Response.Type.OK)
-  stream.end()
+  client.streamHandler.close()
 
   await client.close()
 }

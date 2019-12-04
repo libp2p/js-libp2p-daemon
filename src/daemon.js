@@ -8,8 +8,16 @@ const PeerInfo = require('peer-info')
 const PeerId = require('peer-id')
 const ma = require('multiaddr')
 const CID = require('cids')
-const { encode, decode } = require('length-prefixed-stream')
+const lp = require('it-length-prefixed')
+const duplexPair = require('it-pair/duplex')
+const pipe = require('it-pipe')
+const Wrap = require('it-pb-rpc')
+const toBuffer = require('it-buffer')
+const toIterable = require('./socket-to-iterable')
 const { multiaddrToNetConfig } = require('./util')
+const promisify = require('promisify-es6')
+const StreamHandler = require('./stream-handler')
+const { concat } = require('streaming-iterables')
 const {
   Request,
   DHTRequest,
@@ -105,53 +113,50 @@ class Daemon {
    * @param {StreamHandlerRequest} request
    * @returns {Promise<void>}
    */
-  registerStreamHandler (request) {
-    return new Promise((resolve, reject) => {
-      const protocols = request.streamHandler.proto
-      const addr = ma(request.streamHandler.addr)
-      const addrString = addr.toString()
+  async registerStreamHandler (request) {
+    const protocols = request.streamHandler.proto
+    const addr = ma(request.streamHandler.addr)
+    const addrString = addr.toString()
 
-      // If we have a handler, end it
-      if (this.streamHandlers[addrString]) {
-        this.streamHandlers[addrString].end()
-        delete this.streamHandlers[addrString]
-      }
+    // If we have a handler, end it
+    if (this.streamHandlers[addrString]) {
+      this.streamHandlers[addrString].end()
+      delete this.streamHandlers[addrString]
+    }
 
-      const socket = this.streamHandlers[addrString] = new net.Socket({
-        readable: true,
-        writable: true,
-        allowHalfOpen: true
-      })
+    const socket = this.streamHandlers[addrString] = new net.Socket({
+      readable: true,
+      writable: true,
+      allowHalfOpen: true
+    })
+    const clientConnection = toIterable(socket)
 
-      protocols.forEach((proto) => {
-        // Connect the client socket with the libp2p connection
-        this.libp2p.handle(proto, (_, conn) => {
-          const enc = encode()
+    protocols.forEach((proto) => {
+      // Connect the client socket with the libp2p connection
+      this.libp2p.handle(proto, ({ stream, protocol }) => {
+        // const streamHandler = new StreamHandler(stream, { maxLength: LIMIT })
 
-          const addr = conn.peerInfo.isConnected()
-          const message = StreamInfo.encode({
-            peer: conn.peerInfo.id.toBytes(),
-            addr: addr ? addr.buffer : Buffer.alloc(0),
-            proto: proto
-          })
 
-          // Tell the client about the new connection
-          enc.pipe(socket)
-          enc.write(message)
-          enc.unpipe(socket)
-
-          // And then begin piping the client and peer connection
-          conn.pipe(socket)
-          socket.pipe(conn)
+        const addr = conn.peerInfo.isConnected()
+        const message = StreamInfo.encode({
+          peer: conn.peerInfo.id.toBytes(),
+          addr: addr ? addr.buffer : Buffer.alloc(0),
+          proto: proto
         })
-      })
+        const encodedMessage = lp.encode.single(message)
 
-      const options = multiaddrToNetConfig(addr)
-      socket.connect(options, (err) => {
-        if (err) return reject(err)
-        resolve()
+        // Tell the client about the new connection
+        // And then begin piping the client and peer connection
+        pipe(
+          concat([encodedMessage], stream.source),
+          clientConnection,
+          stream.sink
+        )
       })
     })
+
+    const options = multiaddrToNetConfig(addr)
+    await promisify(socket.connect, { context: socket })(options)
   }
 
   /**
@@ -174,13 +179,9 @@ class Daemon {
    */
   async start () {
     await this.libp2p.start()
-    return new Promise((resolve, reject) => {
-      const options = multiaddrToNetConfig(this.multiaddr)
-      this.server.listen(options, (err) => {
-        if (err) return reject(err)
-        resolve()
-      })
-    })
+    const options = multiaddrToNetConfig(this.multiaddr)
+    const listen = promisify(this.server.listen, { context: this.server })
+    await listen(options)
   }
 
   /**
@@ -192,18 +193,14 @@ class Daemon {
    */
   async stop (options = { exit: false }) {
     await this.libp2p.stop()
-    return new Promise((resolve) => {
-      this.server.close(() => {
-        if (options.exit) {
-          log('server closed, exiting')
-          // return process.exit(0)
-        }
-        resolve()
-      })
-    })
+    const close = promisify(this.server.close, { context: this.server })
+    await close()
+    if (options.exit) {
+      log('server closed, exiting')
+    }
   }
 
-  async handlePeerstoreRequest ({ peerStore }, enc) {
+  async handlePeerstoreRequest ({ peerStore }, streamHandler) {
     switch (peerStore.type) {
       case PeerstoreRequest.Type.GET_PROTOCOLS: {
         let protos
@@ -215,13 +212,7 @@ class Daemon {
           throw new Error('ERR_INVALID_PEERSTORE_REQUEST')
         }
 
-        await new Promise((resolve) => {
-          enc.write(
-            OkResponse({
-              peerStore: { protos }
-            }),
-            resolve)
-        })
+        streamHandler.write(OkResponse({ peerStore: { protos } }))
         break
       }
       case PeerstoreRequest.Type.GET_PEER_INFO: {
@@ -238,21 +229,13 @@ class Daemon {
    *
    * @private
    * @param {Request} request
-   * @param {Encoder} enc
+   * @param {StreamHandler} streamHandler
    */
-  async handlePubsubRequest ({ pubsub }, enc) {
+  async handlePubsubRequest ({ pubsub }, streamHandler) {
     switch (pubsub.type) {
       case PSRequest.Type.GET_TOPICS: {
         const topics = await this.libp2p.pubsub.getTopics()
-
-        await new Promise((resolve) => {
-          enc.write(
-            OkResponse({
-              pubsub: { topics }
-            }),
-            resolve)
-        })
-
+        streamHandler.write(OkResponse({ pubsub: { topics } }))
         break
       }
       case PSRequest.Type.PUBLISH: {
@@ -260,10 +243,7 @@ class Daemon {
         const data = pubsub.data
 
         await this.libp2p.pubsub.publish(topic, data)
-
-        await new Promise((resolve) => {
-          enc.write(OkResponse(), resolve)
-        })
+        streamHandler.write(OkResponse())
 
         break
       }
@@ -271,20 +251,18 @@ class Daemon {
         const topic = pubsub.topic
 
         await this.libp2p.pubsub.subscribe(topic, async (msg) => {
-          await new Promise((resolve) => {
-            enc.write(PSMessage.encode({
-              from: msg.from && Buffer.from(msg.from),
-              data: msg.data,
-              seqno: msg.seqno,
-              topicIDs: msg.topicIDs,
-              signature: msg.signature,
-              key: msg.key
-            }), resolve)
-          })
-        }, {})
+          streamHandler.write(PSMessage.encode({
+            from: msg.from && Buffer.from(msg.from),
+            data: msg.data,
+            seqno: msg.seqno,
+            topicIDs: msg.topicIDs,
+            signature: msg.signature,
+            key: msg.key
+          }))
+        })
 
         await new Promise((resolve) => {
-          enc.write(OkResponse(), resolve)
+          streamHandler.write(OkResponse(), resolve)
         })
 
         break
@@ -413,21 +391,30 @@ class Daemon {
    * Handles requests for the given connection
    *
    * @private
-   * @param {Stream} conn Connection from the daemon client
+   * @param {Socket} socket Socket to the client
    * @returns {void}
    */
-  async handleConnection (conn) {
-    const dec = decode({ limit: LIMIT })
-    const enc = encode()
-    enc.pipe(conn)
-    conn.pipe(dec)
+  async handleConnection (socket) {
+    const conn = toIterable(socket)
+    const streamHandler = new StreamHandler({ stream: conn, maxLength: LIMIT })
 
-    for await (const message of dec) {
+    // const inbound = pipe(
+    //   conn.source,
+    //   lp.decode({ maxDataLength: LIMIT }),
+    //   toBuffer
+    // )
+
+    // Iterate over multiple requests until a stream open is requested,
+    // at which point the connection should be short circuited
+    while (true) {
+      const message = await streamHandler.read()
+
       let request
       try {
-        request = Request.decode(Buffer.from(message))
+        request = Request.decode(message)
       } catch (err) {
-        return enc.write(ErrorResponse('ERR_INVALID_MESSAGE'))
+        // TODO: Should this `continue`?
+        return streamHandler.write(ErrorResponse('ERR_INVALID_MESSAGE'))
       }
 
       switch (request.type) {
@@ -436,15 +423,15 @@ class Daemon {
           try {
             await this.connect(request)
           } catch (err) {
-            enc.write(ErrorResponse(err.message))
+            streamHandler.write(ErrorResponse(err.message))
             break
           }
-          enc.write(OkResponse())
+          streamHandler.write(OkResponse())
           break
         }
         // Get the daemon peer id and addresses
         case Request.Type.IDENTIFY: {
-          enc.write(OkResponse({
+          streamHandler.write(OkResponse({
             identify: {
               id: this.libp2p.peerInfo.id.toBytes(),
               addrs: this.libp2p.peerInfo.multiaddrs.toArray().map(m => m.buffer)
@@ -461,7 +448,7 @@ class Daemon {
               addrs: [addr ? addr.buffer : null]
             }
           })
-          enc.write(OkResponse({
+          streamHandler.write(OkResponse({
             peers
           }))
           break
@@ -471,47 +458,50 @@ class Daemon {
           try {
             response = await this.openStream(request)
           } catch (err) {
-            enc.write(ErrorResponse(err.message))
+            streamHandler.write(ErrorResponse(err.message))
             break
           }
 
           // write the response
-          enc.write(OkResponse({
+          streamHandler.write(OkResponse({
             streamInfo: response.streamInfo
           }))
-          enc.unpipe(conn)
-          conn.unpipe(dec)
 
           // then pipe the connection to the client
-          conn.pipe(response.connection).pipe(conn)
+          const stream = streamHandler.rest()
+          pipe(
+            stream.source,
+            response.connection,
+            stream.sink
+          )
           break
         }
         case Request.Type.STREAM_HANDLER: {
           try {
             await this.registerStreamHandler(request)
           } catch (err) {
-            enc.write(ErrorResponse(err.message))
+            streamHandler.write(ErrorResponse(err.message))
             break
           }
 
           // write the response
-          enc.write(OkResponse())
+          streamHandler.write(OkResponse())
           break
         }
         case Request.Type.PEERSTORE: {
           try {
-            await this.handlePeerstoreRequest(request, enc)
+            await this.handlePeerstoreRequest(request, streamHandler)
           } catch (err) {
-            enc.write(ErrorResponse(err.message))
+            streamHandler.write(ErrorResponse(err.message))
             break
           }
           break
         }
         case Request.Type.PUBSUB: {
           try {
-            await this.handlePubsubRequest(request, enc)
+            await this.handlePubsubRequest(request, streamHandler)
           } catch (err) {
-            enc.write(ErrorResponse(err.message))
+            streamHandler.write(ErrorResponse(err.message))
             break
           }
           break
@@ -522,25 +512,25 @@ class Daemon {
             const responses = await this.handleDHTRequest(request)
             for (const response of responses) {
               // write and wait for the flush
-              await new Promise((resolve) => {
-                enc.write(response, resolve)
-              })
+              streamHandler.write(response)
             }
           } catch (err) {
-            enc.write(ErrorResponse(err.message))
+            streamHandler.write(ErrorResponse(err.message))
             break
           }
           break
         }
         // Not yet supported or doesn't exist
         default:
-          enc.write(ErrorResponse('ERR_INVALID_REQUEST_TYPE'))
+          streamHandler.write(ErrorResponse('ERR_INVALID_REQUEST_TYPE'))
           break
       }
+
+      break
     }
 
     // The other end hung up, let's also do that
-    conn.end()
+    streamHandler.close()
   }
 }
 

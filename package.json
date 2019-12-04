@@ -48,9 +48,10 @@
   "dependencies": {
     "cids": "~0.6.0",
     "debug": "^4.1.1",
+    "it-buffer": "^0.1.1",
+    "it-handshake": "^1.0.1",
     "it-length-prefixed": "^3.0.0",
     "it-pipe": "^1.1.0",
-    "length-prefixed-stream": "github:jacobheun/length-prefixed-stream#v2.0.0-rc.1",
     "libp2p": "libp2p/js-libp2p#refactor/async-await",
     "libp2p-bootstrap": "~0.10.3",
     "libp2p-floodsub": "~0.20.0",
@@ -63,7 +64,10 @@
     "multiaddr": "^7.1.0",
     "peer-id": "~0.13.3",
     "peer-info": "~0.17.0",
+    "promisify-es6": "^1.0.3",
     "protons": "^1.0.1",
+    "stream-to-it": "^0.1.1",
+    "streaming-iterables": "^4.1.1",
     "yargs": "^15.0.2",
     "yargs-promise": "^1.1.0"
   },
