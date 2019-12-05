@@ -42,7 +42,7 @@ class StreamHandler {
    * @param {*} msg
    */
   write (msg) {
-    log('write message type %s', msg.type)
+    log('write message')
     this.shake.write(lp.encode.single(msg))
   }
 

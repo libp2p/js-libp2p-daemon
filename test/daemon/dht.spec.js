@@ -10,6 +10,7 @@ const path = require('path')
 const CID = require('cids')
 const ma = require('multiaddr')
 
+const StreamHandler = require('../../src/stream-handler')
 const { createDaemon } = require('../../src/daemon')
 const { createLibp2p } = require('../../src/libp2p')
 const Client = require('../../src/client')
@@ -82,7 +83,8 @@ describe('dht', () => {
   it('should be able to find a peer', async () => {
     client = new Client(daemonAddr)
 
-    await client.attach()
+    const maConn = await client.connect()
+    const streamHandler = new StreamHandler({ stream: maConn })
 
     const request = {
       type: Request.Type.DHT,
@@ -98,9 +100,9 @@ describe('dht', () => {
       connManager: null
     }
 
-    client.send(request)
+    streamHandler.write(Request.encode(request))
 
-    const response = Response.decode(await client.read())
+    const response = Response.decode(await streamHandler.read())
     expect(response.type).to.eql(Response.Type.OK)
     expect(response.dht).to.eql({
       type: DHTResponse.Type.VALUE,
@@ -110,13 +112,14 @@ describe('dht', () => {
       },
       value: null
     })
-    client.streamHandler.close()
+    streamHandler.close()
   })
 
   it('should be able to register as a provider', async () => {
     client = new Client(daemonAddr)
 
-    await client.attach()
+    const maConn = await client.connect()
+    const streamHandler = new StreamHandler({ stream: maConn })
 
     const request = {
       type: Request.Type.DHT,
@@ -132,11 +135,11 @@ describe('dht', () => {
       connManager: null
     }
 
-    client.send(request)
+    streamHandler.write(Request.encode(request))
 
-    const response = Response.decode(await client.read())
+    const response = Response.decode(await streamHandler.read())
     expect(response.type).to.eql(Response.Type.OK)
-    client.streamHandler.close()
+    streamHandler.close()
 
     // The peer should be able to find our daemon as a provider
     const providers = []
@@ -154,7 +157,8 @@ describe('dht', () => {
     // Now find it as a provider
     client = new Client(daemonAddr)
 
-    await client.attach()
+    const maConn = await client.connect()
+    const streamHandler = new StreamHandler({ stream: maConn })
 
     const request = {
       type: Request.Type.DHT,
@@ -171,7 +175,7 @@ describe('dht', () => {
       connManager: null
     }
 
-    client.send(request)
+    streamHandler.write(Request.encode(request))
 
     const expectedResponses = [
       (message) => {
@@ -199,16 +203,18 @@ describe('dht', () => {
 
     while (true) {
       if (expectedResponses.length === 0) break
-      const message = await client.read()
+      const message = await streamHandler.read()
       expectedResponses.shift()(message.slice())
     }
+    streamHandler.close()
   })
 
   it('should be able to get closest peers to a key', async () => {
     // Now find it as a provider
     client = new Client(daemonAddr)
 
-    await client.attach()
+    const maConn = await client.connect()
+    const streamHandler = new StreamHandler({ stream: maConn })
 
     const request = {
       type: Request.Type.DHT,
@@ -224,7 +230,7 @@ describe('dht', () => {
       connManager: null
     }
 
-    client.send(request)
+    streamHandler.write(Request.encode(request))
 
     const expectedResponses = [
       (message) => {
@@ -249,15 +255,17 @@ describe('dht', () => {
 
     while (true) {
       if (expectedResponses.length === 0) break
-      const message = await client.read()
+      const message = await streamHandler.read()
       expectedResponses.shift()(message.slice())
     }
+    streamHandler.close()
   })
 
   it('should be able to get the public key of a peer', async () => {
     client = new Client(daemonAddr)
 
-    await client.attach()
+    const maConn = await client.connect()
+    const streamHandler = new StreamHandler({ stream: maConn })
 
     const request = {
       type: Request.Type.DHT,
@@ -273,22 +281,23 @@ describe('dht', () => {
       connManager: null
     }
 
-    client.send(request)
+    streamHandler.write(Request.encode(request))
 
-    const response = Response.decode(await client.read())
+    const response = Response.decode(await streamHandler.read())
     expect(response.type).to.eql(Response.Type.OK)
     expect(response.dht).to.eql({
       type: DHTResponse.Type.VALUE,
       peer: null,
       value: libp2pPeer.peerInfo.id.pubKey.bytes
     })
-    client.streamHandler.close()
+    streamHandler.close()
   })
 
   it('should be able to get a value from the dht', async () => {
     client = new Client(daemonAddr)
 
-    await client.attach()
+    const maConn = await client.connect()
+    const streamHandler = new StreamHandler({ stream: maConn })
 
     await libp2pPeer.contentRouting.put(Buffer.from('/hello'), Buffer.from('world'))
 
@@ -306,22 +315,23 @@ describe('dht', () => {
       connManager: null
     }
 
-    client.send(request)
+    streamHandler.write(Request.encode(request))
 
-    const response = Response.decode(await client.read())
+    const response = Response.decode(await streamHandler.read())
     expect(response.type).to.eql(Response.Type.OK)
     expect(response.dht).to.eql({
       type: DHTResponse.Type.VALUE,
       peer: null,
       value: Buffer.from('world')
     })
-    client.streamHandler.close()
+    streamHandler.close()
   })
 
   it('should error when it cannot find a value', async () => {
     client = new Client(daemonAddr)
 
-    await client.attach()
+    const maConn = await client.connect()
+    const streamHandler = new StreamHandler({ stream: maConn })
 
     const request = {
       type: Request.Type.DHT,
@@ -337,17 +347,18 @@ describe('dht', () => {
       connManager: null
     }
 
-    client.send(request)
+    streamHandler.write(Request.encode(request))
 
-    const response = Response.decode(await client.read())
+    const response = Response.decode(await streamHandler.read())
     expect(response.type).to.eql(Response.Type.ERROR)
-    client.streamHandler.close()
+    streamHandler.close()
   })
 
   it('should be able to put a value to the dht', async () => {
     client = new Client(daemonAddr)
 
-    await client.attach()
+    const maConn = await client.connect()
+    const streamHandler = new StreamHandler({ stream: maConn })
 
     const request = {
       type: Request.Type.DHT,
@@ -364,12 +375,12 @@ describe('dht', () => {
       connManager: null
     }
 
-    client.send(request)
+    streamHandler.write(Request.encode(request))
 
-    const response = Response.decode(await client.read())
+    const response = Response.decode(await streamHandler.read())
     expect(response.type).to.eql(Response.Type.OK)
     expect(response.dht).to.eql(null)
-    client.streamHandler.close()
+    streamHandler.close()
 
     const value = await libp2pPeer.contentRouting.get(Buffer.from('/hello2'))
     expect(value).to.eql(Buffer.from('world2'))

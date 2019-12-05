@@ -1,26 +1,18 @@
 'use strict'
 
-const net = require('net')
-const Socket = net.Socket
+const TCP = require('libp2p-tcp')
 const StreamHandler = require('./stream-handler')
 const LIMIT = 1 << 22 // 4MB
 
 const { Request } = require('./protocol')
-const { multiaddrToNetConfig } = require('./util')
+const { multiaddrToNetConfig, passThroughUpgrader } = require('./util')
 const toIterable = require('./socket-to-iterable')
-const promisify = require('promisify-es6')
 
 class Client {
   constructor (addr) {
     this.multiaddr = addr
     this.server = null
-    this._socket = new Socket({
-      readable: true,
-      writable: true,
-      allowHalfOpen: true
-    })
-    this.connection = toIterable(this._socket)
-    this.streamHandler = new StreamHandler({ stream: this.connection, maxLength: LIMIT })
+    this.tcp = new TCP({ upgrader: passThroughUpgrader })
   }
 
   /**
@@ -28,9 +20,8 @@ class Client {
    * was created with
    * @async
    */
-  async attach () {
-    const options = multiaddrToNetConfig(this.multiaddr)
-    await promisify(this._socket.connect, { context: this._socket })(options)
+  connect () {
+    return this.tcp.dial(this.multiaddr)
   }
 
   /**
@@ -40,26 +31,13 @@ class Client {
    * @param {function(Stream)} connectionHandler
    * @returns {Promise}
    */
-  async startServer (addr, connectionHandler) {
-    if (this.server) {
-      await this.stopServer()
+  async start (addr, connectionHandler) {
+    if (this.listener) {
+      await this.close()
     }
-    this.server = net.createServer({
-      allowHalfOpen: true
-    }, connectionHandler)
+    this.listener = this.tcp.createListener(maConn => connectionHandler(maConn))
 
-    const options = multiaddrToNetConfig(addr)
-    return promisify(this.server.listen, { context: this.server })(options)
-  }
-
-  /**
-   * Closes the net Server if it's running
-   * @async
-   */
-  async stopServer () {
-    if (!this.server || !this.server.listening) return
-    await promisify(this.server.close, { context: this.server })()
-    this.server = null
+    await this.listener.listen(addr)
   }
 
   /**
@@ -67,35 +45,8 @@ class Client {
    * @returns {Promise}
    */
   async close () {
-    await this.stopServer()
-    return new Promise((resolve) => {
-      this._socket.end(resolve)
-    })
-  }
-
-  /**
-   * Sends the request to the daemon. This
-   * should only be used when sending daemon requests.
-   * @param {Request} request A plain request object that will be protobuf encoded
-   */
-  send (request) {
-    this.streamHandler.write(Request.encode(request))
-  }
-
-  /**
-   * Reads from the internal handshake
-   * @returns {Promise<BufferList>}
-   */
-  read () {
-    return this.streamHandler.read()
-  }
-
-  /**
-   * Returns the underlying duplex iterable.
-   * @returns {*} Duplex iterable
-   */
-  getStream () {
-    return this.streamHandler.rest()
+    this.listener && await this.listener.close()
+    this.listener = null
   }
 }
 

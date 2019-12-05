@@ -85,12 +85,23 @@ describe('streams', function () {
     const hello = Buffer.from('hello there')
 
     // Have the peer echo our messages back
-    libp2pPeer.handle('/echo/1.0.0', ({ stream }) => {
-      pipe(stream, stream)
-    })
+    libp2pPeer.handle('/echo/1.0.0', ({ connection, stream }) => {
+      console.log('New stream from %s, %s', connection.remotePeer.toString(), connection.localPeer.toString())
+      pipe(
+        stream,
+        (source => async function * () {
+          for await (const chunk of source) {
+            console.log('Echo server %s', chunk.slice())
+            yield chunk
+          }
+        })(),
+      stream
+    )
+  })
 
     client = new Client(daemonAddr)
-    await client.attach()
+    const maConn = await client.connect()
+    const streamHandler = new StreamHandler({ stream: maConn })
 
     const request = {
       type: Request.Type.STREAM_OPEN,
@@ -105,10 +116,10 @@ describe('streams', function () {
     }
 
     // Open a stream from the daemon to the peer node
-    client.send(request)
+    streamHandler.write(Request.encode(request))
 
     // Verify the response
-    const response = Response.decode(await client.read())
+    const response = Response.decode(await streamHandler.read())
     expect(response.type).to.eql(Response.Type.OK)
     expect(response.streamInfo).to.eql({
       peer: libp2pPeer.peerInfo.id.toBytes(),
@@ -116,10 +127,22 @@ describe('streams', function () {
       proto: '/echo/1.0.0'
     })
 
-    const stream = client.streamHandler.rest()
+    const stream = streamHandler.rest()
     const output = await pipe(
       [hello],
+      (source) => (async function * () {
+        for await (const chunk of source) {
+          console.log('Into %s', chunk.slice())
+          yield chunk
+        }
+      })(),
       stream,
+      (source) => (async function * () {
+        for await (const chunk of source) {
+          console.log('through %s', chunk.slice())
+          yield chunk
+        }
+      })(),
       toBuffer,
       collect
     )
@@ -132,10 +155,10 @@ describe('streams', function () {
       ? ma('/ip4/0.0.0.0/tcp/9090')
       : ma(`/unix${path.resolve(os.tmpdir(), '/tmp/p2p-echo-handler.sock')}`)
 
-    await client.attach()
+    const maConn = await client.connect()
+    const streamHandler = new StreamHandler({ stream: maConn })
     // Start an echo server, where we will handle streams from the daemon
-    await client.startServer(addr, async (socket) => {
-      const connection = toIterable(socket)
+    await client.start(addr, async (connection) => {
       const streamHandler = new StreamHandler({ stream: connection })
 
       // Read the stream info from the daemon, then pipe to echo
@@ -166,8 +189,8 @@ describe('streams', function () {
     }
 
     // Register the stream handler
-    client.send(request)
-    const response = Response.decode(await client.read())
+    streamHandler.write(Request.encode(request))
+    const response = Response.decode(await streamHandler.read())
     expect(response.type).to.eql(Response.Type.OK)
 
     // Open a connection between the peer and our daemon

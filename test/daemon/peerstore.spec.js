@@ -8,6 +8,7 @@ const expect = chai.expect
 const os = require('os')
 const path = require('path')
 const ma = require('multiaddr')
+const StreamHandler = require('../../src/stream-handler')
 const { createDaemon } = require('../../src/daemon')
 const Client = require('../../src/client')
 const { createLibp2p } = require('../../src/libp2p')
@@ -77,7 +78,8 @@ describe('peerstore features', () => {
   it('should be able to get the protocols for a peer', async () => {
     client = new Client(daemonAddr)
 
-    await client.attach()
+    const maConn = await client.connect()
+    const streamHandler = new StreamHandler({ stream: maConn })
 
     const request = {
       type: Request.Type.PEERSTORE,
@@ -87,9 +89,9 @@ describe('peerstore features', () => {
       }
     }
 
-    client.send(request)
+    streamHandler.write(Request.encode(request))
 
-    const message = await client.read()
+    const message = await streamHandler.read()
     const response = Response.decode(message)
     expect(response.type).to.eql(Response.Type.OK)
     expect(response.peerStore).to.eql({
@@ -102,13 +104,14 @@ describe('peerstore features', () => {
       ],
       peer: null
     })
-    client.streamHandler.close()
+    streamHandler.close()
   })
 
   it('NOT IMPLEMENTED get peer info', async () => {
     client = new Client(daemonAddr)
 
-    await client.attach()
+    const maConn = await client.connect()
+    const streamHandler = new StreamHandler({ stream: maConn })
 
     const request = {
       type: Request.Type.PEERSTORE,
@@ -118,11 +121,12 @@ describe('peerstore features', () => {
       }
     }
 
-    client.send(request)
+    streamHandler.write(Request.encode(request))
 
-    const message = await client.read()
+    const message = await streamHandler.read()
     const response = Response.decode(message)
     expect(response.type).to.eql(Response.Type.ERROR)
     expect(response.error.msg).to.eql('ERR_NOT_IMPLEMENTED')
+    streamHandler.close()
   })
 })
