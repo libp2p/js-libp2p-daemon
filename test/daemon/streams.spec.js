@@ -12,7 +12,6 @@ const ma = require('multiaddr')
 const { collect } = require('streaming-iterables')
 const { toBuffer } = require('it-buffer')
 
-const toIterable = require('../../src/socket-to-iterable')
 const StreamHandler = require('../../src/stream-handler')
 const Client = require('../../src/client')
 const { createDaemon } = require('../../src/daemon')
@@ -85,19 +84,7 @@ describe('streams', function () {
     const hello = Buffer.from('hello there')
 
     // Have the peer echo our messages back
-    libp2pPeer.handle('/echo/1.0.0', ({ connection, stream }) => {
-      console.log('New stream from %s, %s', connection.remotePeer.toString(), connection.localPeer.toString())
-      pipe(
-        stream,
-        (source => async function * () {
-          for await (const chunk of source) {
-            console.log('Echo server %s', chunk.slice())
-            yield chunk
-          }
-        })(),
-      stream
-    )
-  })
+    libp2pPeer.handle('/echo/1.0.0', ({ stream }) => pipe(stream, stream))
 
     client = new Client(daemonAddr)
     const maConn = await client.connect()
@@ -130,19 +117,7 @@ describe('streams', function () {
     const stream = streamHandler.rest()
     const output = await pipe(
       [hello],
-      (source) => (async function * () {
-        for await (const chunk of source) {
-          console.log('Into %s', chunk.slice())
-          yield chunk
-        }
-      })(),
       stream,
-      (source) => (async function * () {
-        for await (const chunk of source) {
-          console.log('through %s', chunk.slice())
-          yield chunk
-        }
-      })(),
       toBuffer,
       collect
     )

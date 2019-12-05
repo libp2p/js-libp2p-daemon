@@ -42,6 +42,7 @@
     "chai-bytes": "~0.1.2",
     "delay": "^4.3.0",
     "dirty-chai": "^2.0.1",
+    "it-pair": "^1.0.0",
     "mocha": "^6.2.2",
     "multihashes": "~0.4.15",
     "p-defer": "^3.0.0",

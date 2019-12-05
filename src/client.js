@@ -1,12 +1,7 @@
 'use strict'
 
 const TCP = require('libp2p-tcp')
-const StreamHandler = require('./stream-handler')
-const LIMIT = 1 << 22 // 4MB
-
-const { Request } = require('./protocol')
-const { multiaddrToNetConfig, passThroughUpgrader } = require('./util')
-const toIterable = require('./socket-to-iterable')
+const { passThroughUpgrader } = require('./util')
 
 class Client {
   constructor (addr) {
@@ -19,6 +14,7 @@ class Client {
    * Connects to a daemon at the unix socket path the client
    * was created with
    * @async
+   * @returns {MultiaddrConnection}
    */
   connect () {
     return this.tcp.dial(this.multiaddr)

@@ -12,7 +12,7 @@ const path = require('path')
 const ma = require('multiaddr')
 const delay = require('delay')
 const pipe = require('it-pipe')
-const { collect } = require('streaming-iterables')
+const { collect, take } = require('streaming-iterables')
 const lp = require('it-length-prefixed')
 const pDefer = require('p-defer')
 const toBuffer = require('it-buffer')
@@ -106,6 +106,7 @@ const testPubsub = (router) => {
         lp.encode(),
         maConn,
         lp.decode(),
+        take(1), // Just get the OK
         source => (async function * () {
           for await (const chunk of source) {
             yield Response.decode(chunk.slice())
@@ -123,7 +124,7 @@ const testPubsub = (router) => {
       client = new Client(daemonAddr)
 
       const maConn = await client.connect()
-      // const streamHandler = new StreamHandler({ stream: maConn })
+      let streamHandler = new StreamHandler({ stream: maConn })
 
       const requestGetTopics = {
         type: Request.Type.PUBSUB,
@@ -150,46 +151,26 @@ const testPubsub = (router) => {
         connManager: null
       }
 
-      const requests = [
-        Request.encode(requestGetTopics),
-        Request.encode(requestSubscribe),
-        Request.encode(requestGetTopics)
-      ]
+      streamHandler.write(Request.encode(requestGetTopics))
+      let response = Response.decode(await streamHandler.read())
+      expect(response.type).to.eql(Response.Type.OK)
+      expect(response.pubsub.topics).to.have.lengthOf(0)
 
-      const results = await pipe(
-        requests,
-        lp.encode(),
-        maConn,
-        lp.decode(),
-        source => (async function * () {
-          for await (const chunk of source) {
-            yield Response.decode(chunk.slice())
-          }
-        })(),
-        collect
-      )
-
-      const responseValidators = [
-        (response) => {
-          expect(response.type).to.eql(Response.Type.OK)
-          expect(response.pubsub.topics).to.have.lengthOf(0)
-        },
-        (response) => {
-          expect(response.type).to.eql(Response.Type.OK)
-        },
-        (response) => {
-          expect(response.type).to.eql(Response.Type.OK)
-          expect(response.pubsub.topics).to.have.lengthOf(1)
-          expect(response.pubsub.topics[0]).to.eql(topic)
-        }
-      ]
-
-      expect(results).to.have.length(3)
-      for (const result of results) {
-        responseValidators.shift()(result)
-      }
-
+      streamHandler.write(Request.encode(requestSubscribe))
+      response = Response.decode(await streamHandler.read())
+      expect(response.type).to.eql(Response.Type.OK)
+      // end the connection as it is now reserved for subscribes
       maConn.close()
+
+      const conn2 = await client.connect()
+
+      streamHandler = new StreamHandler({ stream: conn2 })
+      streamHandler.write(Request.encode(requestGetTopics))
+      response = Response.decode(await streamHandler.read())
+      expect(response.type).to.eql(Response.Type.OK)
+      expect(response.pubsub.topics).to.have.lengthOf(1)
+      expect(response.pubsub.topics[0]).to.eql(topic)
+      conn2.close()
     })
 
     it('should be able to publish messages', async function () {
@@ -209,7 +190,7 @@ const testPubsub = (router) => {
       }, {})
 
       // wait to pubsub to propagate messages
-      await delay(1000)
+      await delay(100)
 
       // publish topic
       const request = Request.encode({
@@ -244,48 +225,7 @@ const testPubsub = (router) => {
       maConn.close()
     })
 
-    it('should do stuff', async () => {
-      const connection = await daemon.libp2p.dial(libp2pPeer.peerInfo)
-      async function* doStuff () {
-        await delay(100)
-        yield Buffer.from('have')
-        await delay(100)
-        yield Buffer.from('some')
-        await delay(100)
-        yield Buffer.from('more')
-        await delay(100)
-      }
-
-      libp2pPeer.handle('/the', async ({ stream }) => {
-        pipe(
-          stream,
-          lp.decode(),
-          source => (async function * () {
-            for await (const data of source) {
-              yield data
-              yield * doStuff()
-            }
-          })(),
-          lp.encode(),
-          stream
-        )
-      })
-
-      const { stream } = await connection.newStream('/the')
-
-      const result = await pipe(
-        [Buffer.from('request 1')],
-        lp.encode(),
-        stream,
-        lp.decode(),
-        toBuffer,
-        collect
-      )
-
-      console.log(result.map(String))
-    })
-
-    it.only('should be able to receive messages from subscribed topics', async function () {
+    it('should be able to receive messages from subscribed topics', async function () {
       const topic = 'test-topic'
       const data = Buffer.from('test-data')
 
@@ -307,9 +247,9 @@ const testPubsub = (router) => {
         connManager: null
       })
 
-      // Publish in 1 second
+      // Publish in .1 seconds
       ;(async () => {
-        await delay(1000)
+        await delay(100)
         await libp2pPeer.pubsub.publish(topic, data)
       })()
 
@@ -317,36 +257,31 @@ const testPubsub = (router) => {
         [request],
         lp.encode(),
         maConn,
-        source => (async function * () {
-          for await (const chunk of source) {
-            yield chunk
-          }
-        })(),
         lp.decode(),
-        source => (async function * () {
-          for await (const chunk of source) {
-            yield Response.decode(chunk.slice())
-          }
-        })(),
+        take(2), // get the OK and the 1st publish method
+        toBuffer,
         collect
       )
 
+      const expectedResponses = [
+        (message) => {
+          const response = Response.decode(message)
+          expect(response.type).to.eql(Response.Type.OK)
+        },
+        (message) => {
+          const response = PSMessage.decode(message)
+          expect(response.from.toString()).to.eql(libp2pPeer.peerInfo.id.toB58String())
+          expect(response.data).to.exist()
+          expect(response.data).to.equalBytes(data)
+          expect(response.topicIDs).to.eql([topic])
+          expect(response.seqno).to.exist()
+        }
+      ]
       expect(responses).to.have.length(2)
+      for (const response of responses) {
+        expectedResponses.shift()(response)
+      }
 
-      // const subscribedMessage = await streamHandler.read()
-      // const subscribedResponse = Response.decode(subscribedMessage)
-      // expect(subscribedResponse.type).to.eql(Response.Type.OK)
-      // await delay(1000)
-      // await libp2pPeer.pubsub.publish(topic, data)
-
-      // const topicMessage = await streamHandler.read()
-      // const response = PSMessage.decode(topicMessage)
-      // expect(response).to.exist()
-      // expect(response.from.toString()).to.eql(libp2pPeer.peerInfo.id.toB58String())
-      // expect(response.data).to.exist()
-      // expect(response.data).to.equalBytes(data)
-      // expect(response.topicIDs).to.eql([topic])
-      // expect(response.seqno).to.exist()
       maConn.close()
     })
   })

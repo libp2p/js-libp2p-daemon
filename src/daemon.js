@@ -11,12 +11,8 @@ const CID = require('cids')
 const lp = require('it-length-prefixed')
 const pipe = require('it-pipe')
 const pushable = require('it-pushable')
-const promisify = require('promisify-es6')
 const { concat } = require('streaming-iterables')
-const toIterable = require('./socket-to-iterable')
-const { passThroughUpgrader, multiaddrToNetConfig } = require('./util')
-const StreamHandler = require('./stream-handler')
-const delay = require('delay')
+const { passThroughUpgrader } = require('./util')
 const {
   Request,
   DHTRequest,
@@ -27,7 +23,6 @@ const {
   PSMessage,
   StreamInfo
 } = require('./protocol')
-const LIMIT = 1 << 22 // 4MB
 
 const log = require('debug')('libp2p:daemon')
 
@@ -95,7 +90,6 @@ class Daemon {
     const connection = this.libp2p.registrar.getConnection(peerInfo)
     const { stream, protocol } = await connection.newStream(proto)
 
-    console.log('New stream to   %s, %s', connection.remotePeer.toString(), connection.localPeer.toString())
     return {
       streamInfo: {
         peer: peerInfo.id.toBytes(),
@@ -186,60 +180,48 @@ class Daemon {
     }
   }
 
-  handlePeerstoreRequest ({ peerStore }, streamHandler) {
-    switch (peerStore.type) {
-      case PeerstoreRequest.Type.GET_PROTOCOLS: {
-        let protos
+  handlePeerStoreRequest ({ peerStore }) {
+    const peerStoreAction = {
+      [PeerstoreRequest.Type.GET_PROTOCOLS]: function * (daemon) {
         try {
           const peerId = PeerId.createFromBytes(peerStore.id)
-          const peerInfo = this.libp2p.peerStore.get(peerId.toB58String())
-          protos = Array.from(peerInfo.protocols)
+          const peerInfo = daemon.libp2p.peerStore.get(peerId.toB58String())
+          const protos = Array.from(peerInfo.protocols)
+          yield OkResponse({ peerStore: { protos } })
         } catch (err) {
           throw new Error('ERR_INVALID_PEERSTORE_REQUEST')
         }
-
-        streamHandler.write(OkResponse({ peerStore: { protos } }))
-        break
-      }
-      case PeerstoreRequest.Type.GET_PEER_INFO: {
-        throw new Error('ERR_NOT_IMPLEMENTED')
-      }
-      default: {
-        throw new Error('ERR_INVALID_REQUEST_TYPE')
+      },
+      [PeerstoreRequest.Type.GET_PEER_INFO]: function * () {
+        yield ErrorResponse('ERR_NOT_IMPLEMENTED')
+      },
+      invalid: function * () {
+        yield ErrorResponse('ERR_INVALID_REQUEST_TYPE')
       }
     }
+
+    return peerStoreAction[peerStore.type](this)
   }
 
   /**
-   * Parses and responds to PSRequests
+   * Parses and responds to PSRequests. An async generator will
+   * be returned.
    *
    * @private
    * @param {Request} request
+   * @returns {*} Returns an async generator
    */
-  async * handlePubsubRequest ({ pubsub }) {
-    switch (pubsub.type) {
-      case PSRequest.Type.GET_TOPICS: {
-        const topics = await this.libp2p.pubsub.getTopics()
+  handlePubsubRequest ({ pubsub }) {
+    const pubsubAction = {
+      [PSRequest.Type.GET_TOPICS]: async function * (daemon) {
+        const topics = await daemon.libp2p.pubsub.getTopics()
         yield OkResponse({ pubsub: { topics } })
-        break
-      }
-      case PSRequest.Type.PUBLISH: {
+      },
+      [PSRequest.Type.SUBSCRIBE]: async function * (daemon) {
         const topic = pubsub.topic
-        const data = pubsub.data
+        const onMessage = pushable()
 
-        await this.libp2p.pubsub.publish(topic, data)
-        yield OkResponse()
-
-        break
-      }
-      case PSRequest.Type.SUBSCRIBE: {
-        await delay(2000)
-        yield OkResponse()
-        break
-        const topic = pubsub.topic
-        const onMessage = pushable({ onEnd: (err) => console.log('Ended', err) })
-
-        await this.libp2p.pubsub.subscribe(topic, (msg) => {
+        await daemon.libp2p.pubsub.subscribe(topic, (msg) => {
           onMessage.push(PSMessage.encode({
             from: msg.from && Buffer.from(msg.from),
             data: msg.data,
@@ -252,12 +234,24 @@ class Daemon {
 
         yield OkResponse()
         yield * onMessage
-        break
-      }
-      default: {
+      },
+      [PSRequest.Type.PUBLISH]: async function * (daemon) {
+        const topic = pubsub.topic
+        const data = pubsub.data
+
+        await daemon.libp2p.pubsub.publish(topic, data)
+        yield OkResponse()
+      },
+      invalid: function * () {
         yield ErrorResponse('ERR_INVALID_REQUEST_TYPE')
       }
     }
+
+    if (!pubsubAction[pubsub.type]) {
+      return pubsubAction.invalid()
+    }
+
+    return pubsubAction[pubsub.type](this)
   }
 
   /**
@@ -267,13 +261,13 @@ class Daemon {
    * @param {Request} request
    * @returns {DHTResponse[]}
    */
-  async handleDHTRequest ({ dht }) {
-    switch (dht.type) {
-      case DHTRequest.Type.FIND_PEER: {
+  handleDHTRequest ({ dht }) {
+    const dhtAction = {
+      [DHTRequest.Type.FIND_PEER]: async function * (daemon) {
         const peerId = PeerId.createFromBytes(dht.peer)
-        const peer = await this.libp2p.peerRouting.findPeer(peerId)
+        const peer = await daemon.libp2p.peerRouting.findPeer(peerId)
 
-        return [OkResponse({
+        yield OkResponse({
           dht: {
             type: DHTResponse.Type.VALUE,
             peer: {
@@ -281,97 +275,103 @@ class Daemon {
               addrs: peer.multiaddrs.toArray().map(m => m.buffer)
             }
           }
-        })]
-      }
-      case DHTRequest.Type.FIND_PROVIDERS: {
+        })
+      },
+      [DHTRequest.Type.FIND_PROVIDERS]: async function * (daemon) {
         const cid = new CID(dht.cid)
         const maxNumProviders = dht.count
         // Currently the dht doesn't provide a streaming interface.
         // So we need to collect all of the responses and then compose
         // the response 'stream' to the client
-        const responses = [OkResponse({
+        yield OkResponse({
           dht: {
             type: DHTResponse.Type.BEGIN
           }
-        })]
+        })
 
-        for await (const provider of this.libp2p.contentRouting.findProviders(cid, {
+        for await (const provider of daemon.libp2p.contentRouting.findProviders(cid, {
           maxNumProviders
         })) {
-          responses.push(DHTResponse.encode({
+          yield DHTResponse.encode({
             type: DHTResponse.Type.VALUE,
             peer: {
               id: provider.id.toBytes(),
               addrs: provider.multiaddrs.toArray().map(m => m.buffer)
             }
-          }))
+          })
         }
 
-        responses.push(DHTResponse.encode({
+        yield DHTResponse.encode({
           type: DHTResponse.Type.END
-        }))
-
-        return responses
-      }
-      case DHTRequest.Type.PROVIDE: {
+        })
+      },
+      [DHTRequest.Type.PROVIDE]: async function * (daemon) {
         const cid = new CID(dht.cid)
-        await this.libp2p.contentRouting.provide(cid)
-        return [OkResponse()]
-      }
-      case DHTRequest.Type.GET_CLOSEST_PEERS: {
-        const responses = [OkResponse({
+        await daemon.libp2p.contentRouting.provide(cid)
+        yield OkResponse()
+      },
+      [DHTRequest.Type.GET_CLOSEST_PEERS]: async function * (daemon) {
+        yield OkResponse({
           dht: {
             type: DHTResponse.Type.BEGIN
           }
-        })]
+        })
 
-        for await (const peerId of this.libp2p._dht.getClosestPeers(Buffer.from(dht.key))) {
-          responses.push(DHTResponse.encode({
+        for await (const peerId of daemon.libp2p._dht.getClosestPeers(Buffer.from(dht.key))) {
+          yield DHTResponse.encode({
             type: DHTResponse.Type.VALUE,
             value: peerId.toB58String()
-          }))
+          })
         }
 
-        responses.push(DHTResponse.encode({
+        yield DHTResponse.encode({
           type: DHTResponse.Type.END
-        }))
-
-        return responses
-      }
-      case DHTRequest.Type.GET_PUBLIC_KEY: {
+        })
+      },
+      [DHTRequest.Type.GET_PUBLIC_KEY]: async function * (daemon) {
         const peerId = PeerId.createFromBytes(dht.peer)
-        const pubKey = await this.libp2p._dht.getPublicKey(peerId)
+        const pubKey = await daemon.libp2p._dht.getPublicKey(peerId)
 
-        return [OkResponse({
+        yield OkResponse({
           dht: {
             type: DHTResponse.Type.VALUE,
             value: pubKey.bytes
           }
-        })]
-      }
-      case DHTRequest.Type.GET_VALUE: {
-        const value = await this.libp2p.contentRouting.get(
-          Buffer.from(dht.key)
-        )
-
-        return [OkResponse({
-          dht: {
-            type: DHTResponse.Type.VALUE,
-            value: value
-          }
-        })]
-      }
-      case DHTRequest.Type.PUT_VALUE: {
-        await this.libp2p.contentRouting.put(
+        })
+      },
+      [DHTRequest.Type.GET_VALUE]: async function * (daemon) {
+        try {
+          const value = await daemon.libp2p.contentRouting.get(
+            Buffer.from(dht.key)
+          )
+          yield OkResponse({
+            dht: {
+              type: DHTResponse.Type.VALUE,
+              value: value
+            }
+          })
+        } catch (err) {
+          yield ErrorResponse(err.message)
+        }
+      },
+      [DHTRequest.Type.PUT_VALUE]: async function * (daemon) {
+        await daemon.libp2p.contentRouting.put(
           Buffer.from(dht.key),
           dht.value
         )
 
-        return [OkResponse()]
+        yield OkResponse()
+      },
+      invalid: function * () {
+        yield ErrorResponse('ERR_INVALID_REQUEST_TYPE')
       }
-      default:
-        throw new Error('ERR_INVALID_REQUEST_TYPE')
     }
+
+    if (!dhtAction[dht.type]) {
+      return dhtAction.invalid()
+    }
+
+    return dhtAction[dht.type](this)
   }
 
   /**
@@ -381,8 +381,7 @@ class Daemon {
    * @param {MultiaddrConnection} maConn
    * @returns {void}
    */
-  async handleConnection (maConn) {
-    // const streamHandler = new StreamHandler({ stream: maConn, maxLength: LIMIT })
+  handleConnection (maConn) {
     const daemon = this
     // TODO: this is going to have to `rest` at some point
     // We need to do this on an "outer" stream
@@ -468,12 +467,7 @@ class Daemon {
               break
             }
             case Request.Type.PEERSTORE: {
-              try {
-                await daemon.handlePeerstoreRequest(request)
-              } catch (err) {
-                yield ErrorResponse(err.message)
-                break
-              }
+              yield * daemon.handlePeerStoreRequest(request)
               break
             }
             case Request.Type.PUBSUB: {
@@ -481,17 +475,7 @@ class Daemon {
               break
             }
             case Request.Type.DHT: {
-              try {
-                // DHT responses may require multiple writes
-                const responses = await daemon.handleDHTRequest(request)
-                for (const response of responses) {
-                  // write and wait for the flush
-                  yield response
-                }
-              } catch (err) {
-                yield ErrorResponse(err.message)
-                break
-              }
+              yield * daemon.handleDHTRequest(request)
               break
             }
             // Not yet supported or doesn't exist

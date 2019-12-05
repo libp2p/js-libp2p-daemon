@@ -4,9 +4,6 @@ const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
 const Client = require('../../src/client')
-const pipe = require('it-pipe')
-const lp = require('it-length-prefixed')
-const { collect } = require('streaming-iterables')
 const StreamHandler = require('../../src/stream-handler')
 const {
   Request,
