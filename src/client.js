@@ -6,7 +6,7 @@ const StreamHandler = require('./stream-handler')
 const LIMIT = 1 << 22 // 4MB
 
 const { Request } = require('./protocol')
-const { ends, multiaddrToNetConfig } = require('./util')
+const { multiaddrToNetConfig } = require('./util')
 const toIterable = require('./socket-to-iterable')
 const promisify = require('promisify-es6')
 

@@ -9,7 +9,6 @@ const os = require('os')
 const path = require('path')
 const CID = require('cids')
 const ma = require('multiaddr')
-const delay = require('delay')
 
 const { createDaemon } = require('../../src/daemon')
 const { createLibp2p } = require('../../src/libp2p')

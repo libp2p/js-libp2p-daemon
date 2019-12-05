@@ -9,10 +9,7 @@ const PeerId = require('peer-id')
 const ma = require('multiaddr')
 const CID = require('cids')
 const lp = require('it-length-prefixed')
-const duplexPair = require('it-pair/duplex')
 const pipe = require('it-pipe')
-const Wrap = require('it-pb-rpc')
-const toBuffer = require('it-buffer')
 const toIterable = require('./socket-to-iterable')
 const { multiaddrToNetConfig } = require('./util')
 const promisify = require('promisify-es6')
@@ -196,7 +193,7 @@ class Daemon {
     }
   }
 
-  async handlePeerstoreRequest ({ peerStore }, streamHandler) {
+  handlePeerstoreRequest ({ peerStore }, streamHandler) {
     switch (peerStore.type) {
       case PeerstoreRequest.Type.GET_PROTOCOLS: {
         let protos
@@ -246,7 +243,7 @@ class Daemon {
       case PSRequest.Type.SUBSCRIBE: {
         const topic = pubsub.topic
 
-        await this.libp2p.pubsub.subscribe(topic, async (msg) => {
+        await this.libp2p.pubsub.subscribe(topic, (msg) => {
           streamHandler.write(PSMessage.encode({
             from: msg.from && Buffer.from(msg.from),
             data: msg.data,

@@ -74,11 +74,10 @@ const testPubsub = (router) => {
     })
 
     afterEach(async () => {
-      await client && client.close()
-
-      return Promise.all([
-        daemon.stop(),
-        libp2pPeer.stop()
+      await Promise.all([
+        client && client.close(),
+        libp2pPeer.stop(),
+        daemon.stop()
       ])
     })
 
@@ -123,7 +122,7 @@ const testPubsub = (router) => {
       }
 
       // Get empty subscriptions
-      let stream = client.send(requestGetTopics)
+      client.send(requestGetTopics)
 
       let response = Response.decode(await client.read())
       expect(response.type).to.eql(Response.Type.OK)
@@ -142,18 +141,14 @@ const testPubsub = (router) => {
         connManager: null
       }
 
-      client.streamHandler.close()
-
       // Subscribe
-      stream = client.send(requestSubscribe)
+      client.send(requestSubscribe)
 
       response = Response.decode(await client.read())
       expect(response.type).to.eql(Response.Type.OK)
 
-      client.streamHandler.close()
-
       // Get new subscription
-      stream = client.send(requestGetTopics)
+      client.send(requestGetTopics)
 
       response = Response.decode(await client.read())
       expect(response.type).to.eql(Response.Type.OK)
@@ -208,61 +203,45 @@ const testPubsub = (router) => {
       })
     })
 
-    it('should be able to receive messages from subscribed topics', function () {
-      this.timeout(20e3)
-
+    it('should be able to receive messages from subscribed topics', async function () {
       const topic = 'test-topic'
       const data = Buffer.from('test-data')
 
-      // eslint-disable-next-line no-async-promise-executor
-      return new Promise(async (resolve) => {
-        client = new Client(daemonAddr)
+      client = new Client(daemonAddr)
 
-        await client.attach()
+      await client.attach()
 
-        // subscribe topic
-        const request = {
-          type: Request.Type.PUBSUB,
-          connect: null,
-          streamOpen: null,
-          streamHandler: null,
-          pubsub: {
-            type: PSRequest.Type.SUBSCRIBE,
-            topic
-          },
-          disconnect: null,
-          connManager: null
-        }
+      // subscribe topic
+      const request = {
+        type: Request.Type.PUBSUB,
+        connect: null,
+        streamOpen: null,
+        streamHandler: null,
+        pubsub: {
+          type: PSRequest.Type.SUBSCRIBE,
+          topic
+        },
+        disconnect: null,
+        connManager: null
+      }
 
-        client.send(request)
+      client.send(request)
 
-        let subscribed = false
+      const subscribedMessage = await client.read()
+      const subscribedResponse = Response.decode(subscribedMessage)
+      expect(subscribedResponse.type).to.eql(Response.Type.OK)
+      await delay(1000)
+      await libp2pPeer.pubsub.publish(topic, data)
 
-        for await (const msg of stream) {
-          if (subscribed) {
-            const response = PSMessage.decode(msg)
-
-            expect(response).to.exist()
-            expect(response.from.toString()).to.eql(libp2pPeer.peerInfo.id.toB58String())
-            expect(response.data).to.exist()
-            expect(response.data).to.equalBytes(data)
-            expect(response.topicIDs).to.eql([topic])
-            expect(response.seqno).to.exist()
-
-            client.streamHandler.close()
-            resolve()
-          } else {
-            const response = Response.decode(msg)
-            expect(response.type).to.eql(Response.Type.OK)
-            subscribed = true
-
-            // wait to pubsub to propagate messages
-            await delay(1000)
-
-            await libp2pPeer.pubsub.publish(topic, data)
-          }
-        }
-      })
+      const topicMessage = await client.read()
+      const response = PSMessage.decode(topicMessage)
+      expect(response).to.exist()
+      expect(response.from.toString()).to.eql(libp2pPeer.peerInfo.id.toB58String())
+      expect(response.data).to.exist()
+      expect(response.data).to.equalBytes(data)
+      expect(response.topicIDs).to.eql([topic])
+      expect(response.seqno).to.exist()
+      client.streamHandler.close()
     })
   })
 }
