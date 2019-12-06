@@ -46,7 +46,7 @@ class Daemon {
       this.handleConnection(maConn)
     })
     this.streamHandlers = {}
-    this._listen()
+    this._onExit = this._onExit.bind(this)
   }
 
   /**
@@ -152,9 +152,13 @@ class Daemon {
    */
   _listen () {
     // listen for graceful termination
-    process.on('SIGTERM', () => this.stop({ exit: true }))
-    process.on('SIGINT', () => this.stop({ exit: true }))
-    process.on('SIGHUP', () => this.stop({ exit: true }))
+    process.on('SIGTERM', this._onExit)
+    process.on('SIGINT', this._onExit)
+    process.on('SIGHUP', this._onExit)
+  }
+
+  _onExit () {
+    this.stop({ exit: true })
   }
 
   /**
@@ -163,6 +167,7 @@ class Daemon {
    * @returns {Promise<void>}
    */
   async start () {
+    this._listen()
     await this.libp2p.start()
     await this.listener.listen(this.multiaddr)
   }
@@ -180,6 +185,9 @@ class Daemon {
     if (options.exit) {
       log('server closed, exiting')
     }
+    process.removeListener('SIGTERM', this._onExit)
+    process.removeListener('SIGINT', this._onExit)
+    process.removeListener('SIGHUP', this._onExit)
   }
 
   handlePeerStoreRequest ({ peerStore }) {
