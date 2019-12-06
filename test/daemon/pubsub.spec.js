@@ -41,9 +41,9 @@ const testPubsub = (router) => {
     let libp2pPeer
     let client
 
-    beforeEach(function () {
+    beforeEach(async function () {
       this.timeout(20e3)
-      return Promise.all([
+      ;[daemon, libp2pPeer] = await Promise.all([
         createDaemon({
           quiet: false,
           q: false,
@@ -64,20 +64,19 @@ const testPubsub = (router) => {
           pubsubRouter: router,
           hostAddrs: '/ip4/0.0.0.0/tcp/0'
         })
-      ]).then((results) => {
-        daemon = results.shift()
-        libp2pPeer = results.shift()
+      ])
+      await Promise.all([
+        daemon.start(),
+        libp2pPeer.start()
+      ])
 
-        return Promise.all([
-          daemon.start(),
-          libp2pPeer.start()
-        ])
-      }).then(() => {
-        return connect({
-          libp2pPeer,
-          multiaddr: daemonAddr
-        })
+      await connect({
+        libp2pPeer,
+        multiaddr: daemonAddr
       })
+
+      // Give the nodes a moment to handshake
+      await delay(500)
     })
 
     afterEach(async () => {
@@ -190,8 +189,8 @@ const testPubsub = (router) => {
         deferred.resolve()
       }, {})
 
-      // wait to pubsub to propagate messages
-      await delay(100)
+      // Give the subscribe call some time to propagate
+      await delay(1000)
 
       // publish topic
       const request = Request.encode({
@@ -248,9 +247,9 @@ const testPubsub = (router) => {
         connManager: null
       })
 
-      // Publish in .1 seconds
+      // Publish in 1 seconds
       ;(async () => {
-        await delay(100)
+        await delay(1000)
         await libp2pPeer.pubsub.publish(topic, data)
       })()
 
