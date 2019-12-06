@@ -9,6 +9,7 @@ const os = require('os')
 const path = require('path')
 const CID = require('cids')
 const ma = require('multiaddr')
+const delay = require('delay')
 
 const StreamHandler = require('../../src/stream-handler')
 const { createDaemon } = require('../../src/daemon')
@@ -33,9 +34,9 @@ describe('dht', () => {
   let libp2pPeer
   let client
 
-  before(function () {
+  before(async function () {
     this.timeout(20e3)
-    return Promise.all([
+    ;[daemon, libp2pPeer] = await Promise.all([
       createDaemon({
         quiet: false,
         q: false,
@@ -53,20 +54,18 @@ describe('dht', () => {
         dht: true,
         hostAddrs: '/ip4/0.0.0.0/tcp/0'
       })
-    ]).then((results) => {
-      daemon = results.shift()
-      libp2pPeer = results.shift()
-
-      return Promise.all([
-        daemon.start(),
-        libp2pPeer.start()
-      ])
-    }).then(() => {
-      return connect({
-        libp2pPeer,
-        multiaddr: daemonAddr
-      })
+    ])
+    await Promise.all([
+      daemon.start(),
+      libp2pPeer.start()
+    ])
+    await connect({
+      libp2pPeer,
+      multiaddr: daemonAddr
     })
+
+    // Give the nodes a moment to handshake
+    await delay(500)
   })
 
   after(() => {

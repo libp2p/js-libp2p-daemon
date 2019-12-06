@@ -275,17 +275,20 @@ class Daemon {
     const dhtAction = {
       [DHTRequest.Type.FIND_PEER]: async function * (daemon) {
         const peerId = PeerId.createFromBytes(dht.peer)
-        const peer = await daemon.libp2p.peerRouting.findPeer(peerId)
-
-        yield OkResponse({
-          dht: {
-            type: DHTResponse.Type.VALUE,
-            peer: {
-              id: peer.id.toBytes(),
-              addrs: peer.multiaddrs.toArray().map(m => m.buffer)
+        try {
+          const peer = await daemon.libp2p.peerRouting.findPeer(peerId)
+          yield OkResponse({
+            dht: {
+              type: DHTResponse.Type.VALUE,
+              peer: {
+                id: peer.id.toBytes(),
+                addrs: peer.multiaddrs.toArray().map(m => m.buffer)
+              }
             }
-          }
-        })
+          })
+        } catch (err) {
+          yield ErrorResponse(err.message)
+        }
       },
       [DHTRequest.Type.FIND_PROVIDERS]: async function * (daemon) {
         const cid = new CID(dht.cid)
