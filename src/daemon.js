@@ -41,7 +41,7 @@ class Daemon {
   }) {
     this.multiaddr = ma(multiaddr)
     this.libp2p = libp2pNode
-    this.tcp = new TCP({ upgrader: passThroughUpgrader, allowHalfOpen: true })
+    this.tcp = new TCP({ upgrader: passThroughUpgrader })
     this.listener = this.tcp.createListener((maConn) => {
       this.handleConnection(maConn)
     })
