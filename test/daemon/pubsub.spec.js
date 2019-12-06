@@ -16,6 +16,7 @@ const { collect, take } = require('streaming-iterables')
 const lp = require('it-length-prefixed')
 const pDefer = require('p-defer')
 const toBuffer = require('it-buffer')
+const pushable = require('it-pushable')
 
 const StreamHandler = require('../../src/stream-handler')
 const { createDaemon } = require('../../src/daemon')
@@ -253,15 +254,23 @@ const testPubsub = (router) => {
         await libp2pPeer.pubsub.publish(topic, data)
       })()
 
+      // The underlying socket does not allow half closed connections,
+      // so give it a "pausable" source.
+      const source = pushable()
+      source.push(request)
+
       const responses = await pipe(
-        [request],
+        source,
         lp.encode(),
         maConn,
         lp.decode(),
-        take(2), // get the OK and the 1st publish method
+        take(2), // get the OK and the 1st publish message
         toBuffer,
         collect
       )
+
+      // We're done, end our half of the connection
+      source.end()
 
       const expectedResponses = [
         (message) => {
@@ -289,5 +298,5 @@ const testPubsub = (router) => {
 
 describe('pubsub', () => {
   testPubsub('gossipsub')
-  // testPubsub('floodsub')
+  testPubsub('floodsub')
 })
