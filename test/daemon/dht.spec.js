@@ -10,6 +10,7 @@ const path = require('path')
 const CID = require('cids')
 const ma = require('multiaddr')
 const delay = require('delay')
+const PeerId = require('peer-id')
 
 const StreamHandler = require('../../src/stream-handler')
 const { createDaemon } = require('../../src/daemon')
@@ -114,6 +115,34 @@ describe('dht', () => {
     streamHandler.close()
   })
 
+  it('should return an error when no peer is found', async () => {
+    client = new Client(daemonAddr)
+
+    const maConn = await client.connect()
+    const streamHandler = new StreamHandler({ stream: maConn })
+    const unknownPeer = await PeerId.create({ bits: 512 })
+
+    const request = {
+      type: Request.Type.DHT,
+      connect: null,
+      streamOpen: null,
+      streamHandler: null,
+      dht: {
+        type: DHTRequest.Type.FIND_PEER,
+        peer: unknownPeer.toBytes()
+      },
+      disconnect: null,
+      pubsub: null,
+      connManager: null
+    }
+
+    streamHandler.write(Request.encode(request))
+
+    const response = Response.decode(await streamHandler.read())
+    expect(response.type).to.eql(Response.Type.ERROR)
+    streamHandler.close()
+  })
+
   it('should be able to register as a provider', async () => {
     client = new Client(daemonAddr)
 
@@ -197,6 +226,48 @@ describe('dht', () => {
       (message) => {
         const response = DHTResponse.decode(message)
         expect(response.type).to.eql(DHTResponse.Type.END)
+      }
+    ]
+
+    while (true) {
+      if (expectedResponses.length === 0) break
+      const message = await streamHandler.read()
+      expectedResponses.shift()(message.slice())
+    }
+    streamHandler.close()
+  })
+
+  it('should error when no provider is found', async () => {
+    // Register the peer as a provider
+    const cid = new CID('QmaSNGNpisJ1UeuoH3WcKuia4hQVi2XkfhkszTbWak9xTB')
+
+    // Now find it as a provider
+    client = new Client(daemonAddr)
+
+    const maConn = await client.connect()
+    const streamHandler = new StreamHandler({ stream: maConn })
+
+    const request = {
+      type: Request.Type.DHT,
+      connect: null,
+      streamOpen: null,
+      streamHandler: null,
+      dht: {
+        type: DHTRequest.Type.FIND_PROVIDERS,
+        cid: cid.buffer,
+        count: 1
+      },
+      disconnect: null,
+      pubsub: null,
+      connManager: null
+    }
+
+    streamHandler.write(Request.encode(request))
+
+    const expectedResponses = [
+      (message) => {
+        const response = Response.decode(message)
+        expect(response.type).to.eql(Response.Type.ERROR)
       }
     ]
 

@@ -293,25 +293,31 @@ class Daemon {
       [DHTRequest.Type.FIND_PROVIDERS]: async function * (daemon) {
         const cid = new CID(dht.cid)
         const maxNumProviders = dht.count
-        // Currently the dht doesn't provide a streaming interface.
-        // So we need to collect all of the responses and then compose
-        // the response 'stream' to the client
-        yield OkResponse({
-          dht: {
-            type: DHTResponse.Type.BEGIN
-          }
-        })
-
-        for await (const provider of daemon.libp2p.contentRouting.findProviders(cid, {
-          maxNumProviders
-        })) {
-          yield DHTResponse.encode({
-            type: DHTResponse.Type.VALUE,
-            peer: {
-              id: provider.id.toBytes(),
-              addrs: provider.multiaddrs.toArray().map(m => m.buffer)
+        let okSent = false
+        try {
+          for await (const provider of daemon.libp2p.contentRouting.findProviders(cid, {
+            maxNumProviders
+          })) {
+            if (!okSent) {
+              okSent = true
+              yield OkResponse({
+                dht: {
+                  type: DHTResponse.Type.BEGIN
+                }
+              })
             }
-          })
+
+            yield DHTResponse.encode({
+              type: DHTResponse.Type.VALUE,
+              peer: {
+                id: provider.id.toBytes(),
+                addrs: provider.multiaddrs.toArray().map(m => m.buffer)
+              }
+            })
+          }
+        } catch (err) {
+          yield ErrorResponse(err.message)
+          return
         }
 
         yield DHTResponse.encode({
