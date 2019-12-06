@@ -12,7 +12,7 @@ const lp = require('it-length-prefixed')
 const pipe = require('it-pipe')
 const pushable = require('it-pushable')
 const StreamHandler = require('./stream-handler')
-const { concat, consume } = require('streaming-iterables')
+const { concat } = require('streaming-iterables')
 const { passThroughUpgrader } = require('./util')
 const {
   Request,
@@ -486,12 +486,11 @@ class Daemon {
           }
         }
       })(),
-      source => (async function * () {
+      async function (source) {
         for await (const result of source) {
           streamHandler.write(result)
         }
-      })(),
-      consume
+      }
     )
   }
 }
