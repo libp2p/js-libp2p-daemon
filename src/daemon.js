@@ -11,7 +11,8 @@ const CID = require('cids')
 const lp = require('it-length-prefixed')
 const pipe = require('it-pipe')
 const pushable = require('it-pushable')
-const { concat } = require('streaming-iterables')
+const StreamHandler = require('./stream-handler')
+const { concat, consume } = require('streaming-iterables')
 const { passThroughUpgrader } = require('./util')
 const {
   Request,
@@ -23,6 +24,7 @@ const {
   PSMessage,
   StreamInfo
 } = require('./protocol')
+const LIMIT = 1 << 22 // 4MB
 
 const log = require('debug')('libp2p:daemon')
 
@@ -381,18 +383,16 @@ class Daemon {
    * @param {MultiaddrConnection} maConn
    * @returns {void}
    */
-  handleConnection (maConn) {
+  async handleConnection (maConn) {
     const daemon = this
-    // TODO: this is going to have to `rest` at some point
-    // We need to do this on an "outer" stream
-    pipe(
-      maConn,
-      lp.decode(),
+    const streamHandler = new StreamHandler({ stream: maConn, maxLength: LIMIT })
+
+    await pipe(
+      streamHandler.decoder,
       source => (async function * () {
-        for await (const chunk of source) {
-          let request
+        for await (let request of source) {
           try {
-            request = Request.decode(chunk.slice())
+            request = Request.decode(request.slice())
           } catch (err) {
             yield ErrorResponse('ERR_INVALID_MESSAGE')
           }
@@ -445,14 +445,15 @@ class Daemon {
                 streamInfo: response.streamInfo
               })
 
-              // // then pipe the connection to the client
-              // const stream = streamHandler.rest()
-              // pipe(
-              //   stream,
-              //   response.connection,
-              //   stream
-              // )
-              break
+              const stream = streamHandler.rest()
+              // then pipe the connection to the client
+              await pipe(
+                stream,
+                response.connection,
+                stream
+              )
+              // Exit the iterator, no more requests can come through
+              return
             }
             case Request.Type.STREAM_HANDLER: {
               try {
@@ -485,8 +486,12 @@ class Daemon {
           }
         }
       })(),
-      lp.encode(),
-      maConn
+      source => (async function * () {
+        for await (const result of source) {
+          streamHandler.write(result)
+        }
+      })(),
+      consume
     )
   }
 }

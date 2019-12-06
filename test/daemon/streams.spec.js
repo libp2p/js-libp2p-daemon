@@ -9,7 +9,7 @@ const os = require('os')
 const path = require('path')
 const pipe = require('it-pipe')
 const ma = require('multiaddr')
-const { collect } = require('streaming-iterables')
+const { collect, take } = require('streaming-iterables')
 const { toBuffer } = require('it-buffer')
 
 const StreamHandler = require('../../src/stream-handler')
@@ -108,19 +108,24 @@ describe('streams', function () {
     // Verify the response
     const response = Response.decode(await streamHandler.read())
     expect(response.type).to.eql(Response.Type.OK)
-    expect(response.streamInfo).to.eql({
-      peer: libp2pPeer.peerInfo.id.toBytes(),
-      addr: libp2pPeer.peerInfo.multiaddrs.toArray()[0].buffer,
-      proto: '/echo/1.0.0'
-    })
+    expect(response.streamInfo).to.have.deep.property('peer', libp2pPeer.peerInfo.id.toBytes())
+    expect(response.streamInfo).to.have.property('proto', '/echo/1.0.0')
+    expect(response.streamInfo.addr).to.satisfy(function (buffer) {
+      const addrs = libp2pPeer.peerInfo.multiaddrs.toArray()
+      return addrs.filter(addr => buffer.equals(addr.buffer)).length > 0
+    }, 'Did not contain a valid multiaddr')
 
+    const source = require('it-pushable')()
     const stream = streamHandler.rest()
+    source.push(hello)
     const output = await pipe(
-      [hello],
+      source,
       stream,
+      take(1),
       toBuffer,
       collect
     )
+    source.end()
     expect(output).to.eql([hello])
   })
 
