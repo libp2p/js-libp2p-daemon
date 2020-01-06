@@ -28,6 +28,12 @@ For a full list of options, you can run help `jsp2pd --help`.
 Running the defaults, `jsp2pd`, will start the daemon and bind it to a local unix socket path.
 Daemon clients will be able to communicate with the daemon over that unix socket.
 
+As an alternative, you can use this daemon with a different version of libp2p as the one specified in `package.json`. You just need to define its path through an environment variable as follows:
+
+```sh
+export LIBP2P_JS=./../../js-libp2p/src/index.js
+```
+
 ## Contribute
 
 This module is actively under development. Please check out the issues and submit PRs!

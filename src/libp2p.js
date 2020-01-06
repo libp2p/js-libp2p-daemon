@@ -1,6 +1,6 @@
 'use strict'
 
-const Libp2p = require('libp2p')
+const Libp2p = process.env.LIBP2P_JS ? require(process.env.LIBP2P_JS) : require('libp2p')
 const TCP = require('libp2p-tcp')
 const WS = require('libp2p-websockets')
 const Bootstrap = require('libp2p-bootstrap')
