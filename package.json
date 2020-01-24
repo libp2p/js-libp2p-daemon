@@ -56,7 +56,7 @@
     "it-length-prefixed": "^3.0.0",
     "it-pipe": "^1.1.0",
     "it-pushable": "^1.4.0",
-    "libp2p": "libp2p/js-libp2p#refactor/async-await",
+    "libp2p": "^0.27.0-rc.0",
     "libp2p-bootstrap": "^0.10.3",
     "libp2p-floodsub": "^0.20.0",
     "libp2p-gossipsub": "^0.2.1",
