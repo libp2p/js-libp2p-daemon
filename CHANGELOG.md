@@ -1,3 +1,13 @@
+<a name="0.3.0"></a>
+# [0.3.0](https://github.com/libp2p/js-libp2p-daemon/compare/v0.2.3...v0.3.0) (2020-01-31)
+
+
+### Features
+
+* specify libp2p dependency through env ([#30](https://github.com/libp2p/js-libp2p-daemon/issues/30)) ([07b0695](https://github.com/libp2p/js-libp2p-daemon/commit/07b0695))
+
+
+
 <a name="0.2.3"></a>
 ## [0.2.3](https://github.com/libp2p/js-libp2p-daemon/compare/v0.2.2...v0.2.3) (2019-08-26)
 
