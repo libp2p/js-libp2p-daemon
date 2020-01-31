@@ -10,7 +10,15 @@ const expect = chai.expect
 const os = require('os')
 const path = require('path')
 const ma = require('multiaddr')
+const delay = require('delay')
+const pipe = require('it-pipe')
+const { collect, take } = require('streaming-iterables')
+const lp = require('it-length-prefixed')
+const pDefer = require('p-defer')
+const toBuffer = require('it-buffer')
+const pushable = require('it-pushable')
 
+const StreamHandler = require('../../src/stream-handler')
 const { createDaemon } = require('../../src/daemon')
 const { createLibp2p } = require('../../src/libp2p')
 const Client = require('../../src/client')
@@ -33,9 +41,9 @@ const testPubsub = (router) => {
     let libp2pPeer
     let client
 
-    beforeEach(function () {
+    beforeEach(async function () {
       this.timeout(20e3)
-      return Promise.all([
+      ;[daemon, libp2pPeer] = await Promise.all([
         createDaemon({
           quiet: false,
           q: false,
@@ -56,28 +64,26 @@ const testPubsub = (router) => {
           pubsubRouter: router,
           hostAddrs: '/ip4/0.0.0.0/tcp/0'
         })
-      ]).then((results) => {
-        daemon = results.shift()
-        libp2pPeer = results.shift()
+      ])
+      await Promise.all([
+        daemon.start(),
+        libp2pPeer.start()
+      ])
 
-        return Promise.all([
-          daemon.start(),
-          libp2pPeer.start()
-        ])
-      }).then(() => {
-        return connect({
-          libp2pPeer,
-          multiaddr: daemonAddr
-        })
+      await connect({
+        libp2pPeer,
+        multiaddr: daemonAddr
       })
+
+      // Give the nodes a moment to handshake
+      await delay(500)
     })
 
     afterEach(async () => {
-      await client && client.close()
-
-      return Promise.all([
-        daemon.stop(),
-        libp2pPeer.stop()
+      await Promise.all([
+        client && client.close(),
+        libp2pPeer.stop(),
+        daemon.stop()
       ])
     })
 
@@ -85,29 +91,40 @@ const testPubsub = (router) => {
       const topic = 'test-topic'
       client = new Client(daemonAddr)
 
-      await client.attach()
+      const maConn = await client.connect()
 
-      const request = {
+      const request = Request.encode({
         type: Request.Type.PUBSUB,
         pubsub: {
           type: PSRequest.Type.SUBSCRIBE,
           topic
         }
-      }
+      })
 
-      const stream = client.send(request)
-
-      const response = Response.decode(await stream.first())
+      const [response] = await pipe(
+        [request],
+        lp.encode(),
+        maConn,
+        lp.decode(),
+        take(1), // Just get the OK
+        source => (async function * () {
+          for await (const chunk of source) {
+            yield Response.decode(chunk.slice())
+          }
+        })(),
+        collect
+      )
       expect(response.type).to.eql(Response.Type.OK)
 
-      stream.end()
+      maConn.close()
     })
 
     it('should get subscribed topics', async () => {
       const topic = 'test-topic'
       client = new Client(daemonAddr)
 
-      await client.attach()
+      const maConn = await client.connect()
+      let streamHandler = new StreamHandler({ stream: maConn })
 
       const requestGetTopics = {
         type: Request.Type.PUBSUB,
@@ -120,13 +137,6 @@ const testPubsub = (router) => {
         disconnect: null,
         connManager: null
       }
-
-      // Get empty subscriptions
-      let stream = client.send(requestGetTopics)
-
-      let response = Response.decode(await stream.first())
-      expect(response.type).to.eql(Response.Type.OK)
-      expect(response.pubsub.topics).to.have.lengthOf(0)
 
       const requestSubscribe = {
         type: Request.Type.PUBSUB,
@@ -141,165 +151,146 @@ const testPubsub = (router) => {
         connManager: null
       }
 
-      stream.end()
-
-      // Subscribe
-      stream = client.send(requestSubscribe)
-
-      response = Response.decode(await stream.first())
+      streamHandler.write(Request.encode(requestGetTopics))
+      let response = Response.decode(await streamHandler.read())
       expect(response.type).to.eql(Response.Type.OK)
+      expect(response.pubsub.topics).to.have.lengthOf(0)
 
-      stream.end()
+      streamHandler.write(Request.encode(requestSubscribe))
+      response = Response.decode(await streamHandler.read())
+      expect(response.type).to.eql(Response.Type.OK)
+      // end the connection as it is now reserved for subscribes
+      maConn.close()
 
-      // Get new subscription
-      stream = client.send(requestGetTopics)
+      const conn2 = await client.connect()
 
-      response = Response.decode(await stream.first())
+      streamHandler = new StreamHandler({ stream: conn2 })
+      streamHandler.write(Request.encode(requestGetTopics))
+      response = Response.decode(await streamHandler.read())
       expect(response.type).to.eql(Response.Type.OK)
       expect(response.pubsub.topics).to.have.lengthOf(1)
       expect(response.pubsub.topics[0]).to.eql(topic)
-
-      stream.end()
+      conn2.close()
     })
 
-    it('should be able to publish messages', function () {
-      this.timeout(20e3)
+    it('should be able to publish messages', async function () {
+      this.timeout(10e3)
 
       const topic = 'test-topic'
       const data = Buffer.from('test-data')
+      const deferred = pDefer()
 
-      // eslint-disable-next-line no-async-promise-executor
-      return new Promise(async (resolve, reject) => {
-        client = new Client(daemonAddr)
+      client = new Client(daemonAddr)
+      const maConn = await client.connect()
 
-        await client.attach()
+      // subscribe topic
+      await libp2pPeer.pubsub.subscribe(topic, (msg) => {
+        expect(msg.data).to.equalBytes(data)
+        deferred.resolve()
+      }, {})
 
-        // connect peers
-        let request = {
-          type: Request.Type.CONNECT,
-          connect: {
-            peer: Buffer.from(libp2pPeer.peerInfo.id.toBytes()),
-            addrs: libp2pPeer.peerInfo.multiaddrs.toArray().map(addr => addr.buffer)
-          },
-          streamOpen: null,
-          streamHandler: null,
-          dht: null,
-          disconnect: null,
-          pubsub: null,
-          connManager: null
-        }
+      // Give the subscribe call some time to propagate
+      await delay(1000)
 
-        let stream = client.send(request)
-
-        const message = await stream.first()
-        let response = Response.decode(message)
-        expect(response.type).to.eql(Response.Type.OK)
-        stream.end()
-
-        // subscribe topic
-        await libp2pPeer.pubsub.subscribe(topic, (msg) => {
-          expect(msg.data).to.equalBytes(data)
-          resolve()
-        }, {})
-
-        // wait to pubsub to propagate messages
-        await new Promise(resolve => setTimeout(resolve, 1000))
-
-        // publish topic
-        request = {
-          type: Request.Type.PUBSUB,
-          connect: null,
-          streamOpen: null,
-          streamHandler: null,
-          pubsub: {
-            type: PSRequest.Type.PUBLISH,
-            topic,
-            data: data
-          },
-          disconnect: null,
-          connManager: null
-        }
-
-        stream = client.send(request)
-
-        response = Response.decode(await stream.first())
-        expect(response.type).to.eql(Response.Type.OK)
-
-        stream.end()
+      // publish topic
+      const request = Request.encode({
+        type: Request.Type.PUBSUB,
+        connect: null,
+        streamOpen: null,
+        streamHandler: null,
+        pubsub: {
+          type: PSRequest.Type.PUBLISH,
+          topic,
+          data: data
+        },
+        disconnect: null,
+        connManager: null
       })
+
+      const [response] = await pipe(
+        [request],
+        lp.encode(),
+        maConn,
+        lp.decode(),
+        source => (async function * () {
+          for await (const chunk of source) {
+            yield Response.decode(chunk.slice())
+          }
+        })(),
+        collect
+      )
+      expect(response.type).to.eql(Response.Type.OK)
+
+      await deferred.promise
+      maConn.close()
     })
 
-    it('should be able to receive messages from subscribed topics', function () {
-      this.timeout(20e3)
-
+    it('should be able to receive messages from subscribed topics', async function () {
       const topic = 'test-topic'
       const data = Buffer.from('test-data')
 
-      // eslint-disable-next-line no-async-promise-executor
-      return new Promise(async (resolve) => {
-        client = new Client(daemonAddr)
+      client = new Client(daemonAddr)
 
-        await client.attach()
+      const maConn = await client.connect()
 
-        // connect peers
-        let request = {
-          type: Request.Type.CONNECT,
-          connect: {
-            peer: Buffer.from(libp2pPeer.peerInfo.id.toBytes()),
-            addrs: libp2pPeer.peerInfo.multiaddrs.toArray().map(addr => addr.buffer)
-          }
-        }
-
-        let stream = client.send(request)
-
-        const message = await stream.first()
-        let response = Response.decode(message)
-        expect(response.type).to.eql(Response.Type.OK)
-        stream.end()
-
-        // subscribe topic
-        request = {
-          type: Request.Type.PUBSUB,
-          connect: null,
-          streamOpen: null,
-          streamHandler: null,
-          pubsub: {
-            type: PSRequest.Type.SUBSCRIBE,
-            topic
-          },
-          disconnect: null,
-          connManager: null
-        }
-
-        stream = client.send(request)
-
-        let subscribed = false
-
-        for await (const msg of stream) {
-          if (subscribed) {
-            response = PSMessage.decode(msg)
-
-            expect(response).to.exist()
-            expect(response.from.toString()).to.eql(libp2pPeer.peerInfo.id.toB58String())
-            expect(response.data).to.exist()
-            expect(response.data).to.equalBytes(data)
-            expect(response.topicIDs).to.eql([topic])
-            expect(response.seqno).to.exist()
-
-            stream.end()
-            resolve()
-          } else {
-            response = Response.decode(msg)
-            expect(response.type).to.eql(Response.Type.OK)
-            subscribed = true
-
-            // wait to pubsub to propagate messages
-            await new Promise(resolve => setTimeout(resolve, 1000))
-
-            await libp2pPeer.pubsub.publish(topic, data)
-          }
-        }
+      // subscribe topic
+      const request = Request.encode({
+        type: Request.Type.PUBSUB,
+        connect: null,
+        streamOpen: null,
+        streamHandler: null,
+        pubsub: {
+          type: PSRequest.Type.SUBSCRIBE,
+          topic
+        },
+        disconnect: null,
+        connManager: null
       })
+
+      // Publish in 1 seconds
+      ;(async () => {
+        await delay(1000)
+        await libp2pPeer.pubsub.publish(topic, data)
+      })()
+
+      // The underlying socket does not allow half closed connections,
+      // so give it a "pausable" source.
+      const source = pushable()
+      source.push(request)
+
+      const responses = await pipe(
+        source,
+        lp.encode(),
+        maConn,
+        lp.decode(),
+        take(2), // get the OK and the 1st publish message
+        toBuffer,
+        collect
+      )
+
+      // We're done, end our half of the connection
+      source.end()
+
+      const expectedResponses = [
+        (message) => {
+          const response = Response.decode(message)
+          expect(response.type).to.eql(Response.Type.OK)
+        },
+        (message) => {
+          const response = PSMessage.decode(message)
+          expect(response.from.toString()).to.eql(libp2pPeer.peerInfo.id.toB58String())
+          expect(response.data).to.exist()
+          expect(response.data).to.equalBytes(data)
+          expect(response.topicIDs).to.eql([topic])
+          expect(response.seqno).to.exist()
+        }
+      ]
+      expect(responses).to.have.length(2)
+      for (const response of responses) {
+        expectedResponses.shift()(response)
+      }
+
+      maConn.close()
     })
   })
 }

@@ -4,6 +4,7 @@ const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
 const Client = require('../../src/client')
+const StreamHandler = require('../../src/stream-handler')
 const {
   Request,
   Response
@@ -23,8 +24,7 @@ async function connect ({
 }) {
   const client = new Client(multiaddr)
 
-  await client.attach()
-
+  const maConn = await client.connect()
   const request = {
     type: Request.Type.CONNECT,
     connect: {
@@ -33,14 +33,14 @@ async function connect ({
     }
   }
 
-  const stream = client.send(request)
+  const streamHandler = new StreamHandler({ stream: maConn })
+  streamHandler.write(Request.encode(request))
 
-  const message = await stream.first()
+  const message = await streamHandler.read()
   const response = Response.decode(message)
   expect(response.type).to.eql(Response.Type.OK)
-  stream.end()
 
-  await client.close()
+  await maConn.close()
 }
 
 module.exports.connect = connect

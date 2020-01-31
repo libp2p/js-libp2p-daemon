@@ -8,6 +8,7 @@ const expect = chai.expect
 const os = require('os')
 const path = require('path')
 const ma = require('multiaddr')
+const StreamHandler = require('../../src/stream-handler')
 const { createDaemon } = require('../../src/daemon')
 const Client = require('../../src/client')
 const { createLibp2p } = require('../../src/libp2p')
@@ -71,7 +72,8 @@ describe('core features', () => {
   it('should be able to connect to another node', async () => {
     client = new Client(daemonAddr)
 
-    await client.attach()
+    const maConn = await client.connect()
+    const streamHandler = new StreamHandler({ stream: maConn })
 
     const request = {
       type: Request.Type.CONNECT,
@@ -87,18 +89,19 @@ describe('core features', () => {
       connManager: null
     }
 
-    const stream = client.send(request)
+    streamHandler.write(Request.encode(request))
 
-    const message = await stream.first()
+    const message = await streamHandler.read()
     const response = Response.decode(message)
     expect(response.type).to.eql(Response.Type.OK)
-    stream.end()
+    streamHandler.close()
   })
 
   it('should be able to list peers', async () => {
     client = new Client(daemonAddr)
 
-    await client.attach()
+    const maConn = await client.connect()
+    const streamHandler = new StreamHandler({ stream: maConn })
 
     const request = {
       type: Request.Type.LIST_PEERS,
@@ -111,19 +114,20 @@ describe('core features', () => {
       connManager: null
     }
 
-    const stream = client.send(request)
+    streamHandler.write(Request.encode(request))
 
-    const message = await stream.first()
+    const message = await streamHandler.read()
     const response = Response.decode(message)
     expect(response.type).to.eql(Response.Type.OK)
     expect(response.peers).to.have.length(1)
-    stream.end()
+    streamHandler.close()
   })
 
   it('should be able to identify', async () => {
     client = new Client(daemonAddr)
 
-    await client.attach()
+    const maConn = await client.connect()
+    const streamHandler = new StreamHandler({ stream: maConn })
 
     const request = {
       type: Request.Type.IDENTIFY,
@@ -136,15 +140,15 @@ describe('core features', () => {
       connManager: null
     }
 
-    const stream = client.send(request)
+    streamHandler.write(Request.encode(request))
 
-    const response = Response.decode(await stream.first())
+    const response = Response.decode(await streamHandler.read())
     expect(response.type).to.eql(Response.Type.OK)
 
     expect(response.identify).to.eql({
       id: daemon.libp2p.peerInfo.id.toBytes(),
       addrs: daemon.libp2p.peerInfo.multiaddrs.toArray().map(m => m.buffer)
     })
-    stream.end()
+    streamHandler.close()
   })
 })
