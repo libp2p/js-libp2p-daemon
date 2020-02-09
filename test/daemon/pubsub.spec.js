@@ -49,6 +49,8 @@ const testPubsub = (router) => {
           q: false,
           bootstrap: false,
           hostAddrs: '/ip4/0.0.0.0/tcp/0,/ip4/0.0.0.0/tcp/0/ws',
+          secio: true,
+          noise: false,
           b: false,
           dht: false,
           dhtClient: false,
