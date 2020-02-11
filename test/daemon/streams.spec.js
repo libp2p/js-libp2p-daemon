@@ -41,8 +41,8 @@ describe('streams', function () {
         q: false,
         bootstrap: false,
         hostAddrs: '/ip4/0.0.0.0/tcp/0,/ip4/0.0.0.0/tcp/0/ws',
-        secio: true,
-        noise: false,
+        secio: false,
+        noise: true,
         b: false,
         dht: true,
         dhtClient: false,
@@ -53,6 +53,8 @@ describe('streams', function () {
       }),
       createLibp2p({
         dht: true,
+        secio: false,
+        noise: true,
         hostAddrs: '/ip4/0.0.0.0/tcp/0'
       })
     ]).then((results) => {

@@ -43,8 +43,8 @@ describe('dht', () => {
         q: false,
         bootstrap: false,
         hostAddrs: '/ip4/0.0.0.0/tcp/0,/ip4/0.0.0.0/tcp/0/ws',
-        secio: true,
-        noise: false,
+        secio: false,
+        noise: true,
         b: false,
         dht: true,
         dhtClient: false,
@@ -55,6 +55,8 @@ describe('dht', () => {
       }),
       createLibp2p({
         dht: true,
+        secio: false,
+        noise: true,
         hostAddrs: '/ip4/0.0.0.0/tcp/0'
       })
     ])

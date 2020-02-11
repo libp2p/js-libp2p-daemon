@@ -36,8 +36,8 @@ describe('peerstore features', () => {
       q: false,
       bootstrap: false,
       hostAddrs: '/ip4/0.0.0.0/tcp/0,/ip4/0.0.0.0/tcp/0/ws',
-      secio: true,
-      noise: false,
+      secio: false,
+      noise: true,
       b: false,
       dht: true,
       dhtClient: false,
@@ -47,6 +47,8 @@ describe('peerstore features', () => {
       bootstrapPeers: ''
     })
     libp2pPeer = await createLibp2p({
+      secio: false,
+      noise: true,
       dht: true,
       hostAddrs: '/ip4/0.0.0.0/tcp/0'
     })

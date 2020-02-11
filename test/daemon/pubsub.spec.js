@@ -49,8 +49,8 @@ const testPubsub = (router) => {
           q: false,
           bootstrap: false,
           hostAddrs: '/ip4/0.0.0.0/tcp/0,/ip4/0.0.0.0/tcp/0/ws',
-          secio: true,
-          noise: false,
+          secio: false,
+          noise: true,
           b: false,
           dht: false,
           dhtClient: false,
@@ -62,6 +62,8 @@ const testPubsub = (router) => {
           pubsubRouter: router
         }),
         createLibp2p({
+          secio: false,
+          noise: true,
           pubsub: true,
           pubsubRouter: router,
           hostAddrs: '/ip4/0.0.0.0/tcp/0'
