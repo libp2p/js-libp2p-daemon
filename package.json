@@ -37,7 +37,7 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "aegir": "^20.5.1",
+    "aegir": "^21.0.2",
     "chai": "^4.2.0",
     "chai-bytes": "^0.1.2",
     "delay": "^4.3.0",
