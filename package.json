@@ -46,7 +46,7 @@
     "mocha": "^7.0.1",
     "multihashes": "^0.4.15",
     "p-defer": "^3.0.0",
-    "sinon": "^8.1.0"
+    "sinon": "^9.0.0"
   },
   "dependencies": {
     "cids": "^0.7.2",
