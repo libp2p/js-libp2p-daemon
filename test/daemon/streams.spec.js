@@ -112,7 +112,7 @@ describe('streams', function () {
     expect(response.streamInfo).to.have.property('proto', '/echo/1.0.0')
     expect(response.streamInfo.addr).to.satisfy(function (buffer) {
       const addrs = libp2pPeer.peerInfo.multiaddrs.toArray()
-      return addrs.filter(addr => buffer.equals(addr.buffer)).length > 0
+      return addrs.filter(addr => buffer.equals(addr.encapsulate(`/p2p/${libp2pPeer.peerInfo.id.toB58String()}`).buffer)).length > 0
     }, 'Did not contain a valid multiaddr')
 
     const source = require('it-pushable')()
