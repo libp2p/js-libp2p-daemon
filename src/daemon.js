@@ -195,7 +195,7 @@ class Daemon {
       [PeerstoreRequest.Type.GET_PROTOCOLS]: function * (daemon) {
         try {
           const peerId = PeerId.createFromBytes(peerStore.id)
-          const peerInfo = daemon.libp2p.peerStore.get(peerId.toB58String())
+          const peerInfo = daemon.libp2p.peerStore.get(peerId)
           const protos = Array.from(peerInfo.protocols)
           yield OkResponse({ peerStore: { protos } })
         } catch (err) {
@@ -282,7 +282,7 @@ class Daemon {
               type: DHTResponse.Type.VALUE,
               peer: {
                 id: peer.id.toBytes(),
-                addrs: peer.multiaddrs.toArray().map(m => m.buffer)
+                addrs: peer.multiaddrInfos.map(mi => mi.multiaddr.buffer)
               }
             }
           })
@@ -311,7 +311,7 @@ class Daemon {
               type: DHTResponse.Type.VALUE,
               peer: {
                 id: provider.id.toBytes(),
-                addrs: provider.multiaddrs.toArray().map(m => m.buffer)
+                addrs: provider.multiaddrInfos.map(mi => mi.multiaddr.buffer)
               }
             })
           }
