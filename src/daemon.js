@@ -4,7 +4,6 @@
 
 const TCP = require('libp2p-tcp')
 const Libp2p = require('./libp2p')
-const PeerInfo = require('peer-info')
 const PeerId = require('peer-id')
 const ma = require('multiaddr')
 const CID = require('cids')
@@ -58,15 +57,11 @@ class Daemon {
    */
   connect (connectRequest) {
     const peer = connectRequest.connect.peer
-    const addrs = connectRequest.connect.addrs
-    const peerInfo = new PeerInfo(
-      PeerId.createFromBytes(peer)
-    )
-    addrs.forEach((a) => {
-      peerInfo.multiaddrs.add(ma(a))
-    })
+    const addrs = connectRequest.connect.addrs.map((a) => ma(a))
+    const peerId = PeerId.createFromBytes(peer)
 
-    return this.libp2p.dial(peerInfo)
+    this.libp2p.peerStore.addressBook.set(peerId, addrs)
+    return this.libp2p.dial(peerId)
   }
 
   /**
@@ -85,16 +80,14 @@ class Daemon {
   async openStream (request) {
     const { peer, proto } = request.streamOpen
 
-    const peerInfo = new PeerInfo(
-      PeerId.createFromB58String(peer.toString())
-    )
+    const peerId = PeerId.createFromB58String(peer.toString())
 
-    const connection = this.libp2p.registrar.getConnection(peerInfo)
+    const connection = this.libp2p.connectionManager.get(peerId)
     const { stream, protocol } = await connection.newStream(proto)
 
     return {
       streamInfo: {
-        peer: peerInfo.id.toBytes(),
+        peer: peerId.toBytes(),
         addr: connection.remoteAddr.buffer,
         proto: protocol
       },
@@ -195,8 +188,8 @@ class Daemon {
       [PeerstoreRequest.Type.GET_PROTOCOLS]: function * (daemon) {
         try {
           const peerId = PeerId.createFromBytes(peerStore.id)
-          const peerInfo = daemon.libp2p.peerStore.get(peerId)
-          const protos = Array.from(peerInfo.protocols)
+          const peer = daemon.libp2p.peerStore.get(peerId)
+          const protos = peer.protocols
           yield OkResponse({ peerStore: { protos } })
         } catch (err) {
           throw new Error('ERR_INVALID_PEERSTORE_REQUEST')
@@ -277,12 +270,13 @@ class Daemon {
         const peerId = PeerId.createFromBytes(dht.peer)
         try {
           const peer = await daemon.libp2p.peerRouting.findPeer(peerId)
+
           yield OkResponse({
             dht: {
               type: DHTResponse.Type.VALUE,
               peer: {
                 id: peer.id.toBytes(),
-                addrs: peer.multiaddrInfos.map(mi => mi.multiaddr.buffer)
+                addrs: peer.multiaddrs.map(m => m.buffer)
               }
             }
           })
@@ -311,7 +305,7 @@ class Daemon {
               type: DHTResponse.Type.VALUE,
               peer: {
                 id: provider.id.toBytes(),
-                addrs: provider.multiaddrInfos.map(mi => mi.multiaddr.buffer)
+                addrs: (provider.multiaddrs || []).map(m => m.buffer)
               }
             })
           }
@@ -430,18 +424,21 @@ class Daemon {
             case Request.Type.IDENTIFY: {
               yield OkResponse({
                 identify: {
-                  id: daemon.libp2p.peerInfo.id.toBytes(),
-                  addrs: daemon.libp2p.peerInfo.multiaddrs.toArray().map(m => m.buffer)
+                  id: daemon.libp2p.peerId.toBytes(),
+                  addrs: daemon.libp2p.multiaddrs.map(m => m.buffer)
                 }
               })
               break
             }
             // Get a list of our current peers
             case Request.Type.LIST_PEERS: {
-              const peers = Array.from(daemon.libp2p.peerStore.peers.values()).map((pi) => {
-                const addr = pi.isConnected()
+              const peers = Array.from(daemon.libp2p.peerStore.peers.values()).map((peer) => {
+                // TODO: conn mgr
+                const conn = daemon.libp2p.registrar.getConnection(peer.id)
+                const addr = conn.remoteAddr
+
                 return {
-                  id: pi.id.toBytes(),
+                  id: peer.id.toBytes(),
                   addrs: [addr ? addr.buffer : null]
                 }
               })

@@ -28,8 +28,8 @@ async function connect ({
   const request = {
     type: Request.Type.CONNECT,
     connect: {
-      peer: Buffer.from(libp2pPeer.peerInfo.id.toBytes()),
-      addrs: libp2pPeer.peerInfo.multiaddrs.toArray().map(addr => addr.buffer)
+      peer: Buffer.from(libp2pPeer.peerId.toBytes()),
+      addrs: libp2pPeer.multiaddrs.map(addr => addr.buffer)
     }
   }
 

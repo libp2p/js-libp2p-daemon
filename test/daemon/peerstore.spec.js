@@ -89,7 +89,7 @@ describe('peerstore features', () => {
       type: Request.Type.PEERSTORE,
       peerStore: {
         type: PeerstoreRequest.Type.GET_PROTOCOLS,
-        id: Buffer.from(libp2pPeer.peerInfo.id.toBytes())
+        id: Buffer.from(libp2pPeer.peerId.toBytes())
       }
     }
 
@@ -121,7 +121,7 @@ describe('peerstore features', () => {
       type: Request.Type.PEERSTORE,
       peerStore: {
         type: PeerstoreRequest.Type.GET_PEER_INFO,
-        id: Buffer.from(libp2pPeer.peerInfo.id.toBytes())
+        id: Buffer.from(libp2pPeer.peerId.toBytes())
       }
     }
 

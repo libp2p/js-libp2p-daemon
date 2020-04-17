@@ -10,19 +10,18 @@ const { NOISE } = require('libp2p-noise')
 const KadDHT = require('libp2p-kad-dht')
 const FloodSub = require('libp2p-floodsub')
 const GossipSub = require('libp2p-gossipsub')
-const PeerInfo = require('peer-info')
 const PeerID = require('peer-id')
 const multiaddr = require('multiaddr')
 const fsPromises = require('fs').promises
 
 /**
- * Creates a PeerInfo from scratch, or via the supplied private key
+ * Creates a Peerid from scratch, or via the supplied private key
  * @param {string} privateKeyPath Path to private key
- * @returns {Promise<PeerInfo>} Resolves the created PeerInfo
+ * @returns {Promise<Peerid>} Resolves the created Peerid
  */
-const getPeerInfo = async (privateKeyPath) => {
+const getPeerId = async (privateKeyPath) => {
   if (!privateKeyPath) {
-    return PeerInfo.create()
+    return PeerID.create()
   }
 
   const pkFile = await fsPromises.open(privateKeyPath, 'r')
@@ -32,33 +31,7 @@ const getPeerInfo = async (privateKeyPath) => {
   } finally {
     pkFile.close()
   }
-  const peerId = await PeerID.createFromPrivKey(buf)
-
-  return new PeerInfo(peerId)
-}
-
-class DaemonLibp2p extends Libp2p {
-  constructor (libp2pOpts, { announceAddrs }) {
-    super(libp2pOpts)
-    this.announceAddrs = announceAddrs
-    this.needsPullStream = libp2pOpts.config.pubsub.enabled
-  }
-
-  /**
-   * Starts the libp2p node
-   * @override
-   * @returns {Promise<void>}
-   */
-  async start () {
-    await super.start()
-    // replace with announce addrs until libp2p supports this directly
-    if (this.announceAddrs.length > 0) {
-      this.peerInfo.multiaddrs.clear()
-      this.announceAddrs.forEach(addr => {
-        this.peerInfo.multiaddrs.add(addr)
-      })
-    }
-  }
+  return PeerID.createFromPrivKey(buf)
 }
 
 /**
@@ -90,22 +63,23 @@ const createLibp2p = async ({
   pubsub,
   pubsubRouter
 } = {}) => {
-  const peerInfo = await getPeerInfo(id)
+  const peerId = await getPeerId(id)
   const bootstrapList = bootstrapPeers ? bootstrapPeers.split(',').filter(s => s !== '') : null
   const listenAddrs = hostAddrs ? hostAddrs.split(',').filter(s => s !== '') : ['/ip4/0.0.0.0/tcp/0']
 
   announceAddrs = announceAddrs ? announceAddrs.split(',').filter(s => s !== '') : []
   announceAddrs = announceAddrs.map(addr => multiaddr(addr))
 
-  listenAddrs.forEach(addr => {
-    peerInfo.multiaddrs.add(multiaddr(addr))
-  })
   const connEncryption = []
   if (secio !== false) connEncryption.push(SECIO)
   if (noise) connEncryption.push(NOISE)
 
-  const libp2p = new DaemonLibp2p({
-    peerInfo,
+  const libp2p = Libp2p.create({
+    peerId,
+    addresses: {
+      listen: listenAddrs,
+      announce: announceAddrs
+    },
     connectionManager: {
       maxPeers: connMgrHi,
       minPeers: connMgrLo
@@ -148,10 +122,6 @@ const createLibp2p = async ({
         enabled: Boolean(pubsub)
       }
     }
-  }, {
-    // using a secondary config until https://github.com/libp2p/js-libp2p/issues/202
-    // is completed
-    announceAddrs
   })
 
   return libp2p
