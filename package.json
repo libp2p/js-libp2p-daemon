@@ -49,7 +49,7 @@
     "sinon": "^9.0.0"
   },
   "dependencies": {
-    "cids": "^0.7.2",
+    "cids": "^0.8.0",
     "debug": "^4.1.1",
     "it-buffer": "^0.1.1",
     "it-handshake": "^1.0.1",
