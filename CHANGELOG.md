@@ -1,3 +1,13 @@
+<a name="0.3.1"></a>
+## [0.3.1](https://github.com/libp2p/js-libp2p-daemon/compare/v0.3.0...v0.3.1) (2020-04-22)
+
+
+### Features
+
+* add support for specifying noise ([#32](https://github.com/libp2p/js-libp2p-daemon/issues/32)) ([e5582cd](https://github.com/libp2p/js-libp2p-daemon/commit/e5582cd))
+
+
+
 <a name="0.3.0"></a>
 # [0.3.0](https://github.com/libp2p/js-libp2p-daemon/compare/v0.2.3...v0.3.0) (2020-01-31)
 
