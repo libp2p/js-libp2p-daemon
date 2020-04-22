@@ -6,6 +6,7 @@ const WS = require('libp2p-websockets')
 const Bootstrap = require('libp2p-bootstrap')
 const MPLEX = require('libp2p-mplex')
 const SECIO = require('libp2p-secio')
+const { NOISE } = require('libp2p-noise')
 const KadDHT = require('libp2p-kad-dht')
 const FloodSub = require('libp2p-floodsub')
 const GossipSub = require('libp2p-gossipsub')
@@ -80,6 +81,8 @@ const createLibp2p = async ({
   bootstrapPeers,
   hostAddrs,
   announceAddrs,
+  secio,
+  noise,
   dht,
   connMgrLo,
   connMgrHi,
@@ -97,6 +100,9 @@ const createLibp2p = async ({
   listenAddrs.forEach(addr => {
     peerInfo.multiaddrs.add(multiaddr(addr))
   })
+  const connEncryption = []
+  if (secio !== false) connEncryption.push(SECIO)
+  if (noise) connEncryption.push(NOISE)
 
   const libp2p = new DaemonLibp2p({
     peerInfo,
@@ -112,9 +118,7 @@ const createLibp2p = async ({
       streamMuxer: [
         MPLEX
       ],
-      connEncryption: [
-        SECIO
-      ],
+      connEncryption,
       peerDiscovery: [
         Bootstrap
       ],
