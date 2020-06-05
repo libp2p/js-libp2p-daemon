@@ -1,6 +1,6 @@
 {
   "name": "libp2p-daemon",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "libp2p-daemon JavaScript implementation",
   "leadMaintainer": "Jacob Heun <jacobheun@gmail.com>",
   "repository": {
