@@ -98,7 +98,7 @@ describe('streams', function () {
       type: Request.Type.STREAM_OPEN,
       connect: null,
       streamOpen: {
-        peer: Buffer.from(libp2pPeer.peerInfo.id.toB58String()),
+        peer: Buffer.from(libp2pPeer.peerId.toB58String()),
         proto: ['/echo/1.0.0']
       },
       streamHandler: null,
@@ -112,11 +112,11 @@ describe('streams', function () {
     // Verify the response
     const response = Response.decode(await streamHandler.read())
     expect(response.type).to.eql(Response.Type.OK)
-    expect(response.streamInfo).to.have.deep.property('peer', libp2pPeer.peerInfo.id.toBytes())
+    expect(response.streamInfo).to.have.deep.property('peer', libp2pPeer.peerId.toBytes())
     expect(response.streamInfo).to.have.property('proto', '/echo/1.0.0')
     expect(response.streamInfo.addr).to.satisfy(function (buffer) {
-      const addrs = libp2pPeer.peerInfo.multiaddrs.toArray()
-      return addrs.filter(addr => buffer.equals(addr.encapsulate(`/p2p/${libp2pPeer.peerInfo.id.toB58String()}`).buffer)).length > 0
+      const addrs = libp2pPeer.multiaddrs
+      return addrs.filter(addr => buffer.equals(addr.encapsulate(`/p2p/${libp2pPeer.peerId.toB58String()}`).buffer)).length > 0
     }, 'Did not contain a valid multiaddr')
 
     const source = require('it-pushable')()
@@ -149,7 +149,7 @@ describe('streams', function () {
       const message = await streamHandler.read()
       const response = StreamInfo.decode(message)
 
-      expect(response.peer).to.eql(libp2pPeer.peerInfo.id.toBytes())
+      expect(response.peer).to.eql(libp2pPeer.peerId.toBytes())
       expect(response.proto).to.eql('/echo/1.0.0')
 
       const stream = streamHandler.rest()
@@ -179,7 +179,7 @@ describe('streams', function () {
 
     // Open a connection between the peer and our daemon
     // Then send hello from the peer to the daemon
-    const connection = await libp2pPeer.dial(daemon.libp2p.peerInfo)
+    const connection = await libp2pPeer.dial(daemon.libp2p.peerId)
     const { stream } = await connection.newStream('/echo/1.0.0')
     const hello = Buffer.from('hello, peer')
 
@@ -189,7 +189,6 @@ describe('streams', function () {
       toBuffer,
       collect
     )
-    await connection.close()
 
     expect(results).to.eql([hello])
   })

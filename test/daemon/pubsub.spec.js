@@ -282,7 +282,7 @@ const testPubsub = (router) => {
         },
         (message) => {
           const response = PSMessage.decode(message)
-          expect(response.from.toString()).to.eql(libp2pPeer.peerInfo.id.toB58String())
+          expect(response.from.toString()).to.eql(libp2pPeer.peerId.toB58String())
           expect(response.data).to.exist()
           expect(response.data).to.equalBytes(data)
           expect(response.topicIDs).to.eql([topic])

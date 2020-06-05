@@ -97,7 +97,7 @@ describe('dht', () => {
       streamHandler: null,
       dht: {
         type: DHTRequest.Type.FIND_PEER,
-        peer: libp2pPeer.peerInfo.id.toBytes()
+        peer: libp2pPeer.peerId.toBytes()
       },
       disconnect: null,
       pubsub: null,
@@ -111,8 +111,8 @@ describe('dht', () => {
     expect(response.dht).to.eql({
       type: DHTResponse.Type.VALUE,
       peer: {
-        id: libp2pPeer.peerInfo.id.toBytes(),
-        addrs: libp2pPeer.peerInfo.multiaddrs.toArray().map(m => m.buffer)
+        id: libp2pPeer.peerId.toBytes(),
+        addrs: libp2pPeer.multiaddrs.map(m => m.buffer)
       },
       value: null
     })
@@ -178,7 +178,7 @@ describe('dht', () => {
     for await (const provider of libp2pPeer.contentRouting.findProviders(cid, { maxNumProviders: 1 })) {
       providers.push(provider)
     }
-    expect(daemon.libp2p.peerInfo.id.isEqual(providers[0].id)).to.eql(true)
+    expect(daemon.libp2p.peerId.isEqual(providers[0].id)).to.eql(true)
   })
 
   it('should be able to find providers', async () => {
@@ -223,8 +223,8 @@ describe('dht', () => {
         const response = DHTResponse.decode(message)
         expect(response.type).to.eql(DHTResponse.Type.VALUE)
         expect(response.peer).to.eql({
-          id: libp2pPeer.peerInfo.id.toBytes(),
-          addrs: libp2pPeer.peerInfo.multiaddrs.toArray().map(m => m.buffer)
+          id: libp2pPeer.peerId.toBytes(),
+          addrs: libp2pPeer.multiaddrs.map(m => m.buffer)
         })
       },
       (message) => {
@@ -319,7 +319,7 @@ describe('dht', () => {
       (message) => {
         const response = DHTResponse.decode(message)
         expect(response.type).to.eql(DHTResponse.Type.VALUE)
-        expect(response.value.toString()).to.eql(libp2pPeer.peerInfo.id.toB58String())
+        expect(response.value.toString()).to.eql(libp2pPeer.peerId.toB58String())
       },
       (message) => {
         const response = DHTResponse.decode(message)
@@ -348,7 +348,7 @@ describe('dht', () => {
       streamHandler: null,
       dht: {
         type: DHTRequest.Type.GET_PUBLIC_KEY,
-        peer: libp2pPeer.peerInfo.id.toBytes()
+        peer: libp2pPeer.peerId.toBytes()
       },
       disconnect: null,
       pubsub: null,
@@ -362,7 +362,7 @@ describe('dht', () => {
     expect(response.dht).to.eql({
       type: DHTResponse.Type.VALUE,
       peer: null,
-      value: libp2pPeer.peerInfo.id.pubKey.bytes
+      value: libp2pPeer.peerId.pubKey.bytes
     })
     streamHandler.close()
   })

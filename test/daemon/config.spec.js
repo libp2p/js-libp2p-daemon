@@ -41,7 +41,7 @@ describe('configuration', function () {
 
     await daemon.start()
 
-    const addrs = daemon.libp2p.peerInfo.multiaddrs.toArray()
+    const addrs = Array.from(daemon.libp2p.addressManager.announce)
     expect(addrs).to.eql([
       ma('/dns/ipfs.io')
     ])
@@ -64,7 +64,7 @@ describe('configuration', function () {
     })
     await daemon.start()
 
-    const peerId = daemon.libp2p.peerInfo.id
+    const peerId = daemon.libp2p.peerId
     expect(peerId.toB58String()).to.eql('QmPFdSzvgd1HbZSd6oX2N2vCSnhSEeocbQZsMB42UG8smE')
   })
 
@@ -85,7 +85,7 @@ describe('configuration', function () {
     })
     await daemon.start()
 
-    const peerId = daemon.libp2p.peerInfo.id
+    const peerId = daemon.libp2p.peerId
     expect(peerId.toB58String()).to.eql('16Uiu2HAm7txvwZbeK5g3oB3DrRhnARTEjTNorVreWJomfHJHbEu2')
   })
 })
