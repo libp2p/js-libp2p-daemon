@@ -31,7 +31,6 @@ class StreamHandler {
     if (msg.value) {
       return msg.value.slice()
     }
-
     log('read received no value, closing stream')
     // End the stream, we didn't get data
     this.close()

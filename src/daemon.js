@@ -12,6 +12,8 @@ const pipe = require('it-pipe')
 const pushable = require('it-pushable')
 const StreamHandler = require('./stream-handler')
 const { concat } = require('streaming-iterables')
+const uint8ArrayFromString = require('uint8arrays/from-string')
+const uint8ArrayToString = require('uint8arrays/to-string')
 const { passThroughUpgrader } = require('./util')
 const {
   Request,
@@ -80,7 +82,7 @@ class Daemon {
   async openStream (request) {
     const { peer, proto } = request.streamOpen
 
-    const peerId = PeerId.createFromB58String(peer.toString())
+    const peerId = PeerId.createFromB58String(uint8ArrayToString(peer, 'base58btc'))
 
     const connection = this.libp2p.connectionManager.get(peerId)
     const { stream, protocol } = await connection.newStream(proto)
@@ -88,7 +90,7 @@ class Daemon {
     return {
       streamInfo: {
         peer: peerId.toBytes(),
-        addr: connection.remoteAddr.buffer,
+        addr: connection.remoteAddr.bytes,
         proto: protocol
       },
       connection: stream
@@ -119,7 +121,7 @@ class Daemon {
       this.libp2p.handle(proto, ({ connection, stream, protocol }) => {
         const message = StreamInfo.encode({
           peer: connection.remotePeer.toBytes(),
-          addr: connection.remoteAddr.buffer,
+          addr: connection.remoteAddr.bytes,
           proto: protocol
         })
         const encodedMessage = lp.encode.single(message)
@@ -226,7 +228,7 @@ class Daemon {
 
         await daemon.libp2p.pubsub.subscribe(topic, (msg) => {
           onMessage.push(PSMessage.encode({
-            from: msg.from && Buffer.from(msg.from),
+            from: msg.from && uint8ArrayFromString(msg.from),
             data: msg.data,
             seqno: msg.seqno,
             topicIDs: msg.topicIDs,
@@ -276,7 +278,7 @@ class Daemon {
               type: DHTResponse.Type.VALUE,
               peer: {
                 id: peer.id.toBytes(),
-                addrs: peer.multiaddrs.map(m => m.buffer)
+                addrs: peer.multiaddrs.map(m => m.bytes)
               }
             }
           })
@@ -305,7 +307,7 @@ class Daemon {
               type: DHTResponse.Type.VALUE,
               peer: {
                 id: provider.id.toBytes(),
-                addrs: (provider.multiaddrs || []).map(m => m.buffer)
+                addrs: (provider.multiaddrs || []).map(m => m.bytes)
               }
             })
           }
@@ -330,10 +332,10 @@ class Daemon {
           }
         })
 
-        for await (const peerId of daemon.libp2p._dht.getClosestPeers(Buffer.from(dht.key))) {
+        for await (const peerId of daemon.libp2p._dht.getClosestPeers(dht.key)) {
           yield DHTResponse.encode({
             type: DHTResponse.Type.VALUE,
-            value: peerId.toB58String()
+            value: peerId.toBytes()
           })
         }
 
@@ -354,9 +356,7 @@ class Daemon {
       },
       [DHTRequest.Type.GET_VALUE]: async function * (daemon) {
         try {
-          const value = await daemon.libp2p.contentRouting.get(
-            Buffer.from(dht.key)
-          )
+          const value = await daemon.libp2p.contentRouting.get(dht.key)
           yield OkResponse({
             dht: {
               type: DHTResponse.Type.VALUE,
@@ -369,7 +369,7 @@ class Daemon {
       },
       [DHTRequest.Type.PUT_VALUE]: async function * (daemon) {
         await daemon.libp2p.contentRouting.put(
-          Buffer.from(dht.key),
+          dht.key,
           dht.value
         )
 
@@ -425,7 +425,7 @@ class Daemon {
               yield OkResponse({
                 identify: {
                   id: daemon.libp2p.peerId.toBytes(),
-                  addrs: daemon.libp2p.multiaddrs.map(m => m.buffer)
+                  addrs: daemon.libp2p.multiaddrs.map(m => m.bytes)
                 }
               })
               break
@@ -439,7 +439,7 @@ class Daemon {
 
                 return {
                   id: peer.id.toBytes(),
-                  addrs: [addr ? addr.buffer : null]
+                  addrs: [addr ? addr.bytes : null]
                 }
               })
               yield OkResponse({ peers })

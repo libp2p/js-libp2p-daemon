@@ -82,8 +82,8 @@ describe('core features', () => {
     const request = {
       type: Request.Type.CONNECT,
       connect: {
-        peer: Buffer.from(libp2pPeer.peerId.toBytes()),
-        addrs: libp2pPeer.multiaddrs.map(addr => addr.buffer)
+        peer: libp2pPeer.peerId.toBytes(),
+        addrs: libp2pPeer.multiaddrs.map(addr => addr.bytes)
       },
       streamOpen: null,
       streamHandler: null,
@@ -151,7 +151,7 @@ describe('core features', () => {
 
     expect(response.identify).to.eql({
       id: daemon.libp2p.peerId.toBytes(),
-      addrs: daemon.libp2p.multiaddrs.map(m => m.buffer)
+      addrs: daemon.libp2p.multiaddrs.map(m => m.bytes)
     })
     streamHandler.close()
   })

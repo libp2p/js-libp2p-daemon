@@ -17,6 +17,7 @@ const lp = require('it-length-prefixed')
 const pDefer = require('p-defer')
 const toBuffer = require('it-buffer')
 const pushable = require('it-pushable')
+const uint8ArrayFromString = require('uint8arrays/from-string')
 
 const StreamHandler = require('../../src/stream-handler')
 const { createDaemon } = require('../../src/daemon')
@@ -181,7 +182,7 @@ const testPubsub = (router) => {
       this.timeout(10e3)
 
       const topic = 'test-topic'
-      const data = Buffer.from('test-data')
+      const data = uint8ArrayFromString('test-data')
       const deferred = pDefer()
 
       client = new Client(daemonAddr)
@@ -231,7 +232,7 @@ const testPubsub = (router) => {
 
     it('should be able to receive messages from subscribed topics', async function () {
       const topic = 'test-topic'
-      const data = Buffer.from('test-data')
+      const data = uint8ArrayFromString('test-data')
 
       client = new Client(daemonAddr)
 
