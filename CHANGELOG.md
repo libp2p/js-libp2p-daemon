@@ -1,3 +1,22 @@
+<a name="0.5.0"></a>
+# [0.5.0](https://github.com/libp2p/js-libp2p-daemon/compare/v0.4.0...v0.5.0) (2020-08-23)
+
+
+### Bug Fixes
+
+* replace node buffers with uint8arrays ([#41](https://github.com/libp2p/js-libp2p-daemon/issues/41)) ([cd009d5](https://github.com/libp2p/js-libp2p-daemon/commit/cd009d5))
+
+
+### BREAKING CHANGES
+
+* - All deps of this module now use uint8arrays in place of node buffers
+
+* chore: bump deps
+
+Co-authored-by: Jacob Heun <jacobheun@gmail.com>
+
+
+
 <a name="0.4.0"></a>
 # [0.4.0](https://github.com/libp2p/js-libp2p-daemon/compare/v0.3.1...v0.4.0) (2020-06-05)
 
