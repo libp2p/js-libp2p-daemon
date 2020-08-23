@@ -5,6 +5,7 @@ const chai = require('chai')
 const expect = chai.expect
 
 const multiaddr = require('multiaddr')
+const uint8ArrayFromString = require('uint8arrays/from-string')
 
 const {
   ConnManagerRequest,
@@ -17,9 +18,9 @@ describe('protocol', () => {
   describe('request', () => {
     it('should be able to encode/decode a ConnectRequest', () => {
       const connRequest = {
-        peer: Buffer.from('QmTarget'),
+        peer: uint8ArrayFromString('QmTarget'),
         addrs: [
-          multiaddr('/ip4/0.0.0.0/tcp/0').buffer
+          multiaddr('/ip4/0.0.0.0/tcp/0').bytes
         ],
         timeout: 0
       }
@@ -41,7 +42,7 @@ describe('protocol', () => {
 
     it('should be able to encode/decode a StreamOpenRequest', () => {
       const streamOpenRequest = {
-        peer: Buffer.from('QmTarget'),
+        peer: uint8ArrayFromString('QmTarget'),
         proto: ['/p2pdaemon/1.0.0'],
         timeout: 0
       }
@@ -63,7 +64,7 @@ describe('protocol', () => {
 
     it('should be able to encode/decode a StreamHandlerRequest', () => {
       const streamHandlerRequest = {
-        addr: multiaddr('/unix/tmp/p2p.sock').buffer,
+        addr: multiaddr('/unix/tmp/p2p.sock').bytes,
         proto: ['/p2pdaemon/1.0.0']
       }
       const request = {
@@ -85,7 +86,7 @@ describe('protocol', () => {
     it('should be able to encode/decode a DHTRequest', () => {
       const dhtRequest = {
         type: DHTRequest.Type.FIND_PEER,
-        peer: Buffer.from('QmTarget'),
+        peer: uint8ArrayFromString('QmTarget'),
         cid: null,
         key: Buffer.alloc(0),
         value: null,
@@ -111,7 +112,7 @@ describe('protocol', () => {
     it('should be able to encode/decode a ConnManagerRequest', () => {
       const connManagerRequest = {
         type: ConnManagerRequest.Type.TAG_PEER,
-        peer: Buffer.from('QmTarget'),
+        peer: uint8ArrayFromString('QmTarget'),
         tag: '',
         weight: 0
       }

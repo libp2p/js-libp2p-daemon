@@ -11,6 +11,8 @@ const CID = require('cids')
 const ma = require('multiaddr')
 const delay = require('delay')
 const PeerId = require('peer-id')
+const uint8ArrayFromString = require('uint8arrays/from-string')
+const uint8ArrayToString = require('uint8arrays/to-string')
 
 const StreamHandler = require('../../src/stream-handler')
 const { createDaemon } = require('../../src/daemon')
@@ -112,7 +114,7 @@ describe('dht', () => {
       type: DHTResponse.Type.VALUE,
       peer: {
         id: libp2pPeer.peerId.toBytes(),
-        addrs: libp2pPeer.multiaddrs.map(m => m.buffer)
+        addrs: libp2pPeer.multiaddrs.map(m => m.bytes)
       },
       value: null
     })
@@ -160,7 +162,7 @@ describe('dht', () => {
       streamHandler: null,
       dht: {
         type: DHTRequest.Type.PROVIDE,
-        cid: cid.buffer
+        cid: cid.bytes
       },
       disconnect: null,
       pubsub: null,
@@ -199,7 +201,7 @@ describe('dht', () => {
       streamHandler: null,
       dht: {
         type: DHTRequest.Type.FIND_PROVIDERS,
-        cid: cid.buffer,
+        cid: cid.bytes,
         count: 1
       },
       disconnect: null,
@@ -224,7 +226,7 @@ describe('dht', () => {
         expect(response.type).to.eql(DHTResponse.Type.VALUE)
         expect(response.peer).to.eql({
           id: libp2pPeer.peerId.toBytes(),
-          addrs: libp2pPeer.multiaddrs.map(m => m.buffer)
+          addrs: libp2pPeer.multiaddrs.map(m => m.bytes)
         })
       },
       (message) => {
@@ -258,7 +260,7 @@ describe('dht', () => {
       streamHandler: null,
       dht: {
         type: DHTRequest.Type.FIND_PROVIDERS,
-        cid: cid.buffer,
+        cid: cid.bytes,
         count: 1
       },
       disconnect: null,
@@ -297,7 +299,7 @@ describe('dht', () => {
       streamHandler: null,
       dht: {
         type: DHTRequest.Type.GET_CLOSEST_PEERS,
-        key: 'foobar'
+        key: uint8ArrayFromString('foobar')
       },
       disconnect: null,
       pubsub: null,
@@ -319,7 +321,7 @@ describe('dht', () => {
       (message) => {
         const response = DHTResponse.decode(message)
         expect(response.type).to.eql(DHTResponse.Type.VALUE)
-        expect(response.value.toString()).to.eql(libp2pPeer.peerId.toB58String())
+        expect(uint8ArrayToString(response.value, 'base58btc')).to.eql(libp2pPeer.peerId.toB58String())
       },
       (message) => {
         const response = DHTResponse.decode(message)
@@ -373,7 +375,7 @@ describe('dht', () => {
     const maConn = await client.connect()
     const streamHandler = new StreamHandler({ stream: maConn })
 
-    await libp2pPeer.contentRouting.put(Buffer.from('/hello'), Buffer.from('world'))
+    await libp2pPeer.contentRouting.put(uint8ArrayFromString('/hello'), uint8ArrayFromString('world'))
 
     const request = {
       type: Request.Type.DHT,
@@ -382,7 +384,7 @@ describe('dht', () => {
       streamHandler: null,
       dht: {
         type: DHTRequest.Type.GET_VALUE,
-        key: '/hello'
+        key: uint8ArrayFromString('/hello')
       },
       disconnect: null,
       pubsub: null,
@@ -396,7 +398,7 @@ describe('dht', () => {
     expect(response.dht).to.eql({
       type: DHTResponse.Type.VALUE,
       peer: null,
-      value: Buffer.from('world')
+      value: uint8ArrayFromString('world')
     })
     streamHandler.close()
   })
@@ -414,7 +416,7 @@ describe('dht', () => {
       streamHandler: null,
       dht: {
         type: DHTRequest.Type.GET_VALUE,
-        key: '/v/doesntexist'
+        key: uint8ArrayFromString('/v/doesntexist')
       },
       disconnect: null,
       pubsub: null,
@@ -441,8 +443,8 @@ describe('dht', () => {
       streamHandler: null,
       dht: {
         type: DHTRequest.Type.PUT_VALUE,
-        key: '/hello2',
-        value: Buffer.from('world2')
+        key: uint8ArrayFromString('/hello2'),
+        value: uint8ArrayFromString('world2')
       },
       disconnect: null,
       pubsub: null,
@@ -456,7 +458,7 @@ describe('dht', () => {
     expect(response.dht).to.eql(null)
     streamHandler.close()
 
-    const value = await libp2pPeer.contentRouting.get(Buffer.from('/hello2'))
-    expect(value).to.eql(Buffer.from('world2'))
+    const value = await libp2pPeer.contentRouting.get(uint8ArrayFromString('/hello2'))
+    expect(value).to.eql(uint8ArrayFromString('world2'))
   })
 })

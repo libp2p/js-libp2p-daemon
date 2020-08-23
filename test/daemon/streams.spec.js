@@ -11,6 +11,8 @@ const pipe = require('it-pipe')
 const ma = require('multiaddr')
 const { collect, take } = require('streaming-iterables')
 const { toBuffer } = require('it-buffer')
+const uint8ArrayFromString = require('uint8arrays/from-string')
+const uint8ArrayEquals = require('uint8arrays/equals')
 
 const StreamHandler = require('../../src/stream-handler')
 const Client = require('../../src/client')
@@ -85,7 +87,7 @@ describe('streams', function () {
   })
 
   it('should be able to open a stream and echo with it', async () => {
-    const hello = Buffer.from('hello there')
+    const hello = uint8ArrayFromString('hello there')
 
     // Have the peer echo our messages back
     libp2pPeer.handle('/echo/1.0.0', ({ stream }) => pipe(stream, stream))
@@ -98,7 +100,7 @@ describe('streams', function () {
       type: Request.Type.STREAM_OPEN,
       connect: null,
       streamOpen: {
-        peer: Buffer.from(libp2pPeer.peerId.toB58String()),
+        peer: libp2pPeer.peerId.toBytes(),
         proto: ['/echo/1.0.0']
       },
       streamHandler: null,
@@ -106,17 +108,20 @@ describe('streams', function () {
       connManager: null
     }
 
+    const req = Request.encode(request)
+
     // Open a stream from the daemon to the peer node
-    streamHandler.write(Request.encode(request))
+    streamHandler.write(req)
 
     // Verify the response
     const response = Response.decode(await streamHandler.read())
+
     expect(response.type).to.eql(Response.Type.OK)
     expect(response.streamInfo).to.have.deep.property('peer', libp2pPeer.peerId.toBytes())
     expect(response.streamInfo).to.have.property('proto', '/echo/1.0.0')
     expect(response.streamInfo.addr).to.satisfy(function (buffer) {
       const addrs = libp2pPeer.multiaddrs
-      return addrs.filter(addr => buffer.equals(addr.encapsulate(`/p2p/${libp2pPeer.peerId.toB58String()}`).buffer)).length > 0
+      return addrs.filter(addr => uint8ArrayEquals(buffer, addr.encapsulate(`/p2p/${libp2pPeer.peerId.toB58String()}`).bytes)).length > 0
     }, 'Did not contain a valid multiaddr')
 
     const source = require('it-pushable')()
@@ -165,7 +170,7 @@ describe('streams', function () {
       connect: null,
       streamOpen: null,
       streamHandler: {
-        addr: addr.buffer,
+        addr: addr.bytes,
         proto: ['/echo/1.0.0']
       },
       dht: null,
@@ -181,7 +186,7 @@ describe('streams', function () {
     // Then send hello from the peer to the daemon
     const connection = await libp2pPeer.dial(daemon.libp2p.peerId)
     const { stream } = await connection.newStream('/echo/1.0.0')
-    const hello = Buffer.from('hello, peer')
+    const hello = uint8ArrayFromString('hello, peer')
 
     const results = await pipe(
       [hello],
