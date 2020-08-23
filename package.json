@@ -1,6 +1,6 @@
 {
   "name": "libp2p-daemon",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "libp2p-daemon JavaScript implementation",
   "leadMaintainer": "Jacob Heun <jacobheun@gmail.com>",
   "repository": {
@@ -79,6 +79,7 @@
   "contributors": [
     "Jacob Heun <jacobheun@gmail.com>",
     "Vasco Santos <vasco.santos@moxy.studio>",
-    "Arve Knudsen <arve.knudsen@gmail.com>"
+    "Arve Knudsen <arve.knudsen@gmail.com>",
+    "Alex Potsides <alex@achingbrain.net>"
   ]
 }
