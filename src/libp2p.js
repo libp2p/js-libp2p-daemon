@@ -93,7 +93,7 @@ const createLibp2p = async ({
       streamMuxer: [
         MPLEX
       ],
-      connEncryption,
+      connEncryption: [NOISE, SECIO],
       peerDiscovery: [
         Bootstrap
       ],
@@ -117,10 +117,20 @@ const createLibp2p = async ({
       },
       dht: {
         enabled: dht,
-        kBucketSize: 20
+        kBucketSize: 20,
+        randomWalk: {
+          enabled: false
+        }
       },
       pubsub: {
         enabled: Boolean(pubsub)
+      }
+    },
+    peerRouting: {
+      refreshManager: { // Connect to our closest peers
+        enabled: true, // Should find the closest peers.
+        interval: 120e3, // 2 mins
+        bootDelay: 10e3 // Delay for the initial query for closest peers
       }
     }
   })

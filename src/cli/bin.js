@@ -42,12 +42,12 @@ const main = async (processArgs) => {
     .option('secio', {
       desc: 'Enables secio connection encryption',
       type: 'boolean',
-      default: true
+      default: false
     })
     .option('noise', {
       desc: 'Enables noise connection encryption',
       type: 'boolean',
-      default: false
+      default: true
     })
     .option('bootstrap', {
       alias: 'b',
@@ -63,7 +63,7 @@ const main = async (processArgs) => {
     .option('dht', {
       desc: 'Enables the DHT in full node mode',
       type: 'boolean',
-      default: false
+      default: true
     })
     .option('dhtClient', {
       desc: '(Not yet supported) Enables the DHT in client mode',
@@ -118,6 +118,10 @@ const main = async (processArgs) => {
   if (!argv.quiet) {
     // eslint-disable-next-line
     log('daemon has started')
+    log('daemon is listening on:')
+    daemon.libp2p.multiaddrs.forEach((ma) => {
+      log(`${ma}/p2p/${daemon.libp2p.peerId.toB58String()}`)
+    })
   }
 }
 
