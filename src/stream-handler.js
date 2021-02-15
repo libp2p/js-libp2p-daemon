@@ -12,7 +12,7 @@ class StreamHandler {
    *
    * @param {object} options
    * @param {*} options.stream - A duplex iterable
-   * @param {Number} options.maxLength - max bytes length of message
+   * @param {number} options.maxLength - max bytes length of message
    */
   constructor ({ stream, maxLength = 4096 }) {
     this.stream = stream
@@ -23,6 +23,7 @@ class StreamHandler {
 
   /**
    * Read and decode message
+   *
    * @async
    * @returns {void}
    */
@@ -48,7 +49,7 @@ class StreamHandler {
   /**
    * Return the handshake rest stream and invalidate handler
    *
-   * @return {*} A duplex iterable
+   * @returns {*} A duplex iterable
    */
   rest () {
     this.shake.rest()

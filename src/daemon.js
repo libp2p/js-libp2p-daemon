@@ -31,7 +31,7 @@ const log = require('debug')('libp2p:daemon')
 
 class Daemon {
   /**
-   * @constructor
+   * @class
    * @param {object} options
    * @param {string} options.multiaddr
    * @param {Libp2p} options.libp2pNode
@@ -68,6 +68,7 @@ class Daemon {
 
   /**
    * A number, or a string containing a number.
+   *
    * @typedef {Object} OpenStream
    * @property {StreamInfo} streamInfo
    * @property {Stream} connection
@@ -75,6 +76,7 @@ class Daemon {
 
   /**
    * Opens a stream on one of the given protocols to the given peer
+   *
    * @param {StreamOpenRequest} request
    * @throws {Error}
    * @returns {OpenStream}
@@ -171,7 +173,7 @@ class Daemon {
    * Stops the daemon
    *
    * @param {object} options
-   * @param {boolean} options.exit If the daemon process should exit
+   * @param {boolean} options.exit - If the daemon process should exit
    * @returns {Promise<void>}
    */
   async stop (options = { exit: false }) {
@@ -513,7 +515,7 @@ class Daemon {
  * Creates and encodes an OK response
  *
  * @private
- * @param {Object} data an optional map of values to be assigned to the response
+ * @param {Object} data - an optional map of values to be assigned to the response
  * @returns {Response}
  */
 function OkResponse (data) {

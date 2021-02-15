@@ -4,7 +4,7 @@ const os = require('os')
 const { resolve } = require('path')
 
 exports.first = async iterator => {
-  for await (const value of iterator) return value
+  for await (const value of iterator) return value // eslint-disable-line no-unreachable-loop
 }
 
 exports.last = async iterator => {
@@ -27,6 +27,7 @@ exports.passThroughUpgrader = {
 /**
  * Converts the multiaddr to a nodejs NET compliant option
  * for .connect or .listen
+ *
  * @param {Multiaddr} addr
  * @returns {string|object} A nodejs NET compliant option
  */

@@ -13,6 +13,7 @@ const {
 /**
  * Creates a new client connected at `options.multiaddr` and connects the daemon
  * to`libp2pPeer`.
+ *
  * @param {object} options
  * @param {Libp2p} options.libp2pPeer
  * @param {Multiaddr} options.multiaddr
