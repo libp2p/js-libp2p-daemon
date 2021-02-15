@@ -13,6 +13,7 @@ class Client {
   /**
    * Connects to a daemon at the unix socket path the client
    * was created with
+   *
    * @async
    * @returns {MultiaddrConnection}
    */
@@ -23,6 +24,7 @@ class Client {
   /**
    * Starts a server listening at `socketPath`. New connections
    * will be sent to the `connectionHandler`.
+   *
    * @param {Multiaddr} addr
    * @param {function(Stream)} connectionHandler
    * @returns {Promise}
@@ -38,6 +40,7 @@ class Client {
 
   /**
    * Closes the socket
+   *
    * @returns {Promise}
    */
   async close () {

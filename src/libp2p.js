@@ -16,7 +16,8 @@ const fsPromises = require('fs').promises
 
 /**
  * Creates a Peerid from scratch, or via the supplied private key
- * @param {string} privateKeyPath Path to private key
+ *
+ * @param {string} privateKeyPath - Path to private key
  * @returns {Promise<Peerid>} Resolves the created Peerid
  */
 const getPeerId = async (privateKeyPath) => {

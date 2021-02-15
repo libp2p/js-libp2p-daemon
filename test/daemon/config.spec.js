@@ -42,8 +42,8 @@ describe('configuration', function () {
     await daemon.start()
 
     const addrs = Array.from(daemon.libp2p.addressManager.announce)
-    expect(addrs).to.eql([
-      ma('/dns/ipfs.io')
+    expect(addrs).to.deep.eql([
+      '/dns/ipfs.io'
     ])
   })
 
