@@ -1,3 +1,18 @@
+## [0.5.2](https://github.com/libp2p/js-libp2p-daemon/compare/v0.2.3...v0.5.2) (2021-02-16)
+
+
+### Bug Fixes
+
+* replace node buffers with uint8arrays ([#41](https://github.com/libp2p/js-libp2p-daemon/issues/41)) ([cd009d5](https://github.com/libp2p/js-libp2p-daemon/commit/cd009d5e1f83724f907dd7f84239679633e8d197))
+
+
+### Features
+
+* add support for specifying noise ([#32](https://github.com/libp2p/js-libp2p-daemon/issues/32)) ([e5582cd](https://github.com/libp2p/js-libp2p-daemon/commit/e5582cdd00b7601cfe8ecc2b0d61a66bad71ab8a))
+* specify libp2p dependency through env ([#30](https://github.com/libp2p/js-libp2p-daemon/issues/30)) ([07b0695](https://github.com/libp2p/js-libp2p-daemon/commit/07b0695157da539774de75f2316748164fdbd72d))
+
+
+
 <a name="0.5.1"></a>
 ## [0.5.1](https://github.com/libp2p/js-libp2p-daemon/compare/v0.5.0...v0.5.1) (2020-08-26)
 
