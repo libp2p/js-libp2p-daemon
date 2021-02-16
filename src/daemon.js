@@ -4,6 +4,7 @@
 
 const TCP = require('libp2p-tcp')
 const Libp2p = require('./libp2p')
+const createIntrospection = require('./introspection')
 const PeerId = require('peer-id')
 const ma = require('multiaddr')
 const CID = require('cids')
@@ -42,6 +43,8 @@ class Daemon {
   }) {
     this.multiaddr = ma(multiaddr)
     this.libp2p = libp2pNode
+    // TODO: Add custom port + enabled (y/n)
+    this.introspection = createIntrospection({ libp2p: this.libp2p })
     this.tcp = new TCP({ upgrader: passThroughUpgrader })
     this.listener = this.tcp.createListener((maConn) => {
       this.handleConnection(maConn)
@@ -165,8 +168,22 @@ class Daemon {
    */
   async start () {
     this._listen()
+    await this.introspection.start()
     await this.libp2p.start()
     await this.listener.listen(this.multiaddr)
+
+    this._start()
+  }
+
+  // TMP for demo
+  async _start () {
+    await new Promise(resolve => setTimeout(resolve, 20e3))
+    // Find providers
+    const cid = new CID('QmZKcfhEUbY6GumNmL7rga58qnRdMqMtv64smChiHJyfJf')
+    console.log('Searching for %s', cid.toString())
+    for await (const provider of this.libp2p.contentRouting.findProviders(cid, { maxNumProviders: 1 })) {
+      console.log('Found provider %j', provider)
+    }
   }
 
   /**
@@ -177,6 +194,7 @@ class Daemon {
    * @returns {Promise<void>}
    */
   async stop (options = { exit: false }) {
+    await this.introspection.stop()
     await this.libp2p.stop()
     await this.listener.close()
     if (options.exit) {
