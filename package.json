@@ -63,7 +63,7 @@
     "libp2p-gossipsub": "^0.8.0",
     "libp2p-kad-dht": "^0.21.0",
     "libp2p-mplex": "^0.10.0",
-    "libp2p-noise": "^2.0.0",
+    "libp2p-noise": "^3.0.0",
     "libp2p-secio": "^0.13.1",
     "libp2p-tcp": "^0.15.1",
     "libp2p-websockets": "^0.15.6",
