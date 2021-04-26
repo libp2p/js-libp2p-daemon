@@ -7,7 +7,8 @@ chai.use(require('dirty-chai'))
 const expect = chai.expect
 const os = require('os')
 const path = require('path')
-const ma = require('multiaddr')
+const PeerId = require('peer-id')
+const { Multiaddr } = require('multiaddr')
 const StreamHandler = require('../../src/stream-handler')
 const { createDaemon } = require('../../src/daemon')
 const Client = require('../../src/client')
@@ -19,8 +20,8 @@ const {
 } = require('../../src/protocol')
 
 const daemonAddr = isWindows
-  ? ma('/ip4/0.0.0.0/tcp/8080')
-  : ma(`/unix${path.resolve(os.tmpdir(), '/tmp/p2pd.sock')}`)
+  ? new Multiaddr('/ip4/0.0.0.0/tcp/8080')
+  : new Multiaddr(`/unix${path.resolve(os.tmpdir(), '/tmp/p2pd.sock')}`)
 
 describe('core features', () => {
   let daemon
@@ -93,7 +94,7 @@ describe('core features', () => {
       connManager: null
     }
 
-    streamHandler.write(Request.encode(request))
+    streamHandler.write(Request.encode(request).finish())
 
     const message = await streamHandler.read()
     const response = Response.decode(message)
@@ -118,7 +119,7 @@ describe('core features', () => {
       connManager: null
     }
 
-    streamHandler.write(Request.encode(request))
+    streamHandler.write(Request.encode(request).finish())
 
     const message = await streamHandler.read()
     const response = Response.decode(message)
@@ -144,15 +145,16 @@ describe('core features', () => {
       connManager: null
     }
 
-    streamHandler.write(Request.encode(request))
+    streamHandler.write(Request.encode(request).finish())
 
     const response = Response.decode(await streamHandler.read())
     expect(response.type).to.eql(Response.Type.OK)
+    expect(PeerId.createFromBytes(response.identify.id).equals(daemon.libp2p.peerId)).to.eql(true)
 
-    expect(response.identify).to.eql({
-      id: daemon.libp2p.peerId.toBytes(),
-      addrs: daemon.libp2p.multiaddrs.map(m => m.bytes)
+    response.identify.addrs.forEach((a, i) => {
+      expect((new Multiaddr(a)).equals(daemon.libp2p.multiaddrs[i])).to.eql(true)
     })
+
     streamHandler.close()
   })
 })

@@ -35,7 +35,7 @@ async function connect ({
   }
 
   const streamHandler = new StreamHandler({ stream: maConn })
-  streamHandler.write(Request.encode(request))
+  streamHandler.write(Request.encode(request).finish())
 
   const message = await streamHandler.read()
   const response = Response.decode(message)

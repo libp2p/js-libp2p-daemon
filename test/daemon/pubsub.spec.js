@@ -9,7 +9,7 @@ const expect = chai.expect
 
 const os = require('os')
 const path = require('path')
-const ma = require('multiaddr')
+const { Multiaddr } = require('multiaddr')
 const delay = require('delay')
 const pipe = require('it-pipe')
 const { collect, take } = require('streaming-iterables')
@@ -33,8 +33,8 @@ const {
 } = require('../../src/protocol')
 
 const daemonAddr = isWindows
-  ? ma('/ip4/0.0.0.0/tcp/8080')
-  : ma(`/unix${path.resolve(os.tmpdir(), '/tmp/p2pd.sock')}`)
+  ? new Multiaddr('/ip4/0.0.0.0/tcp/8080')
+  : new Multiaddr(`/unix${path.resolve(os.tmpdir(), '/tmp/p2pd.sock')}`)
 
 const testPubsub = (router) => {
   describe(`pubsub - ${router}`, () => {
@@ -104,7 +104,7 @@ const testPubsub = (router) => {
           type: PSRequest.Type.SUBSCRIBE,
           topic
         }
-      })
+      }).finish()
 
       const [response] = await pipe(
         [request],
@@ -156,12 +156,12 @@ const testPubsub = (router) => {
         connManager: null
       }
 
-      streamHandler.write(Request.encode(requestGetTopics))
+      streamHandler.write(Request.encode(requestGetTopics).finish())
       let response = Response.decode(await streamHandler.read())
       expect(response.type).to.eql(Response.Type.OK)
       expect(response.pubsub.topics).to.have.lengthOf(0)
 
-      streamHandler.write(Request.encode(requestSubscribe))
+      streamHandler.write(Request.encode(requestSubscribe).finish())
       response = Response.decode(await streamHandler.read())
       expect(response.type).to.eql(Response.Type.OK)
       // end the connection as it is now reserved for subscribes
@@ -170,7 +170,7 @@ const testPubsub = (router) => {
       const conn2 = await client.connect()
 
       streamHandler = new StreamHandler({ stream: conn2 })
-      streamHandler.write(Request.encode(requestGetTopics))
+      streamHandler.write(Request.encode(requestGetTopics).finish())
       response = Response.decode(await streamHandler.read())
       expect(response.type).to.eql(Response.Type.OK)
       expect(response.pubsub.topics).to.have.lengthOf(1)
@@ -210,7 +210,7 @@ const testPubsub = (router) => {
         },
         disconnect: null,
         connManager: null
-      })
+      }).finish()
 
       const [response] = await pipe(
         [request],
@@ -250,7 +250,7 @@ const testPubsub = (router) => {
         },
         disconnect: null,
         connManager: null
-      })
+      }).finish()
 
       // Publish in 1 seconds
       ;(async () => {

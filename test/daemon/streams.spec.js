@@ -8,7 +8,7 @@ const expect = chai.expect
 const os = require('os')
 const path = require('path')
 const pipe = require('it-pipe')
-const ma = require('multiaddr')
+const { Multiaddr } = require('multiaddr')
 const { collect, take } = require('streaming-iterables')
 const { toBuffer } = require('it-buffer')
 const uint8ArrayFromString = require('uint8arrays/from-string')
@@ -27,8 +27,8 @@ const {
 } = require('../../src/protocol')
 
 const daemonAddr = isWindows
-  ? ma('/ip4/0.0.0.0/tcp/8080')
-  : ma(`/unix${path.resolve(os.tmpdir(), '/tmp/p2pd.sock')}`)
+  ? new Multiaddr('/ip4/0.0.0.0/tcp/8080')
+  : new Multiaddr(`/unix${path.resolve(os.tmpdir(), '/tmp/p2pd.sock')}`)
 
 describe('streams', function () {
   let daemon
@@ -108,7 +108,7 @@ describe('streams', function () {
       connManager: null
     }
 
-    const req = Request.encode(request)
+    const req = Request.encode(request).finish()
 
     // Open a stream from the daemon to the peer node
     streamHandler.write(req)
@@ -141,8 +141,8 @@ describe('streams', function () {
   it('should be able to register a stream handler and echo with it', async () => {
     client = new Client(daemonAddr)
     const addr = isWindows
-      ? ma('/ip4/0.0.0.0/tcp/9090')
-      : ma(`/unix${path.resolve(os.tmpdir(), '/tmp/p2p-echo-handler.sock')}`)
+      ? new Multiaddr('/ip4/0.0.0.0/tcp/9090')
+      : new Multiaddr(`/unix${path.resolve(os.tmpdir(), '/tmp/p2p-echo-handler.sock')}`)
 
     const maConn = await client.connect()
     const streamHandler = new StreamHandler({ stream: maConn })
@@ -178,7 +178,7 @@ describe('streams', function () {
     }
 
     // Register the stream handler
-    streamHandler.write(Request.encode(request))
+    streamHandler.write(Request.encode(request).finish())
     const response = Response.decode(await streamHandler.read())
     expect(response.type).to.eql(Response.Type.OK)
 
