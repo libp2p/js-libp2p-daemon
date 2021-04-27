@@ -39,10 +39,7 @@
   "license": "MIT",
   "devDependencies": {
     "aegir": "^33.1.0",
-    "chai": "^4.3.0",
-    "chai-bytes": "^0.1.2",
     "delay": "^5.0.0",
-    "dirty-chai": "^2.0.1",
     "it-pair": "^1.0.0",
     "mocha": "^8.3.0",
     "multihashes": "^4.0.2",

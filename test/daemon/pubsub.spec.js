@@ -2,11 +2,7 @@
 /* eslint max-nested-callbacks: ["error", 5] */
 'use strict'
 
-const chai = require('chai')
-chai.use(require('dirty-chai'))
-chai.use(require('chai-bytes'))
-const expect = chai.expect
-
+const { expect } = require('aegir/utils/chai')
 const os = require('os')
 const path = require('path')
 const { Multiaddr } = require('multiaddr')

@@ -1,8 +1,7 @@
 /* eslint-env mocha */
 'use strict'
 
-const chai = require('chai')
-const expect = chai.expect
+const { expect } = require('aegir/utils/chai')
 const sinon = require('sinon')
 const cli = require('../src/cli/bin')
 

@@ -2,9 +2,7 @@
 /* eslint max-nested-callbacks: ["error", 5] */
 'use strict'
 
-const chai = require('chai')
-chai.use(require('dirty-chai'))
-const expect = chai.expect
+const { expect } = require('aegir/utils/chai')
 const os = require('os')
 const path = require('path')
 const CID = require('cids')
