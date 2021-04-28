@@ -54,7 +54,7 @@
     "it-length-prefixed": "^5.0.2",
     "it-pipe": "^1.1.0",
     "it-pushable": "^1.4.0",
-    "libp2p": "^0.31.0-rc.6",
+    "libp2p": "^0.31.0",
     "libp2p-bootstrap": "^0.12.3",
     "libp2p-floodsub": "^0.25.1",
     "libp2p-gossipsub": "^0.8.0",
