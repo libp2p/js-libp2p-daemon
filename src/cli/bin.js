@@ -39,16 +39,6 @@ const main = async (processArgs) => {
       type: 'string',
       default: ''
     })
-    .option('secio', {
-      desc: 'Enables secio connection encryption',
-      type: 'boolean',
-      default: true
-    })
-    .option('noise', {
-      desc: 'Enables noise connection encryption',
-      type: 'boolean',
-      default: false
-    })
     .option('bootstrap', {
       alias: 'b',
       desc: 'Connects to bootstrap peers and bootstraps the dht if enabled',
