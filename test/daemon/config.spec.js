@@ -2,18 +2,16 @@
 /* eslint max-nested-callbacks: ["error", 5] */
 'use strict'
 
-const chai = require('chai')
-chai.use(require('dirty-chai'))
-const expect = chai.expect
+const { expect } = require('aegir/utils/chai')
 const os = require('os')
 const path = require('path')
-const ma = require('multiaddr')
+const { Multiaddr } = require('multiaddr')
 const { createDaemon } = require('../../src/daemon')
 const { isWindows } = require('../../src/util')
 
 const daemonAddr = isWindows
-  ? ma('/ip4/0.0.0.0/tcp/8080')
-  : ma(`/unix${path.resolve(os.tmpdir(), '/tmp/p2pd.sock')}`)
+  ? new Multiaddr('/ip4/0.0.0.0/tcp/8080')
+  : new Multiaddr(`/unix${path.resolve(os.tmpdir(), '/tmp/p2pd.sock')}`)
 
 describe('configuration', function () {
   this.timeout(10e3)

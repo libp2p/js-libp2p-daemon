@@ -5,13 +5,12 @@ const TCP = require('libp2p-tcp')
 const WS = require('libp2p-websockets')
 const Bootstrap = require('libp2p-bootstrap')
 const MPLEX = require('libp2p-mplex')
-const SECIO = require('libp2p-secio')
 const { NOISE } = require('libp2p-noise')
 const KadDHT = require('libp2p-kad-dht')
 const FloodSub = require('libp2p-floodsub')
 const GossipSub = require('libp2p-gossipsub')
 const PeerID = require('peer-id')
-const multiaddr = require('multiaddr')
+const { Multiaddr } = require('multiaddr')
 const fsPromises = require('fs').promises
 
 /**
@@ -55,8 +54,6 @@ const createLibp2p = async ({
   bootstrapPeers,
   hostAddrs,
   announceAddrs,
-  secio,
-  noise,
   dht,
   connMgrLo,
   connMgrHi,
@@ -69,11 +66,7 @@ const createLibp2p = async ({
   const listenAddrs = hostAddrs ? hostAddrs.split(',').filter(s => s !== '') : ['/ip4/0.0.0.0/tcp/0']
 
   announceAddrs = announceAddrs ? announceAddrs.split(',').filter(s => s !== '') : []
-  announceAddrs = announceAddrs.map(addr => multiaddr(addr))
-
-  const connEncryption = []
-  if (secio !== false) connEncryption.push(SECIO)
-  if (noise) connEncryption.push(NOISE)
+  announceAddrs = announceAddrs.map(addr => new Multiaddr(addr))
 
   const libp2p = Libp2p.create({
     peerId,
@@ -93,7 +86,7 @@ const createLibp2p = async ({
       streamMuxer: [
         MPLEX
       ],
-      connEncryption,
+      connEncryption: [NOISE],
       peerDiscovery: [
         Bootstrap
       ],

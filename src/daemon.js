@@ -5,7 +5,7 @@
 const TCP = require('libp2p-tcp')
 const Libp2p = require('./libp2p')
 const PeerId = require('peer-id')
-const ma = require('multiaddr')
+const { Multiaddr } = require('multiaddr')
 const CID = require('cids')
 const lp = require('it-length-prefixed')
 const pipe = require('it-pipe')
@@ -40,7 +40,7 @@ class Daemon {
     multiaddr,
     libp2pNode
   }) {
-    this.multiaddr = ma(multiaddr)
+    this.multiaddr = new Multiaddr(multiaddr)
     this.libp2p = libp2pNode
     this.tcp = new TCP({ upgrader: passThroughUpgrader })
     this.listener = this.tcp.createListener((maConn) => {
@@ -59,7 +59,7 @@ class Daemon {
    */
   connect (connectRequest) {
     const peer = connectRequest.connect.peer
-    const addrs = connectRequest.connect.addrs.map((a) => ma(a))
+    const addrs = connectRequest.connect.addrs.map((a) => new Multiaddr(a))
     const peerId = PeerId.createFromBytes(peer)
 
     this.libp2p.peerStore.addressBook.set(peerId, addrs)
@@ -109,7 +109,7 @@ class Daemon {
    */
   async registerStreamHandler (request) {
     const protocols = request.streamHandler.proto
-    const addr = ma(request.streamHandler.addr)
+    const addr = new Multiaddr(request.streamHandler.addr)
     const addrString = addr.toString()
 
     // If we have a handler, end it
@@ -125,7 +125,7 @@ class Daemon {
           peer: connection.remotePeer.toBytes(),
           addr: connection.remoteAddr.bytes,
           proto: protocol
-        })
+        }).finish()
         const encodedMessage = lp.encode.single(message)
 
         // Tell the client about the new connection
@@ -236,7 +236,7 @@ class Daemon {
             topicIDs: msg.topicIDs,
             signature: msg.signature,
             key: msg.key
-          }))
+          }).finish())
         })
 
         yield OkResponse()
@@ -311,7 +311,7 @@ class Daemon {
                 id: provider.id.toBytes(),
                 addrs: (provider.multiaddrs || []).map(m => m.bytes)
               }
-            })
+            }).finish()
           }
         } catch (err) {
           yield ErrorResponse(err.message)
@@ -320,7 +320,7 @@ class Daemon {
 
         yield DHTResponse.encode({
           type: DHTResponse.Type.END
-        })
+        }).finish()
       },
       [DHTRequest.Type.PROVIDE]: async function * (daemon) {
         const cid = new CID(dht.cid)
@@ -338,12 +338,12 @@ class Daemon {
           yield DHTResponse.encode({
             type: DHTResponse.Type.VALUE,
             value: peerId.toBytes()
-          })
+          }).finish()
         }
 
         yield DHTResponse.encode({
           type: DHTResponse.Type.END
-        })
+        }).finish()
       },
       [DHTRequest.Type.GET_PUBLIC_KEY]: async function * (daemon) {
         const peerId = PeerId.createFromBytes(dht.peer)
@@ -522,7 +522,7 @@ function OkResponse (data) {
   return Response.encode({
     type: Response.Type.OK,
     ...data
-  })
+  }).finish()
 }
 
 /**
@@ -538,7 +538,7 @@ function ErrorResponse (message) {
     error: {
       msg: message
     }
-  })
+  }).finish()
 }
 
 /**

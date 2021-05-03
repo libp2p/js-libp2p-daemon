@@ -2,12 +2,10 @@
 /* eslint max-nested-callbacks: ['error', 5] */
 'use strict'
 
-const chai = require('chai')
-chai.use(require('dirty-chai'))
-const expect = chai.expect
+const { expect } = require('aegir/utils/chai')
 const os = require('os')
 const path = require('path')
-const ma = require('multiaddr')
+const { Multiaddr } = require('multiaddr')
 const StreamHandler = require('../../src/stream-handler')
 const { createDaemon } = require('../../src/daemon')
 const Client = require('../../src/client')
@@ -21,8 +19,8 @@ const {
 } = require('../../src/protocol')
 
 const daemonAddr = isWindows
-  ? ma('/ip4/0.0.0.0/tcp/8080')
-  : ma(`/unix${path.resolve(os.tmpdir(), '/tmp/p2pd.sock')}`)
+  ? new Multiaddr('/ip4/0.0.0.0/tcp/8080')
+  : new Multiaddr(`/unix${path.resolve(os.tmpdir(), '/tmp/p2pd.sock')}`)
 
 describe('peerstore features', () => {
   let daemon
@@ -36,8 +34,6 @@ describe('peerstore features', () => {
       q: false,
       bootstrap: false,
       hostAddrs: '/ip4/0.0.0.0/tcp/0,/ip4/0.0.0.0/tcp/0/ws',
-      secio: false,
-      noise: true,
       b: false,
       dht: true,
       dhtClient: false,
@@ -47,8 +43,6 @@ describe('peerstore features', () => {
       bootstrapPeers: ''
     })
     libp2pPeer = await createLibp2p({
-      secio: false,
-      noise: true,
       dht: true,
       hostAddrs: '/ip4/0.0.0.0/tcp/0'
     })
@@ -93,21 +87,18 @@ describe('peerstore features', () => {
       }
     }
 
-    streamHandler.write(Request.encode(request))
+    streamHandler.write(Request.encode(request).finish())
 
     const message = await streamHandler.read()
     const response = Response.decode(message)
     expect(response.type).to.eql(Response.Type.OK)
-    expect(response.peerStore).to.eql({
-      protos: [
-        '/libp2p/circuit/relay/0.1.0',
-        '/ipfs/id/1.0.0',
-        '/ipfs/id/push/1.0.0',
-        '/ipfs/ping/1.0.0',
-        '/ipfs/kad/1.0.0'
-      ],
-      peer: null
-    })
+    expect(response.peerStore.protos).to.eql([
+      '/libp2p/circuit/relay/0.1.0',
+      '/ipfs/id/1.0.0',
+      '/ipfs/id/push/1.0.0',
+      '/ipfs/ping/1.0.0',
+      '/ipfs/kad/1.0.0'
+    ])
     streamHandler.close()
   })
 
@@ -125,7 +116,7 @@ describe('peerstore features', () => {
       }
     }
 
-    streamHandler.write(Request.encode(request))
+    streamHandler.write(Request.encode(request).finish())
 
     const message = await streamHandler.read()
     const response = Response.decode(message)

@@ -1,8 +1,6 @@
 'use strict'
 
-const chai = require('chai')
-chai.use(require('dirty-chai'))
-const expect = chai.expect
+const { expect } = require('aegir/utils/chai')
 const Client = require('../../src/client')
 const StreamHandler = require('../../src/stream-handler')
 const {
@@ -35,7 +33,7 @@ async function connect ({
   }
 
   const streamHandler = new StreamHandler({ stream: maConn })
-  streamHandler.write(Request.encode(request))
+  streamHandler.write(Request.encode(request).finish())
 
   const message = await streamHandler.read()
   const response = Response.decode(message)

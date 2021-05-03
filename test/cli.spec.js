@@ -1,8 +1,7 @@
 /* eslint-env mocha */
 'use strict'
 
-const chai = require('chai')
-const expect = chai.expect
+const { expect } = require('aegir/utils/chai')
 const sinon = require('sinon')
 const cli = require('../src/cli/bin')
 
@@ -22,8 +21,6 @@ describe('cli', () => {
         bootstrapPeers: '',
         hostAddrs: '',
         announceAddrs: '',
-        secio: true,
-        noise: false,
         'conn-mgr': false,
         connMgr: false,
         dht: false,
@@ -55,8 +52,6 @@ describe('cli', () => {
         bootstrapPeers: '/p2p/Qm1,/p2p/Qm2',
         hostAddrs: '/ip4/0.0.0.0/tcp/0,/ip4/0.0.0.0/tcp/0/wss',
         announceAddrs: '/ip4/0.0.0.0/tcp/8080',
-        secio: false,
-        noise: true,
         'conn-mgr': true,
         connMgr: true,
         dht: true,
@@ -81,8 +76,6 @@ describe('cli', () => {
       '--bootstrapPeers=/p2p/Qm1,/p2p/Qm2',
       '--hostAddrs=/ip4/0.0.0.0/tcp/0,/ip4/0.0.0.0/tcp/0/wss',
       '--announceAddrs=/ip4/0.0.0.0/tcp/8080',
-      '--secio=false',
-      '--noise=true',
       '--connMgr=true',
       '--dhtClient=true',
       '--quiet=true',

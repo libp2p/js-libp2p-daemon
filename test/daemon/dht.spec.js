@@ -2,13 +2,11 @@
 /* eslint max-nested-callbacks: ["error", 5] */
 'use strict'
 
-const chai = require('chai')
-chai.use(require('dirty-chai'))
-const expect = chai.expect
+const { expect } = require('aegir/utils/chai')
 const os = require('os')
 const path = require('path')
 const CID = require('cids')
-const ma = require('multiaddr')
+const { Multiaddr } = require('multiaddr')
 const delay = require('delay')
 const PeerId = require('peer-id')
 const uint8ArrayFromString = require('uint8arrays/from-string')
@@ -28,8 +26,8 @@ const {
 } = require('../../src/protocol')
 
 const daemonAddr = isWindows
-  ? ma('/ip4/0.0.0.0/tcp/8080')
-  : ma(`/unix${path.resolve(os.tmpdir(), '/tmp/p2pd.sock')}`)
+  ? new Multiaddr('/ip4/0.0.0.0/tcp/8080')
+  : new Multiaddr(`/unix${path.resolve(os.tmpdir(), '/tmp/p2pd.sock')}`)
 
 describe('dht', () => {
   const cid = new CID('QmVzw6MPsF96TyXBSRs1ptLoVMWRv5FCYJZZGJSVB2Hp38')
@@ -45,8 +43,6 @@ describe('dht', () => {
         q: false,
         bootstrap: false,
         hostAddrs: '/ip4/0.0.0.0/tcp/0,/ip4/0.0.0.0/tcp/0/ws',
-        secio: false,
-        noise: true,
         b: false,
         dht: true,
         dhtClient: false,
@@ -57,8 +53,6 @@ describe('dht', () => {
       }),
       createLibp2p({
         dht: true,
-        secio: false,
-        noise: true,
         hostAddrs: '/ip4/0.0.0.0/tcp/0'
       })
     ])
@@ -106,17 +100,13 @@ describe('dht', () => {
       connManager: null
     }
 
-    streamHandler.write(Request.encode(request))
+    streamHandler.write(Request.encode(request).finish())
 
     const response = Response.decode(await streamHandler.read())
     expect(response.type).to.eql(Response.Type.OK)
-    expect(response.dht).to.eql({
-      type: DHTResponse.Type.VALUE,
-      peer: {
-        id: libp2pPeer.peerId.toBytes(),
-        addrs: libp2pPeer.multiaddrs.map(m => m.bytes)
-      },
-      value: null
+    expect(PeerId.createFromBytes(response.dht.peer.id).equals(libp2pPeer.peerId)).to.eql(true)
+    response.dht.peer.addrs.forEach((a, i) => {
+      expect((new Multiaddr(a)).equals(libp2pPeer.multiaddrs[i])).to.eql(true)
     })
     streamHandler.close()
   })
@@ -142,7 +132,7 @@ describe('dht', () => {
       connManager: null
     }
 
-    streamHandler.write(Request.encode(request))
+    streamHandler.write(Request.encode(request).finish())
 
     const response = Response.decode(await streamHandler.read())
     expect(response.type).to.eql(Response.Type.ERROR)
@@ -169,7 +159,7 @@ describe('dht', () => {
       connManager: null
     }
 
-    streamHandler.write(Request.encode(request))
+    streamHandler.write(Request.encode(request).finish())
 
     const response = Response.decode(await streamHandler.read())
     expect(response.type).to.eql(Response.Type.OK)
@@ -209,24 +199,20 @@ describe('dht', () => {
       connManager: null
     }
 
-    streamHandler.write(Request.encode(request))
+    streamHandler.write(Request.encode(request).finish())
 
     const expectedResponses = [
       (message) => {
         const response = Response.decode(message)
         expect(response.type).to.eql(Response.Type.OK)
-        expect(response.dht).to.eql({
-          type: DHTResponse.Type.BEGIN,
-          peer: null,
-          value: null
-        })
+        expect(response.dht.type).to.eql(DHTResponse.Type.BEGIN)
       },
       (message) => {
         const response = DHTResponse.decode(message)
         expect(response.type).to.eql(DHTResponse.Type.VALUE)
-        expect(response.peer).to.eql({
-          id: libp2pPeer.peerId.toBytes(),
-          addrs: libp2pPeer.multiaddrs.map(m => m.bytes)
+        expect(PeerId.createFromBytes(response.peer.id).equals(libp2pPeer.peerId)).to.eql(true)
+        response.peer.addrs.forEach((a, i) => {
+          expect((new Multiaddr(a)).equals(libp2pPeer.multiaddrs[i])).to.eql(true)
         })
       },
       (message) => {
@@ -268,7 +254,7 @@ describe('dht', () => {
       connManager: null
     }
 
-    streamHandler.write(Request.encode(request))
+    streamHandler.write(Request.encode(request).finish())
 
     const expectedResponses = [
       (message) => {
@@ -306,17 +292,13 @@ describe('dht', () => {
       connManager: null
     }
 
-    streamHandler.write(Request.encode(request))
+    streamHandler.write(Request.encode(request).finish())
 
     const expectedResponses = [
       (message) => {
         const response = Response.decode(message)
         expect(response.type).to.eql(Response.Type.OK)
-        expect(response.dht).to.eql({
-          type: DHTResponse.Type.BEGIN,
-          peer: null,
-          value: null
-        })
+        expect(response.dht.type).to.eql(DHTResponse.Type.BEGIN)
       },
       (message) => {
         const response = DHTResponse.decode(message)
@@ -357,15 +339,12 @@ describe('dht', () => {
       connManager: null
     }
 
-    streamHandler.write(Request.encode(request))
+    streamHandler.write(Request.encode(request).finish())
 
     const response = Response.decode(await streamHandler.read())
     expect(response.type).to.eql(Response.Type.OK)
-    expect(response.dht).to.eql({
-      type: DHTResponse.Type.VALUE,
-      peer: null,
-      value: libp2pPeer.peerId.pubKey.bytes
-    })
+    expect(response.dht.type).to.eql(DHTResponse.Type.VALUE)
+    expect(new Uint8Array(response.dht.value)).to.eql(libp2pPeer.peerId.pubKey.bytes)
     streamHandler.close()
   })
 
@@ -391,15 +370,12 @@ describe('dht', () => {
       connManager: null
     }
 
-    streamHandler.write(Request.encode(request))
+    streamHandler.write(Request.encode(request).finish())
 
     const response = Response.decode(await streamHandler.read())
     expect(response.type).to.eql(Response.Type.OK)
-    expect(response.dht).to.eql({
-      type: DHTResponse.Type.VALUE,
-      peer: null,
-      value: uint8ArrayFromString('world')
-    })
+    expect(response.dht.type).to.eql(DHTResponse.Type.VALUE)
+    expect(new Uint8Array(response.dht.value)).to.eql(uint8ArrayFromString('world'))
     streamHandler.close()
   })
 
@@ -423,7 +399,7 @@ describe('dht', () => {
       connManager: null
     }
 
-    streamHandler.write(Request.encode(request))
+    streamHandler.write(Request.encode(request).finish())
 
     const response = Response.decode(await streamHandler.read())
     expect(response.type).to.eql(Response.Type.ERROR)
@@ -451,7 +427,7 @@ describe('dht', () => {
       connManager: null
     }
 
-    streamHandler.write(Request.encode(request))
+    streamHandler.write(Request.encode(request).finish())
 
     const response = Response.decode(await streamHandler.read())
     expect(response.type).to.eql(Response.Type.OK)
