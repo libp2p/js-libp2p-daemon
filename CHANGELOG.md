@@ -1,3 +1,17 @@
+# [0.6.0](https://github.com/libp2p/js-libp2p-daemon/compare/v0.5.2...v0.6.0) (2021-05-03)
+
+
+### chore
+
+* update libp2p 0.31 ([#46](https://github.com/libp2p/js-libp2p-daemon/issues/46)) ([6625eba](https://github.com/libp2p/js-libp2p-daemon/commit/6625ebaa6027cee7cd8d08de09035f0edc894c1a))
+
+
+### BREAKING CHANGES
+
+* secio removed and noise is now default crypto, multiaddr@9 and libp2p@31
+
+
+
 ## [0.5.2](https://github.com/libp2p/js-libp2p-daemon/compare/v0.2.3...v0.5.2) (2021-02-16)
 
 
