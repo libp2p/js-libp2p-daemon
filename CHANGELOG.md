@@ -1,3 +1,7 @@
+## [0.6.1](https://github.com/libp2p/js-libp2p-daemon/compare/v0.6.0...v0.6.1) (2021-06-11)
+
+
+
 # [0.6.0](https://github.com/libp2p/js-libp2p-daemon/compare/v0.5.2...v0.6.0) (2021-05-03)
 
 
