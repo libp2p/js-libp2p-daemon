@@ -5,7 +5,7 @@
 const { expect } = require('aegir/utils/chai')
 const os = require('os')
 const path = require('path')
-const CID = require('cids')
+const { CID } = require('multiformats/cid')
 const { Multiaddr } = require('multiaddr')
 const delay = require('delay')
 const PeerId = require('peer-id')
@@ -30,7 +30,7 @@ const daemonAddr = isWindows
   : new Multiaddr(`/unix${path.resolve(os.tmpdir(), '/tmp/p2pd.sock')}`)
 
 describe('dht', () => {
-  const cid = new CID('QmVzw6MPsF96TyXBSRs1ptLoVMWRv5FCYJZZGJSVB2Hp38')
+  const cid = CID.parse('QmVzw6MPsF96TyXBSRs1ptLoVMWRv5FCYJZZGJSVB2Hp38')
   let daemon
   let libp2pPeer
   let client
@@ -175,7 +175,7 @@ describe('dht', () => {
 
   it('should be able to find providers', async () => {
     // Register the peer as a provider
-    const cid = new CID('QmaSNGNpisJ1UeuoH3WcKuia4hQVi2XkfhkszTbWak9TxB')
+    const cid = CID.parse('QmaSNGNpisJ1UeuoH3WcKuia4hQVi2XkfhkszTbWak9TxB')
     await libp2pPeer.contentRouting.provide(cid)
 
     // Now find it as a provider
@@ -231,7 +231,7 @@ describe('dht', () => {
 
   it('should error when no provider is found', async () => {
     // Register the peer as a provider
-    const cid = new CID('QmaSNGNpisJ1UeuoH3WcKuia4hQVi2XkfhkszTbWak9xTB')
+    const cid = CID.parse('QmaSNGNpisJ1UeuoH3WcKuia4hQVi2XkfhkszTbWak9xTB')
 
     // Now find it as a provider
     client = new Client(daemonAddr)
