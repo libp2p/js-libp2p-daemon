@@ -6,7 +6,7 @@ const TCP = require('libp2p-tcp')
 const Libp2p = require('./libp2p')
 const PeerId = require('peer-id')
 const { Multiaddr } = require('multiaddr')
-const CID = require('cids')
+const { CID } = require('multiformats/cid')
 const lp = require('it-length-prefixed')
 const pipe = require('it-pipe')
 const pushable = require('it-pushable')
@@ -289,7 +289,7 @@ class Daemon {
         }
       },
       [DHTRequest.Type.FIND_PROVIDERS]: async function * (daemon) {
-        const cid = new CID(dht.cid)
+        const cid = CID.decode(dht.cid)
         const maxNumProviders = dht.count
         let okSent = false
         try {
@@ -323,7 +323,7 @@ class Daemon {
         }).finish()
       },
       [DHTRequest.Type.PROVIDE]: async function * (daemon) {
-        const cid = new CID(dht.cid)
+        const cid = CID.decode(dht.cid)
         await daemon.libp2p.contentRouting.provide(cid)
         yield OkResponse()
       },
