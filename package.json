@@ -78,5 +78,12 @@
     "Arve Knudsen <arve.knudsen@gmail.com>",
     "Alex Potsides <alex@achingbrain.net>",
     "Marin Petrunić <mpetrunic@users.noreply.github.com>"
-  ]
+  ],
+  "eslintConfig": {
+    "extends": "ipfs",
+    "ignorePatterns": [
+      "*.d.ts",
+      "src/profocol/index.js"
+    ]
+  }
 }
