@@ -1,3 +1,17 @@
+# [0.8.0](https://github.com/libp2p/js-libp2p-daemon/compare/v0.7.0...v0.8.0) (2021-11-18)
+
+
+### chore
+
+* update dht ([#49](https://github.com/libp2p/js-libp2p-daemon/issues/49)) ([b1f1aaa](https://github.com/libp2p/js-libp2p-daemon/commit/b1f1aaab3466ec7ac693dcb5a211cd119aaa4f95))
+
+
+### BREAKING CHANGES
+
+* The DHT is now enabled by default
+
+
+
 # [0.7.0](https://github.com/libp2p/js-libp2p-daemon/compare/v0.6.1...v0.7.0) (2021-07-30)
 
 
