@@ -12,8 +12,8 @@ const pipe = require('it-pipe')
 const pushable = require('it-pushable')
 const StreamHandler = require('./stream-handler')
 const { concat } = require('streaming-iterables')
-const uint8ArrayFromString = require('uint8arrays/from-string')
-const uint8ArrayToString = require('uint8arrays/to-string')
+const { fromString: uint8ArrayFromString } = require('uint8arrays/from-string')
+const { toString: uint8ArrayToString } = require('uint8arrays/to-string')
 const { passThroughUpgrader } = require('./util')
 const {
   Request,
@@ -362,7 +362,7 @@ class Daemon {
           yield OkResponse({
             dht: {
               type: DHTResponse.Type.VALUE,
-              value: value
+              value: value.val
             }
           })
         } catch (err) {

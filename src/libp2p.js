@@ -6,7 +6,7 @@ const WS = require('libp2p-websockets')
 const Bootstrap = require('libp2p-bootstrap')
 const MPLEX = require('libp2p-mplex')
 const { NOISE } = require('libp2p-noise')
-const KadDHT = require('libp2p-kad-dht')
+const KadDHT = require('libp2p-kad-dht/src/kad-dht')
 const FloodSub = require('libp2p-floodsub')
 const GossipSub = require('libp2p-gossipsub')
 const PeerID = require('peer-id')
@@ -39,7 +39,6 @@ const getPeerId = async (privateKeyPath) => {
  * @param {Options} opts
  * @param {boolean} opts.quiet
  * @param {boolean} opts.bootstrap
- * @param {boolean} opts.dht
  * @param {boolean} opts.connMgr
  * @param {number} opts.connMgrHi
  * @param {string} opts.id
@@ -54,7 +53,6 @@ const createLibp2p = async ({
   bootstrapPeers,
   hostAddrs,
   announceAddrs,
-  dht,
   connMgrLo,
   connMgrHi,
   id,
@@ -90,7 +88,19 @@ const createLibp2p = async ({
       peerDiscovery: [
         Bootstrap
       ],
-      dht: KadDHT,
+      dht: {
+        // go-libp2p-daemon only has the older single-table DHT instead of the dual lan/wan version
+        // found in recent go-ipfs versions. unfortunately it's been abandoned so here we simulate
+        // the older config with the js implementation
+        create: (opts) => {
+          return new KadDHT({
+            ...opts,
+            protocol: '/ipfs/kad/1.0.0',
+            clientMode: false,
+            lan: true
+          })
+        }
+      },
       pubsub: pubsubRouter === 'floodsub' ? GossipSub : FloodSub
     },
     config: {
@@ -109,7 +119,7 @@ const createLibp2p = async ({
         }
       },
       dht: {
-        enabled: dht,
+        enabled: true,
         kBucketSize: 20
       },
       pubsub: {
