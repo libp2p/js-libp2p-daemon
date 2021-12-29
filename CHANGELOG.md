@@ -1,3 +1,12 @@
+## [0.9.1](https://github.com/libp2p/js-libp2p-daemon/compare/v0.9.0...v0.9.1) (2021-12-29)
+
+
+### Bug Fixes
+
+* default nat hole punching to false ([#53](https://github.com/libp2p/js-libp2p-daemon/issues/53)) ([4bef1a3](https://github.com/libp2p/js-libp2p-daemon/commit/4bef1a384261fe442668f47b3799029cfb1043d3))
+
+
+
 # [0.9.0](https://github.com/libp2p/js-libp2p-daemon/compare/v0.8.1...v0.9.0) (2021-12-29)
 
 
