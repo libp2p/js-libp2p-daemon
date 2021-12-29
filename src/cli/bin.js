@@ -60,6 +60,11 @@ const main = async (processArgs) => {
       type: 'boolean',
       default: false
     })
+    .option('nat', {
+      desc: 'Enables UPnP NAT hole punching',
+      type: 'boolean',
+      default: false
+    })
     .option('connMgr', {
       desc: '(Not yet supported) Enables the Connection Manager',
       type: 'boolean',
