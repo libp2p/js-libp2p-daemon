@@ -36,6 +36,7 @@ describe('core features', () => {
         hostAddrs: '/ip4/0.0.0.0/tcp/0,/ip4/0.0.0.0/tcp/0/ws',
         b: false,
         dht: true,
+        nat: false,
         dhtClient: false,
         connMgr: false,
         listen: daemonAddr.toString(),
@@ -44,6 +45,7 @@ describe('core features', () => {
       }),
       createLibp2p({
         dht: true,
+        nat: false,
         hostAddrs: '/ip4/0.0.0.0/tcp/0'
       })
     ]).then((results) => {

@@ -5,7 +5,7 @@ const TCP = require('libp2p-tcp')
 const WS = require('libp2p-websockets')
 const Bootstrap = require('libp2p-bootstrap')
 const MPLEX = require('libp2p-mplex')
-const { NOISE } = require('libp2p-noise')
+const { NOISE } = require('@chainsafe/libp2p-noise')
 const { KadDHT } = require('libp2p-kad-dht/src/kad-dht')
 const FloodSub = require('libp2p-floodsub')
 const GossipSub = require('libp2p-gossipsub')
@@ -46,6 +46,7 @@ const getPeerId = async (privateKeyPath) => {
  * @param {string} opts.hostAddrs
  * @param {boolean} opts.pubsub
  * @param {string} opts.pubsubRouter
+ * @param {boolean} opts.nat
  * @returns {Libp2p}
  */
 const createLibp2p = async ({
@@ -57,7 +58,8 @@ const createLibp2p = async ({
   connMgrHi,
   id,
   pubsub,
-  pubsubRouter
+  pubsubRouter,
+  nat
 } = {}) => {
   const peerId = await getPeerId(id)
   const bootstrapList = bootstrapPeers ? bootstrapPeers.split(',').filter(s => s !== '') : null
@@ -124,6 +126,9 @@ const createLibp2p = async ({
       },
       pubsub: {
         enabled: Boolean(pubsub)
+      },
+      nat: {
+        enabled: nat != null ? nat : true
       }
     }
   })

@@ -9,8 +9,8 @@ const { CID } = require('multiformats/cid')
 const { Multiaddr } = require('multiaddr')
 const delay = require('delay')
 const PeerId = require('peer-id')
-const uint8ArrayFromString = require('uint8arrays/from-string')
-const uint8ArrayToString = require('uint8arrays/to-string')
+const { fromString: uint8ArrayFromString } = require('uint8arrays/from-string')
+const { toString: uint8ArrayToString } = require('uint8arrays/to-string')
 
 const StreamHandler = require('../../src/stream-handler')
 const { createDaemon } = require('../../src/daemon')
@@ -45,6 +45,7 @@ describe('dht', () => {
         hostAddrs: '/ip4/0.0.0.0/tcp/0,/ip4/0.0.0.0/tcp/0/ws',
         b: false,
         dht: true,
+        nat: false,
         dhtClient: false,
         connMgr: false,
         listen: daemonAddr.toString(),
@@ -53,6 +54,7 @@ describe('dht', () => {
       }),
       createLibp2p({
         dht: true,
+        nat: false,
         hostAddrs: '/ip4/0.0.0.0/tcp/0'
       })
     ])
@@ -434,7 +436,7 @@ describe('dht', () => {
     expect(response.dht).to.eql(null)
     streamHandler.close()
 
-    const value = await libp2pPeer.contentRouting.get(uint8ArrayFromString('/hello2'))
-    expect(value).to.eql(uint8ArrayFromString('world2'))
+    const result = await libp2pPeer.contentRouting.get(uint8ArrayFromString('/hello2'))
+    expect(result).to.have.property('val').that.eql(uint8ArrayFromString('world2'))
   })
 })

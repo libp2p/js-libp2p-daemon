@@ -6,6 +6,7 @@ const { expect } = require('aegir/utils/chai')
 const os = require('os')
 const path = require('path')
 const { Multiaddr } = require('multiaddr')
+const delay = require('delay')
 const StreamHandler = require('../../src/stream-handler')
 const { createDaemon } = require('../../src/daemon')
 const Client = require('../../src/client')
@@ -36,6 +37,7 @@ describe('peerstore features', () => {
       hostAddrs: '/ip4/0.0.0.0/tcp/0,/ip4/0.0.0.0/tcp/0/ws',
       b: false,
       dht: true,
+      nat: false,
       dhtClient: false,
       connMgr: false,
       listen: daemonAddr.toString(),
@@ -44,7 +46,8 @@ describe('peerstore features', () => {
     })
     libp2pPeer = await createLibp2p({
       dht: true,
-      hostAddrs: '/ip4/0.0.0.0/tcp/0'
+      hostAddrs: '/ip4/0.0.0.0/tcp/0',
+      nat: false
     })
 
     await Promise.all([
@@ -56,10 +59,9 @@ describe('peerstore features', () => {
       libp2pPeer,
       multiaddr: daemonAddr
     })
-  })
 
-  before(async () => {
-    await new Promise(resolve => setTimeout(resolve, 1e3))
+    // Give the nodes a moment to handshake
+    await delay(500)
   })
 
   after(() => {
