@@ -13,7 +13,7 @@ const lp = require('it-length-prefixed')
 const pDefer = require('p-defer')
 const toBuffer = require('it-buffer')
 const pushable = require('it-pushable')
-const uint8ArrayFromString = require('uint8arrays/from-string')
+const { fromString: uint8ArrayFromString } = require('uint8arrays/from-string')
 
 const StreamHandler = require('../../src/stream-handler')
 const { createDaemon } = require('../../src/daemon')
@@ -48,6 +48,7 @@ const testPubsub = (router) => {
           hostAddrs: '/ip4/0.0.0.0/tcp/0,/ip4/0.0.0.0/tcp/0/ws',
           b: false,
           dht: false,
+          nat: false,
           dhtClient: false,
           connMgr: false,
           listen: daemonAddr.toString(),
@@ -58,6 +59,7 @@ const testPubsub = (router) => {
         }),
         createLibp2p({
           pubsub: true,
+          nat: false,
           pubsubRouter: router,
           hostAddrs: '/ip4/0.0.0.0/tcp/0'
         })

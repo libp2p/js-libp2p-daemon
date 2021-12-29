@@ -9,8 +9,8 @@ const pipe = require('it-pipe')
 const { Multiaddr } = require('multiaddr')
 const { collect, take } = require('streaming-iterables')
 const { toBuffer } = require('it-buffer')
-const uint8ArrayFromString = require('uint8arrays/from-string')
-const uint8ArrayEquals = require('uint8arrays/equals')
+const { fromString: uint8ArrayFromString } = require('uint8arrays/from-string')
+const { equals: uint8ArrayEquals } = require('uint8arrays/equals')
 
 const StreamHandler = require('../../src/stream-handler')
 const Client = require('../../src/client')
@@ -43,6 +43,7 @@ describe('streams', function () {
         hostAddrs: '/ip4/0.0.0.0/tcp/0,/ip4/0.0.0.0/tcp/0/ws',
         b: false,
         dht: true,
+        nat: false,
         dhtClient: false,
         connMgr: false,
         listen: daemonAddr.toString(),
@@ -51,6 +52,7 @@ describe('streams', function () {
       }),
       createLibp2p({
         dht: true,
+        nat: false,
         hostAddrs: '/ip4/0.0.0.0/tcp/0'
       })
     ]).then((results) => {

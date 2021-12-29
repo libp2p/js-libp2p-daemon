@@ -334,11 +334,13 @@ class Daemon {
           }
         })
 
-        for await (const peerId of daemon.libp2p._dht.getClosestPeers(dht.key)) {
-          yield DHTResponse.encode({
-            type: DHTResponse.Type.VALUE,
-            value: peerId.toBytes()
-          }).finish()
+        for await (const event of daemon.libp2p._dht.getClosestPeers(dht.key)) {
+          if (event.name === 'FINAL_PEER') {
+            yield DHTResponse.encode({
+              type: DHTResponse.Type.VALUE,
+              value: event.peer.id.toBytes()
+            }).finish()
+          }
         }
 
         yield DHTResponse.encode({
