@@ -27,7 +27,7 @@
     "release-major": "aegir release --no-build --type major -t node"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=15.0.0"
   },
   "bugs": {
     "url": "https://github.com/libp2p/js-libp2p-daemon/issues"
