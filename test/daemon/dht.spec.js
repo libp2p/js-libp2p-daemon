@@ -107,9 +107,15 @@ describe('dht', () => {
     const response = Response.decode(await streamHandler.read())
     expect(response.type).to.eql(Response.Type.OK)
     expect(PeerId.createFromBytes(response.dht.peer.id).equals(libp2pPeer.peerId)).to.eql(true)
-    response.dht.peer.addrs.forEach((a, i) => {
-      expect((new Multiaddr(a)).equals(libp2pPeer.multiaddrs[i])).to.eql(true)
-    })
+
+    const nodeAddrs = libp2pPeer.multiaddrs.sort((a, b) => a.toString().localeCompare(b.toString()))
+
+    response.dht.peer.addrs
+      .map(buf => new Multiaddr(buf))
+      .sort((a, b) => a.toString().localeCompare(b.toString()))
+      .forEach((a, i) => {
+        expect(a).to.deep.equal(nodeAddrs[i])
+      })
     streamHandler.close()
   })
 
