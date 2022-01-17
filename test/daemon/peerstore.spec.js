@@ -96,11 +96,11 @@ describe('peerstore features', () => {
     expect(response.type).to.eql(Response.Type.OK)
     expect(response.peerStore.protos).to.eql([
       '/libp2p/circuit/relay/0.1.0',
+      '/ipfs/ping/1.0.0',
       '/ipfs/id/1.0.0',
       '/ipfs/id/push/1.0.0',
-      '/ipfs/ping/1.0.0',
       '/ipfs/kad/1.0.0'
-    ])
+    ].sort())
     streamHandler.close()
   })
 

@@ -29,6 +29,15 @@ const daemonAddr = isWindows
   ? new Multiaddr('/ip4/0.0.0.0/tcp/8080')
   : new Multiaddr(`/unix${path.resolve(os.tmpdir(), '/tmp/p2pd.sock')}`)
 
+function sameMultiAddrs (a, b) {
+  const set = new Set([
+    ...a.map(a => new Multiaddr(a)).map(a => a.toString()),
+    ...b.map(b => new Multiaddr(b)).map(b => b.toString())
+  ])
+
+  return (a.length === b.length) && (a.length === set.size)
+}
+
 describe('dht', () => {
   const cid = CID.parse('QmVzw6MPsF96TyXBSRs1ptLoVMWRv5FCYJZZGJSVB2Hp38')
   let daemon
@@ -107,9 +116,8 @@ describe('dht', () => {
     const response = Response.decode(await streamHandler.read())
     expect(response.type).to.eql(Response.Type.OK)
     expect(PeerId.createFromBytes(response.dht.peer.id).equals(libp2pPeer.peerId)).to.eql(true)
-    response.dht.peer.addrs.forEach((a, i) => {
-      expect((new Multiaddr(a)).equals(libp2pPeer.multiaddrs[i])).to.eql(true)
-    })
+    expect(sameMultiAddrs(response.dht.peer.addrs, libp2pPeer.multiaddrs)).to.be.true()
+
     streamHandler.close()
   })
 
@@ -213,9 +221,7 @@ describe('dht', () => {
         const response = DHTResponse.decode(message)
         expect(response.type).to.eql(DHTResponse.Type.VALUE)
         expect(PeerId.createFromBytes(response.peer.id).equals(libp2pPeer.peerId)).to.eql(true)
-        response.peer.addrs.forEach((a, i) => {
-          expect((new Multiaddr(a)).equals(libp2pPeer.multiaddrs[i])).to.eql(true)
-        })
+        expect(sameMultiAddrs(response.peer.addrs, libp2pPeer.multiaddrs)).to.be.true()
       },
       (message) => {
         const response = DHTResponse.decode(message)

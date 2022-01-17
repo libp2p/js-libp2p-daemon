@@ -57,12 +57,12 @@ class Daemon {
    * @param {ConnectRequest} connectRequest
    * @returns {Promise<Connection>}
    */
-  connect (connectRequest) {
+  async connect (connectRequest) {
     const peer = connectRequest.connect.peer
     const addrs = connectRequest.connect.addrs.map((a) => new Multiaddr(a))
     const peerId = PeerId.createFromBytes(peer)
 
-    this.libp2p.peerStore.addressBook.set(peerId, addrs)
+    await this.libp2p.peerStore.addressBook.set(peerId, addrs)
     return this.libp2p.dial(peerId)
   }
 
@@ -189,10 +189,10 @@ class Daemon {
 
   handlePeerStoreRequest ({ peerStore }) {
     const peerStoreAction = {
-      [PeerstoreRequest.Type.GET_PROTOCOLS]: function * (daemon) {
+      [PeerstoreRequest.Type.GET_PROTOCOLS]: async function * (daemon) {
         try {
           const peerId = PeerId.createFromBytes(peerStore.id)
-          const peer = daemon.libp2p.peerStore.get(peerId)
+          const peer = await daemon.libp2p.peerStore.get(peerId)
           const protos = peer.protocols
           yield OkResponse({ peerStore: { protos } })
         } catch (err) {
@@ -436,16 +436,19 @@ class Daemon {
             }
             // Get a list of our current peers
             case Request.Type.LIST_PEERS: {
-              const peers = Array.from(daemon.libp2p.peerStore.peers.values()).map((peer) => {
+              const peers = []
+
+              for await (const peer of daemon.libp2p.peerStore.getPeers()) {
                 // TODO: conn mgr
                 const conn = daemon.libp2p.registrar.getConnection(peer.id)
                 const addr = conn.remoteAddr
 
-                return {
+                peers.push({
                   id: peer.id.toBytes(),
                   addrs: [addr ? addr.bytes : null]
-                }
-              })
+                })
+              }
+
               yield OkResponse({ peers })
               break
             }
