@@ -58,7 +58,7 @@
     "libp2p": "libp2p/js-libp2p#feat/async-peerstore",
     "libp2p-bootstrap": "^0.14.0",
     "libp2p-floodsub": "^0.29.0",
-    "libp2p-kad-dht": "^0.28.2",
+    "libp2p-kad-dht": "^0.28.3",
     "libp2p-mplex": "^0.10.0",
     "libp2p-tcp": "^0.17.1",
     "libp2p-websockets": "^0.16.1",
