@@ -99,7 +99,8 @@ describe('peerstore features', () => {
       '/ipfs/ping/1.0.0',
       '/ipfs/id/1.0.0',
       '/ipfs/id/push/1.0.0',
-      '/ipfs/kad/1.0.0'
+      '/ipfs/kad/1.0.0',
+      '/libp2p/fetch/0.0.1'
     ].sort())
     streamHandler.close()
   })
