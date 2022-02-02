@@ -43,7 +43,7 @@
     "it-pair": "^1.0.0",
     "mocha": "^9.0.1",
     "p-defer": "^3.0.0",
-    "sinon": "^12.0.1"
+    "sinon": "^13.0.1"
   },
   "dependencies": {
     "@chainsafe/libp2p-noise": "^5.0.0",
