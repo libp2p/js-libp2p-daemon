@@ -86,7 +86,7 @@ describe('streams', function () {
     const hello = uint8ArrayFromString('hello there')
 
     // Have the peer echo our messages back
-    libp2pPeer.handle('/echo/1.0.0', ({ stream }) => pipe(stream, stream))
+    await libp2pPeer.handle('/echo/1.0.0', ({ stream }) => pipe(stream, stream))
 
     client = new Client(daemonAddr)
     const maConn = await client.connect()
