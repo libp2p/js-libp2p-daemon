@@ -118,9 +118,9 @@ class Daemon {
       delete this.streamHandlers[addrString]
     }
 
-    protocols.forEach((proto) => {
+    for (const proto of protocols) {
       // Connect the client socket with the libp2p connection
-      this.libp2p.handle(proto, ({ connection, stream, protocol }) => {
+      await this.libp2p.handle(proto, ({ connection, stream, protocol }) => {
         const message = StreamInfo.encode({
           peer: connection.remotePeer.toBytes(),
           addr: connection.remoteAddr.bytes,
@@ -136,7 +136,7 @@ class Daemon {
           stream.sink
         )
       })
-    })
+    }
 
     const clientConnection = await this.tcp.dial(addr)
   }
