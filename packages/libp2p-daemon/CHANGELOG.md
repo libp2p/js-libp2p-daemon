@@ -1,3 +1,14 @@
+## @libp2p/daemon-v1.0.0 (2022-03-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* This module is now ESM only
+
+### Features
+
+* convert to typescript ([#78](https://github.com/libp2p/js-libp2p-daemon/issues/78)) ([f18b2a4](https://github.com/libp2p/js-libp2p-daemon/commit/f18b2a45871a2704db51b03e8583eefdcd13554c))
+
 ## [0.10.2](https://github.com/libp2p/js-libp2p-daemon/compare/v0.10.1...v0.10.2) (2022-01-26)
 
 
@@ -254,6 +265,3 @@ Example: `jsp2pd --sock=/tmp/p2p.sock` would now be `jsp2pd --listen=/unix/tmp/p
 ### Features
 
 * initial implementation of the libp2p daemon spec ([#1](https://github.com/libp2p/js-libp2p-daemon/issues/1)) ([383a6bd](https://github.com/libp2p/js-libp2p-daemon/commit/383a6bd))
-
-
-
