@@ -1,3 +1,10 @@
+## [@libp2p/daemon-protocol-v1.0.2](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-v1.0.1...@libp2p/daemon-protocol-v1.0.2) (2022-04-07)
+
+
+### Bug Fixes
+
+* remove protobufjs and replace with protons ([#81](https://github.com/libp2p/js-libp2p-daemon/issues/81)) ([78dd02a](https://github.com/libp2p/js-libp2p-daemon/commit/78dd02a679e55f22c7e24c1ee2b6f92a4679a0b9))
+
 ## [@libp2p/daemon-protocol-v1.0.1](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-v1.0.0...@libp2p/daemon-protocol-v1.0.1) (2022-04-07)
 
 
