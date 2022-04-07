@@ -1,13 +1,14 @@
-import { IResponse, Response } from '@libp2p/daemon-protocol'
+import { Response } from '@libp2p/daemon-protocol'
 
 /**
  * Creates and encodes an OK response
  */
-export function OkResponse (data?: Partial<IResponse>): Uint8Array {
+export function OkResponse (data?: Partial<Response>): Uint8Array {
   return Response.encode({
     type: Response.Type.OK,
+    peers: [],
     ...data
-  }).finish()
+  })
 }
 
 /**
@@ -18,6 +19,7 @@ export function ErrorResponse (err: Error): Uint8Array {
     type: Response.Type.ERROR,
     error: {
       msg: err.message
-    }
-  }).finish()
+    },
+    peers: []
+  })
 }

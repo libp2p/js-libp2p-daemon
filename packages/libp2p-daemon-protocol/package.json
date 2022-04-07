@@ -146,16 +146,13 @@
     "clean": "aegir clean",
     "lint": "aegir lint",
     "build": "aegir build",
-    "postbuild": "cp src/*.js src/*.d.ts dist/src",
-    "generate": "npm run generate:proto && npm run generate:proto-types",
-    "generate:proto": "pbjs -t static-module -w es6 -r libp2p-daemon --force-number --no-verify --no-delimited --no-create --no-beautify --no-defaults --lint eslint-disable -o src/protocol/index.js ./src/protocol/index.proto",
-    "generate:proto-types": "pbts -o src/protocol/index.d.ts src/protocol/index.js",
     "release": "aegir release"
   },
   "dependencies": {
-    "protobufjs": "^6.10.2"
+    "protons-runtime": "^1.0.0"
   },
   "devDependencies": {
-    "aegir": "^37.0.5"
+    "aegir": "^37.0.5",
+    "protons": "^3.0.1"
   }
 }

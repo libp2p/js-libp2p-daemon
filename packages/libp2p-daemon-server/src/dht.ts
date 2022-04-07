@@ -47,13 +47,13 @@ export class DHTOperations {
         yield * event.closer.map(peer => DHTResponse.encode({
           type: DHTResponse.Type.VALUE,
           value: peer.id.toBytes()
-        }).finish())
+        }))
       }
     }
 
     yield DHTResponse.encode({
       type: DHTResponse.Type.END
-    }).finish()
+    })
   }
 
   async * getPublicKey (peerId: PeerId) {
@@ -134,7 +134,7 @@ export class DHTOperations {
                 id: provider.id.toBytes(),
                 addrs: (provider.multiaddrs ?? []).map(m => m.bytes)
               }
-            }).finish()
+            })
           }
 
           if (maxNumProviders === found) {
@@ -148,6 +148,6 @@ export class DHTOperations {
 
     yield DHTResponse.encode({
       type: DHTResponse.Type.END
-    }).finish()
+    })
   }
 }

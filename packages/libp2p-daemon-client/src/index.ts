@@ -1,6 +1,6 @@
 import errcode from 'err-code'
 import { TCP } from '@libp2p/tcp'
-import { IRequest, PSMessage, Request, Response } from '@libp2p/daemon-protocol'
+import { PSMessage, Request, Response } from '@libp2p/daemon-protocol'
 import { StreamHandler } from '@libp2p/daemon-protocol/stream-handler'
 import { Multiaddr } from '@multiformats/multiaddr'
 import { DHT } from './dht.js'
@@ -43,11 +43,11 @@ class Client implements DaemonClient {
    * Sends the request to the daemon and returns a stream. This
    * should only be used when sending daemon requests.
    */
-  async send (request: IRequest) {
+  async send (request: Request) {
     const maConn = await this.connectDaemon()
 
     const streamHandler = new StreamHandler({ stream: maConn })
-    streamHandler.write(Request.encode(request).finish())
+    streamHandler.write(Request.encode(request))
     return streamHandler
   }
 
@@ -189,7 +189,7 @@ class Client implements DaemonClient {
 
     const sh = await this.send({
       type: Request.Type.STREAM_HANDLER,
-      streamOpen: null,
+      streamOpen: undefined,
       streamHandler: {
         addr: addr.bytes,
         proto: [protocol]
@@ -234,7 +234,7 @@ export interface DaemonClient {
   dht: DHTClient
   pubsub: PubSubClient
 
-  send: (request: IRequest) => Promise<StreamHandler>
+  send: (request: Request) => Promise<StreamHandler>
   openStream: (peerId: PeerId, protocol: string) => Promise<Duplex<Uint8Array>>
 }
 
