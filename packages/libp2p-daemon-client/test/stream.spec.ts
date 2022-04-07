@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 
-import { expect } from 'aegir/utils/chai.js'
+import { expect } from 'aegir/chai'
 import sinon from 'sinon'
 import { createServer, Libp2p, Libp2pServer } from '@libp2p/daemon-server'
 import { createClient, DaemonClient } from '../src/index.js'
