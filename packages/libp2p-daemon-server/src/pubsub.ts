@@ -29,7 +29,8 @@ export class PubSubOperations {
     try {
       yield OkResponse({
         pubsub: {
-          topics: this.pubsub.getTopics()
+          topics: this.pubsub.getTopics(),
+          peerIDs: []
         }
       })
     } catch (err: any) {
@@ -52,7 +53,7 @@ export class PubSubOperations {
           topicIDs: [msg.topic],
           signature: msg.signature,
           key: msg.key
-        }).finish())
+        }))
       })
 
       yield OkResponse()

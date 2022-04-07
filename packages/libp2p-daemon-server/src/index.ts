@@ -12,12 +12,7 @@ import {
   DHTRequest,
   PeerstoreRequest,
   PSRequest,
-  StreamInfo,
-  IRequest,
-  IStreamInfo,
-  IPSRequest,
-  IDHTRequest,
-  IPeerstoreRequest
+  StreamInfo
 } from '@libp2p/daemon-protocol'
 import type { Listener } from '@libp2p/interfaces/transport'
 import type { Connection, Stream } from '@libp2p/interfaces/connection'
@@ -37,7 +32,7 @@ const LIMIT = 1 << 22 // 4MB
 const log = logger('libp2p:daemon-server')
 
 export interface OpenStream {
-  streamInfo: IStreamInfo
+  streamInfo: StreamInfo
   connection: Stream
 }
 
@@ -101,7 +96,7 @@ export class Server implements Libp2pServer {
   /**
    * Connects the daemons libp2p node to the peer provided
    */
-  async connect (request: IRequest): Promise<Connection> {
+  async connect (request: Request): Promise<Connection> {
     if (request.connect == null || request.connect.addrs == null) {
       throw new Error('Invalid request')
     }
@@ -117,7 +112,7 @@ export class Server implements Libp2pServer {
   /**
    * Opens a stream on one of the given protocols to the given peer
    */
-  async openStream (request: IRequest): Promise<OpenStream> {
+  async openStream (request: Request): Promise<OpenStream> {
     if (request.streamOpen == null || request.streamOpen.proto == null) {
       throw new Error('Invalid request')
     }
@@ -144,7 +139,7 @@ export class Server implements Libp2pServer {
    * to the unix socket path provided. If an existing handler
    * is registered at the path, it will be overridden.
    */
-  async registerStreamHandler (request: IRequest): Promise<void> {
+  async registerStreamHandler (request: Request): Promise<void> {
     if (request.streamHandler == null || request.streamHandler.proto == null) {
       throw new Error('Invalid request')
     }
@@ -167,7 +162,7 @@ export class Server implements Libp2pServer {
             peer: connection.remotePeer.toBytes(),
             addr: connection.remoteAddr.bytes,
             proto: protocol
-          }).finish()
+          })
           const encodedMessage = lp.encode.single(message)
 
           // Tell the client about the new connection
@@ -237,7 +232,7 @@ export class Server implements Libp2pServer {
     process.removeListener('SIGHUP', this._onExit)
   }
 
-  async * handlePeerStoreRequest (request: IPeerstoreRequest) {
+  async * handlePeerStoreRequest (request: PeerstoreRequest) {
     try {
       switch (request.type) {
         case PeerstoreRequest.Type.GET_PROTOCOLS:
@@ -264,7 +259,7 @@ export class Server implements Libp2pServer {
   /**
    * Parses and responds to PSRequests
    */
-  async * handlePubsubRequest (request: IPSRequest) {
+  async * handlePubsubRequest (request: PSRequest) {
     try {
       if (this.libp2p.pubsub == null || (this.pubsubOperations == null)) {
         throw new Error('PubSub not configured')
@@ -300,7 +295,7 @@ export class Server implements Libp2pServer {
   /**
    * Parses and responds to DHTRequests
    */
-  async * handleDHTRequest (request: IDHTRequest) {
+  async * handleDHTRequest (request: DHTRequest) {
     try {
       if (this.libp2p.dht == null || (this.dhtOperations == null)) {
         throw new Error('DHT not configured')
