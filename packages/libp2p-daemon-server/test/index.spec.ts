@@ -2,7 +2,7 @@
 /* eslint max-nested-callbacks: ["error", 5] */
 
 import { Multiaddr } from '@multiformats/multiaddr'
-import { expect } from 'aegir/utils/chai.js'
+import { expect } from 'aegir/chai'
 import { createServer, Libp2p } from '../src/index.js'
 import { stubInterface } from 'ts-sinon'
 

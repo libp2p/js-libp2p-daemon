@@ -32,8 +32,9 @@
     "test:electron-renderer": "lerna run --concurrency 1 test:electron-renderer -- --",
     "build": "lerna run build",
     "lint": "lerna run lint",
+    "clean": "lerna run clean",
     "dep-check": "lerna run dep-check",
-    "release": "lerna exec --concurrency 1 -- semantic-release -e semantic-release-monorepo"
+    "release": "lerna run --concurrency 1 release -- --"
   },
   "dependencies": {
     "lerna": "^4.0.0",
