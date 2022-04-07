@@ -368,12 +368,12 @@ export class Server implements Libp2pServer {
   /**
    * Handles requests for the given connection
    */
-  async handleConnection (connection: Connection) {
+  handleConnection (connection: Connection) {
     const daemon = this // eslint-disable-line @typescript-eslint/no-this-alias
     // @ts-expect-error connection may actually be a maconn?
     const streamHandler = new StreamHandler({ stream: connection, maxLength: LIMIT })
 
-    await pipe(
+    void pipe(
       streamHandler.decoder,
       source => (async function * () {
         let request: Request
@@ -507,7 +507,9 @@ export class Server implements Libp2pServer {
           streamHandler.write(result)
         }
       }
-    )
+    ).catch(err => {
+      log(err)
+    })
   }
 }
 

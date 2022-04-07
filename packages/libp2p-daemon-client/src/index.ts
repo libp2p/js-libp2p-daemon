@@ -92,7 +92,7 @@ class Client implements DaemonClient {
   }
 
   /**
-   * @typedef {Object} IdentifyResponse
+   * @typedef {object} IdentifyResponse
    * @property {PeerId} peerId
    * @property {Array.<multiaddr>} addrs
    */
