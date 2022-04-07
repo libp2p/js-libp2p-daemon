@@ -19,7 +19,7 @@
     "npm": ">=7.0.0"
   },
   "bin": {
-    "jsp2pd": "src/cli/bin.js"
+    "jsp2pd": "dist/src/index.js"
   },
   "type": "module",
   "types": "./dist/src/index.d.ts",
