@@ -72,18 +72,18 @@ describe('daemon pubsub client', function () {
 
       await client.pubsub.publish(topic, data)
 
-      expect(pubsub.dispatchEvent.called).to.be.true()
+      expect(pubsub.publish.called).to.be.true()
 
-      const event = pubsub.dispatchEvent.getCall(0).args[0]
+      const call = pubsub.publish.getCall(0)
 
-      expect(event.type).to.equal(topic)
-      expect(event.detail).to.equalBytes(data)
+      expect(call).to.have.nested.property('args[0]', topic)
+      expect(call).to.have.deep.nested.property('args[1]', data)
     })
 
     it('should error if receive an error message', async () => {
       const topic = 'test-topic'
       const data = uint8ArrayFromString('hello world')
-      pubsub.dispatchEvent.throws(new Error('Urk!'))
+      pubsub.publish.throws(new Error('Urk!'))
 
       await expect(client.pubsub.publish(topic, data)).to.eventually.be.rejectedWith(/Urk!/)
     })
