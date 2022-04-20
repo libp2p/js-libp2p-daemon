@@ -149,10 +149,10 @@
     "release": "aegir release"
   },
   "dependencies": {
-    "protons-runtime": "^1.0.0"
+    "protons-runtime": "^1.0.3"
   },
   "devDependencies": {
-    "aegir": "^37.0.5",
-    "protons": "^3.0.1"
+    "aegir": "^37.0.14",
+    "protons": "^3.0.3"
   }
 }

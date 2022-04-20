@@ -7,7 +7,6 @@ import { ErrorResponse, OkResponse } from './responses.js'
 import type { PubSub } from '@libp2p/interfaces/pubsub'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { pushable } from 'it-pushable'
-import { CustomEvent } from '@libp2p/interfaces'
 import { logger } from '@libp2p/logger'
 
 const log = logger('libp2p:daemon-server:pubsub')
@@ -42,9 +41,14 @@ export class PubSubOperations {
   async * subscribe (topic: string) {
     try {
       const onMessage = pushable<Uint8Array>()
+      this.pubsub.subscribe(topic)
 
-      await this.pubsub.addEventListener(topic, (evt) => {
+      await this.pubsub.addEventListener('message', (evt) => {
         const msg = evt.detail
+
+        if (msg.topic !== topic) {
+          return
+        }
 
         onMessage.push(PSMessage.encode({
           from: msg.from.toBytes(),
@@ -66,7 +70,7 @@ export class PubSubOperations {
 
   async * publish (topic: string, data: Uint8Array) {
     try {
-      this.pubsub.dispatchEvent(new CustomEvent(topic, { detail: data }))
+      this.pubsub.publish(topic, data)
       yield OkResponse()
     } catch (err: any) {
       log.error(err)
