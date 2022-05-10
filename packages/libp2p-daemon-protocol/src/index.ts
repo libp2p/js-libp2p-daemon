@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
 import { enumeration, encodeMessage, decodeMessage, message, bytes, int64, string, int32 } from 'protons-runtime'
+import type { Codec } from 'protons-runtime'
 
 export interface Request {
   type: Request.Type
@@ -29,13 +30,26 @@ export namespace Request {
     PEERSTORE = 'PEERSTORE'
   }
 
+  enum __TypeValues {
+    IDENTIFY = 0,
+    CONNECT = 1,
+    STREAM_OPEN = 2,
+    STREAM_HANDLER = 3,
+    DHT = 4,
+    LIST_PEERS = 5,
+    CONNMANAGER = 6,
+    DISCONNECT = 7,
+    PUBSUB = 8,
+    PEERSTORE = 9
+  }
+
   export namespace Type {
     export const codec = () => {
-      return enumeration<typeof Type>(Type)
+      return enumeration<typeof Type>(__TypeValues)
     }
   }
 
-  export const codec = () => {
+  export const codec = (): Codec<Request> => {
     return message<Request>({
       1: { name: 'type', codec: Request.Type.codec() },
       2: { name: 'connect', codec: ConnectRequest.codec(), optional: true },
@@ -75,13 +89,18 @@ export namespace Response {
     ERROR = 'ERROR'
   }
 
+  enum __TypeValues {
+    OK = 0,
+    ERROR = 1
+  }
+
   export namespace Type {
     export const codec = () => {
-      return enumeration<typeof Type>(Type)
+      return enumeration<typeof Type>(__TypeValues)
     }
   }
 
-  export const codec = () => {
+  export const codec = (): Codec<Response> => {
     return message<Response>({
       1: { name: 'type', codec: Response.Type.codec() },
       2: { name: 'error', codec: ErrorResponse.codec(), optional: true },
@@ -109,7 +128,7 @@ export interface IdentifyResponse {
 }
 
 export namespace IdentifyResponse {
-  export const codec = () => {
+  export const codec = (): Codec<IdentifyResponse> => {
     return message<IdentifyResponse>({
       1: { name: 'id', codec: bytes },
       2: { name: 'addrs', codec: bytes, repeats: true }
@@ -132,7 +151,7 @@ export interface ConnectRequest {
 }
 
 export namespace ConnectRequest {
-  export const codec = () => {
+  export const codec = (): Codec<ConnectRequest> => {
     return message<ConnectRequest>({
       1: { name: 'peer', codec: bytes },
       2: { name: 'addrs', codec: bytes, repeats: true },
@@ -156,7 +175,7 @@ export interface StreamOpenRequest {
 }
 
 export namespace StreamOpenRequest {
-  export const codec = () => {
+  export const codec = (): Codec<StreamOpenRequest> => {
     return message<StreamOpenRequest>({
       1: { name: 'peer', codec: bytes },
       2: { name: 'proto', codec: string, repeats: true },
@@ -179,7 +198,7 @@ export interface StreamHandlerRequest {
 }
 
 export namespace StreamHandlerRequest {
-  export const codec = () => {
+  export const codec = (): Codec<StreamHandlerRequest> => {
     return message<StreamHandlerRequest>({
       1: { name: 'addr', codec: bytes },
       2: { name: 'proto', codec: string, repeats: true }
@@ -200,7 +219,7 @@ export interface ErrorResponse {
 }
 
 export namespace ErrorResponse {
-  export const codec = () => {
+  export const codec = (): Codec<ErrorResponse> => {
     return message<ErrorResponse>({
       1: { name: 'msg', codec: string }
     })
@@ -222,7 +241,7 @@ export interface StreamInfo {
 }
 
 export namespace StreamInfo {
-  export const codec = () => {
+  export const codec = (): Codec<StreamInfo> => {
     return message<StreamInfo>({
       1: { name: 'peer', codec: bytes },
       2: { name: 'addr', codec: bytes },
@@ -262,13 +281,25 @@ export namespace DHTRequest {
     PROVIDE = 'PROVIDE'
   }
 
+  enum __TypeValues {
+    FIND_PEER = 0,
+    FIND_PEERS_CONNECTED_TO_PEER = 1,
+    FIND_PROVIDERS = 2,
+    GET_CLOSEST_PEERS = 3,
+    GET_PUBLIC_KEY = 4,
+    GET_VALUE = 5,
+    SEARCH_VALUE = 6,
+    PUT_VALUE = 7,
+    PROVIDE = 8
+  }
+
   export namespace Type {
     export const codec = () => {
-      return enumeration<typeof Type>(Type)
+      return enumeration<typeof Type>(__TypeValues)
     }
   }
 
-  export const codec = () => {
+  export const codec = (): Codec<DHTRequest> => {
     return message<DHTRequest>({
       1: { name: 'type', codec: DHTRequest.Type.codec() },
       2: { name: 'peer', codec: bytes, optional: true },
@@ -302,13 +333,19 @@ export namespace DHTResponse {
     END = 'END'
   }
 
+  enum __TypeValues {
+    BEGIN = 0,
+    VALUE = 1,
+    END = 2
+  }
+
   export namespace Type {
     export const codec = () => {
-      return enumeration<typeof Type>(Type)
+      return enumeration<typeof Type>(__TypeValues)
     }
   }
 
-  export const codec = () => {
+  export const codec = (): Codec<DHTResponse> => {
     return message<DHTResponse>({
       1: { name: 'type', codec: DHTResponse.Type.codec() },
       2: { name: 'peer', codec: PeerInfo.codec(), optional: true },
@@ -331,7 +368,7 @@ export interface PeerInfo {
 }
 
 export namespace PeerInfo {
-  export const codec = () => {
+  export const codec = (): Codec<PeerInfo> => {
     return message<PeerInfo>({
       1: { name: 'id', codec: bytes },
       2: { name: 'addrs', codec: bytes, repeats: true }
@@ -361,13 +398,19 @@ export namespace ConnManagerRequest {
     TRIM = 'TRIM'
   }
 
+  enum __TypeValues {
+    TAG_PEER = 0,
+    UNTAG_PEER = 1,
+    TRIM = 2
+  }
+
   export namespace Type {
     export const codec = () => {
-      return enumeration<typeof Type>(Type)
+      return enumeration<typeof Type>(__TypeValues)
     }
   }
 
-  export const codec = () => {
+  export const codec = (): Codec<ConnManagerRequest> => {
     return message<ConnManagerRequest>({
       1: { name: 'type', codec: ConnManagerRequest.Type.codec() },
       2: { name: 'peer', codec: bytes, optional: true },
@@ -390,7 +433,7 @@ export interface DisconnectRequest {
 }
 
 export namespace DisconnectRequest {
-  export const codec = () => {
+  export const codec = (): Codec<DisconnectRequest> => {
     return message<DisconnectRequest>({
       1: { name: 'peer', codec: bytes }
     })
@@ -419,13 +462,20 @@ export namespace PSRequest {
     SUBSCRIBE = 'SUBSCRIBE'
   }
 
+  enum __TypeValues {
+    GET_TOPICS = 0,
+    LIST_PEERS = 1,
+    PUBLISH = 2,
+    SUBSCRIBE = 3
+  }
+
   export namespace Type {
     export const codec = () => {
-      return enumeration<typeof Type>(Type)
+      return enumeration<typeof Type>(__TypeValues)
     }
   }
 
-  export const codec = () => {
+  export const codec = (): Codec<PSRequest> => {
     return message<PSRequest>({
       1: { name: 'type', codec: PSRequest.Type.codec() },
       2: { name: 'topic', codec: string, optional: true },
@@ -452,7 +502,7 @@ export interface PSMessage {
 }
 
 export namespace PSMessage {
-  export const codec = () => {
+  export const codec = (): Codec<PSMessage> => {
     return message<PSMessage>({
       1: { name: 'from', codec: bytes, optional: true },
       2: { name: 'data', codec: bytes, optional: true },
@@ -478,7 +528,7 @@ export interface PSResponse {
 }
 
 export namespace PSResponse {
-  export const codec = () => {
+  export const codec = (): Codec<PSResponse> => {
     return message<PSResponse>({
       1: { name: 'topics', codec: string, repeats: true },
       2: { name: 'peerIDs', codec: bytes, repeats: true }
@@ -506,13 +556,18 @@ export namespace PeerstoreRequest {
     GET_PEER_INFO = 'GET_PEER_INFO'
   }
 
+  enum __TypeValues {
+    GET_PROTOCOLS = 1,
+    GET_PEER_INFO = 2
+  }
+
   export namespace Type {
     export const codec = () => {
-      return enumeration<typeof Type>(Type)
+      return enumeration<typeof Type>(__TypeValues)
     }
   }
 
-  export const codec = () => {
+  export const codec = (): Codec<PeerstoreRequest> => {
     return message<PeerstoreRequest>({
       1: { name: 'type', codec: PeerstoreRequest.Type.codec() },
       2: { name: 'id', codec: bytes, optional: true },
@@ -535,7 +590,7 @@ export interface PeerstoreResponse {
 }
 
 export namespace PeerstoreResponse {
-  export const codec = () => {
+  export const codec = (): Codec<PeerstoreResponse> => {
     return message<PeerstoreResponse>({
       1: { name: 'peer', codec: PeerInfo.codec(), optional: true },
       2: { name: 'protos', codec: string, repeats: true }
