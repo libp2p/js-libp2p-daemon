@@ -1,3 +1,10 @@
+## [@libp2p/daemon-protocol-v1.0.5](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-v1.0.4...@libp2p/daemon-protocol-v1.0.5) (2022-05-10)
+
+
+### Bug Fixes
+
+* encode enums correctly ([#86](https://github.com/libp2p/js-libp2p-daemon/issues/86)) ([6ce4633](https://github.com/libp2p/js-libp2p-daemon/commit/6ce4633f3db41ab66f9b8b1abbe84955dde3e9be))
+
 ## [@libp2p/daemon-protocol-v1.0.4](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-v1.0.3...@libp2p/daemon-protocol-v1.0.4) (2022-04-20)
 
 
