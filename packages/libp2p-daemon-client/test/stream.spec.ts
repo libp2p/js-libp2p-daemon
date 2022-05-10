@@ -13,6 +13,7 @@ import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import all from 'it-all'
 import { pipe } from 'it-pipe'
+import { Components } from '@libp2p/interfaces/components'
 
 const defaultMultiaddr = new Multiaddr('/ip4/0.0.0.0/tcp/0')
 
@@ -64,13 +65,15 @@ describe('daemon stream client', function () {
       )
     })
 
-    const [peerAtoPeerB] = connectionPair({
-      peerId: peerA,
-      registrar: registrarA
-    }, {
-      peerId: peerB,
-      registrar: registrarB
-    })
+    const [peerAtoPeerB] = connectionPair(
+      new Components({
+        peerId: peerA,
+        registrar: registrarA
+      }), new Components({
+        peerId: peerB,
+        registrar: registrarB
+      })
+    )
 
     libp2p.dial.withArgs(peerB).resolves(peerAtoPeerB)
 

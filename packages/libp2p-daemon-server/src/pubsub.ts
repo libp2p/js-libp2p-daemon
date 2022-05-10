@@ -70,7 +70,7 @@ export class PubSubOperations {
 
   async * publish (topic: string, data: Uint8Array) {
     try {
-      this.pubsub.publish(topic, data)
+      await this.pubsub.publish(topic, data)
       yield OkResponse()
     } catch (err: any) {
       log.error(err)
