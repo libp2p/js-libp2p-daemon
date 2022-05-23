@@ -1,3 +1,10 @@
+## [@libp2p/daemon-v1.0.3](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-v1.0.2...@libp2p/daemon-v1.0.3) (2022-05-23)
+
+
+### Bug Fixes
+
+* update deps ([#90](https://github.com/libp2p/js-libp2p-daemon/issues/90)) ([b50eba3](https://github.com/libp2p/js-libp2p-daemon/commit/b50eba3770e47969dbc30cbcf87c41672cd9c175))
+
 ## [@libp2p/daemon-v1.0.2](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-v1.0.1...@libp2p/daemon-v1.0.2) (2022-04-20)
 
 
