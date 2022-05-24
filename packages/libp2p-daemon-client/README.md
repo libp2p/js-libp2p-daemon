@@ -1,5 +1,4 @@
-libp2p-daemon client JavaScript implementation
-======
+# libp2p-daemon client JavaScript implementation <!-- omit in toc -->
 
 [![](https://img.shields.io/badge/made%20by-Protocol%20Labs-blue.svg?style=flat-square)](https://protocol.ai/)
 [![](https://img.shields.io/badge/project-libp2p-yellow.svg?style=flat-square)](http://libp2p.io/)
@@ -8,18 +7,16 @@ libp2p-daemon client JavaScript implementation
 
 > A Javascript client to interact with a standalone deployment of a libp2p host, running in its own OS process. Essentially, this client allows to communicate with other peers, interact with the DHT, participate in pubsub, etc. no matter the language they are implemented with.
 
-## Lead Maintainer
+## Table of Contents <!-- omit in toc -->
 
-[Vasco Santos](https://github.com/vasco-santos)
-
-## Table of Contents
-
-* [Specs](#specs)
-* [Install](#install)
-* [Usage](#usage)
-* [API](#api)
-* [Contribute](#contribute)
-* [License](#license)
+- [Specs](#specs)
+- [Install](#install)
+- [Usage](#usage)
+  - [Run a daemon process](#run-a-daemon-process)
+  - [Interact with the daemon process using the client](#interact-with-the-daemon-process-using-the-client)
+- [API](#api)
+- [Contribute](#contribute)
+- [License](#license)
 
 ## Specs
 
@@ -27,7 +24,7 @@ The specs for the daemon are currently housed in the go implementation. You can 
 
 ## Install
 
-`npm install libp2p-daemon-client`
+`npm install @libp2p/daemon-client`
 
 ## Usage
 
@@ -41,10 +38,11 @@ There are currently two implementations of the `libp2p-daemon`:
 ### Interact with the daemon process using the client
 
 ```js
-const Client = require('libp2p-daemon-client')
+import { createClient } from '@libp2p/daemon-client'
+import { Multiaddr } from '@multiformats/multiaddr'
 
-const defaultSock = '/tmp/p2pd.sock'
-const client = new Client(defaultSock)
+const serverAddr = new Multiaddr('/ip4/127.0.0.1/tcp/1234')
+const client = createClient(serverAddr)
 
 // interact with the daemon
 let identify
@@ -81,4 +79,4 @@ This module is actively under development. Please check out the issues and submi
 
 ## License
 
-MIT © Protocol Labs
+[Apache-2.0](LICENSE-APACHE) or [MIT](LICENSE-MIT) © Protocol Labs
