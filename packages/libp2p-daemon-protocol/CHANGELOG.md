@@ -1,3 +1,10 @@
+## [@libp2p/daemon-protocol-v1.0.6](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-v1.0.5...@libp2p/daemon-protocol-v1.0.6) (2022-05-25)
+
+
+### Trivial Changes
+
+* update docs ([#91](https://github.com/libp2p/js-libp2p-daemon/issues/91)) ([5b072ff](https://github.com/libp2p/js-libp2p-daemon/commit/5b072ff89f30fd6cf55a3387bf0961c8ad78a22f)), closes [#83](https://github.com/libp2p/js-libp2p-daemon/issues/83)
+
 ## [@libp2p/daemon-protocol-v1.0.5](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-v1.0.4...@libp2p/daemon-protocol-v1.0.5) (2022-05-10)
 
 
