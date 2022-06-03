@@ -6,14 +6,14 @@ import type { Codec } from 'protons-runtime'
 
 export interface Request {
   type: Request.Type
-  connect?: ConnectRequest
-  streamOpen?: StreamOpenRequest
-  streamHandler?: StreamHandlerRequest
-  dht?: DHTRequest
-  connManager?: ConnManagerRequest
-  disconnect?: DisconnectRequest
-  pubsub?: PSRequest
-  peerStore?: PeerstoreRequest
+  connect: ConnectRequest
+  streamOpen: StreamOpenRequest
+  streamHandler: StreamHandlerRequest
+  dht: DHTRequest
+  connManager: ConnManagerRequest
+  disconnect: DisconnectRequest
+  pubsub: PSRequest
+  peerStore: PeerstoreRequest
 }
 
 export namespace Request {
@@ -52,14 +52,14 @@ export namespace Request {
   export const codec = (): Codec<Request> => {
     return message<Request>({
       1: { name: 'type', codec: Request.Type.codec() },
-      2: { name: 'connect', codec: ConnectRequest.codec(), optional: true },
-      3: { name: 'streamOpen', codec: StreamOpenRequest.codec(), optional: true },
-      4: { name: 'streamHandler', codec: StreamHandlerRequest.codec(), optional: true },
-      5: { name: 'dht', codec: DHTRequest.codec(), optional: true },
-      6: { name: 'connManager', codec: ConnManagerRequest.codec(), optional: true },
-      7: { name: 'disconnect', codec: DisconnectRequest.codec(), optional: true },
-      8: { name: 'pubsub', codec: PSRequest.codec(), optional: true },
-      9: { name: 'peerStore', codec: PeerstoreRequest.codec(), optional: true }
+      2: { name: 'connect', codec: ConnectRequest.codec() },
+      3: { name: 'streamOpen', codec: StreamOpenRequest.codec() },
+      4: { name: 'streamHandler', codec: StreamHandlerRequest.codec() },
+      5: { name: 'dht', codec: DHTRequest.codec() },
+      6: { name: 'connManager', codec: ConnManagerRequest.codec() },
+      7: { name: 'disconnect', codec: DisconnectRequest.codec() },
+      8: { name: 'pubsub', codec: PSRequest.codec() },
+      9: { name: 'peerStore', codec: PeerstoreRequest.codec() }
     })
   }
 
@@ -74,13 +74,13 @@ export namespace Request {
 
 export interface Response {
   type: Response.Type
-  error?: ErrorResponse
-  streamInfo?: StreamInfo
-  identify?: IdentifyResponse
-  dht?: DHTResponse
+  error: ErrorResponse
+  streamInfo: StreamInfo
+  identify: IdentifyResponse
+  dht: DHTResponse
   peers: PeerInfo[]
-  pubsub?: PSResponse
-  peerStore?: PeerstoreResponse
+  pubsub: PSResponse
+  peerStore: PeerstoreResponse
 }
 
 export namespace Response {
@@ -103,13 +103,13 @@ export namespace Response {
   export const codec = (): Codec<Response> => {
     return message<Response>({
       1: { name: 'type', codec: Response.Type.codec() },
-      2: { name: 'error', codec: ErrorResponse.codec(), optional: true },
-      3: { name: 'streamInfo', codec: StreamInfo.codec(), optional: true },
-      4: { name: 'identify', codec: IdentifyResponse.codec(), optional: true },
-      5: { name: 'dht', codec: DHTResponse.codec(), optional: true },
+      2: { name: 'error', codec: ErrorResponse.codec() },
+      3: { name: 'streamInfo', codec: StreamInfo.codec() },
+      4: { name: 'identify', codec: IdentifyResponse.codec() },
+      5: { name: 'dht', codec: DHTResponse.codec() },
       6: { name: 'peers', codec: PeerInfo.codec(), repeats: true },
-      7: { name: 'pubsub', codec: PSResponse.codec(), optional: true },
-      8: { name: 'peerStore', codec: PeerstoreResponse.codec(), optional: true }
+      7: { name: 'pubsub', codec: PSResponse.codec() },
+      8: { name: 'peerStore', codec: PeerstoreResponse.codec() }
     })
   }
 
@@ -147,7 +147,7 @@ export namespace IdentifyResponse {
 export interface ConnectRequest {
   peer: Uint8Array
   addrs: Uint8Array[]
-  timeout?: bigint
+  timeout: bigint
 }
 
 export namespace ConnectRequest {
@@ -155,7 +155,7 @@ export namespace ConnectRequest {
     return message<ConnectRequest>({
       1: { name: 'peer', codec: bytes },
       2: { name: 'addrs', codec: bytes, repeats: true },
-      3: { name: 'timeout', codec: int64, optional: true }
+      3: { name: 'timeout', codec: int64 }
     })
   }
 
@@ -171,7 +171,7 @@ export namespace ConnectRequest {
 export interface StreamOpenRequest {
   peer: Uint8Array
   proto: string[]
-  timeout?: bigint
+  timeout: bigint
 }
 
 export namespace StreamOpenRequest {
@@ -179,7 +179,7 @@ export namespace StreamOpenRequest {
     return message<StreamOpenRequest>({
       1: { name: 'peer', codec: bytes },
       2: { name: 'proto', codec: string, repeats: true },
-      3: { name: 'timeout', codec: int64, optional: true }
+      3: { name: 'timeout', codec: int64 }
     })
   }
 
@@ -260,12 +260,12 @@ export namespace StreamInfo {
 
 export interface DHTRequest {
   type: DHTRequest.Type
-  peer?: Uint8Array
-  cid?: Uint8Array
-  key?: Uint8Array
-  value?: Uint8Array
-  count?: number
-  timeout?: bigint
+  peer: Uint8Array
+  cid: Uint8Array
+  key: Uint8Array
+  value: Uint8Array
+  count: number
+  timeout: bigint
 }
 
 export namespace DHTRequest {
@@ -302,12 +302,12 @@ export namespace DHTRequest {
   export const codec = (): Codec<DHTRequest> => {
     return message<DHTRequest>({
       1: { name: 'type', codec: DHTRequest.Type.codec() },
-      2: { name: 'peer', codec: bytes, optional: true },
-      3: { name: 'cid', codec: bytes, optional: true },
-      4: { name: 'key', codec: bytes, optional: true },
-      5: { name: 'value', codec: bytes, optional: true },
-      6: { name: 'count', codec: int32, optional: true },
-      7: { name: 'timeout', codec: int64, optional: true }
+      2: { name: 'peer', codec: bytes },
+      3: { name: 'cid', codec: bytes },
+      4: { name: 'key', codec: bytes },
+      5: { name: 'value', codec: bytes },
+      6: { name: 'count', codec: int32 },
+      7: { name: 'timeout', codec: int64 }
     })
   }
 
@@ -322,8 +322,8 @@ export namespace DHTRequest {
 
 export interface DHTResponse {
   type: DHTResponse.Type
-  peer?: PeerInfo
-  value?: Uint8Array
+  peer: PeerInfo
+  value: Uint8Array
 }
 
 export namespace DHTResponse {
@@ -348,8 +348,8 @@ export namespace DHTResponse {
   export const codec = (): Codec<DHTResponse> => {
     return message<DHTResponse>({
       1: { name: 'type', codec: DHTResponse.Type.codec() },
-      2: { name: 'peer', codec: PeerInfo.codec(), optional: true },
-      3: { name: 'value', codec: bytes, optional: true }
+      2: { name: 'peer', codec: PeerInfo.codec() },
+      3: { name: 'value', codec: bytes }
     })
   }
 
@@ -386,9 +386,9 @@ export namespace PeerInfo {
 
 export interface ConnManagerRequest {
   type: ConnManagerRequest.Type
-  peer?: Uint8Array
-  tag?: string
-  weight?: bigint
+  peer: Uint8Array
+  tag: string
+  weight: bigint
 }
 
 export namespace ConnManagerRequest {
@@ -413,9 +413,9 @@ export namespace ConnManagerRequest {
   export const codec = (): Codec<ConnManagerRequest> => {
     return message<ConnManagerRequest>({
       1: { name: 'type', codec: ConnManagerRequest.Type.codec() },
-      2: { name: 'peer', codec: bytes, optional: true },
-      3: { name: 'tag', codec: string, optional: true },
-      4: { name: 'weight', codec: int64, optional: true }
+      2: { name: 'peer', codec: bytes },
+      3: { name: 'tag', codec: string },
+      4: { name: 'weight', codec: int64 }
     })
   }
 
@@ -450,8 +450,8 @@ export namespace DisconnectRequest {
 
 export interface PSRequest {
   type: PSRequest.Type
-  topic?: string
-  data?: Uint8Array
+  topic: string
+  data: Uint8Array
 }
 
 export namespace PSRequest {
@@ -478,8 +478,8 @@ export namespace PSRequest {
   export const codec = (): Codec<PSRequest> => {
     return message<PSRequest>({
       1: { name: 'type', codec: PSRequest.Type.codec() },
-      2: { name: 'topic', codec: string, optional: true },
-      3: { name: 'data', codec: bytes, optional: true }
+      2: { name: 'topic', codec: string },
+      3: { name: 'data', codec: bytes }
     })
   }
 
@@ -493,23 +493,23 @@ export namespace PSRequest {
 }
 
 export interface PSMessage {
-  from?: Uint8Array
-  data?: Uint8Array
-  seqno?: Uint8Array
+  from: Uint8Array
+  data: Uint8Array
+  seqno: Uint8Array
   topicIDs: string[]
-  signature?: Uint8Array
-  key?: Uint8Array
+  signature: Uint8Array
+  key: Uint8Array
 }
 
 export namespace PSMessage {
   export const codec = (): Codec<PSMessage> => {
     return message<PSMessage>({
-      1: { name: 'from', codec: bytes, optional: true },
-      2: { name: 'data', codec: bytes, optional: true },
-      3: { name: 'seqno', codec: bytes, optional: true },
+      1: { name: 'from', codec: bytes },
+      2: { name: 'data', codec: bytes },
+      3: { name: 'seqno', codec: bytes },
       4: { name: 'topicIDs', codec: string, repeats: true },
-      5: { name: 'signature', codec: bytes, optional: true },
-      6: { name: 'key', codec: bytes, optional: true }
+      5: { name: 'signature', codec: bytes },
+      6: { name: 'key', codec: bytes }
     })
   }
 
@@ -546,7 +546,7 @@ export namespace PSResponse {
 
 export interface PeerstoreRequest {
   type: PeerstoreRequest.Type
-  id?: Uint8Array
+  id: Uint8Array
   protos: string[]
 }
 
@@ -570,7 +570,7 @@ export namespace PeerstoreRequest {
   export const codec = (): Codec<PeerstoreRequest> => {
     return message<PeerstoreRequest>({
       1: { name: 'type', codec: PeerstoreRequest.Type.codec() },
-      2: { name: 'id', codec: bytes, optional: true },
+      2: { name: 'id', codec: bytes },
       3: { name: 'protos', codec: string, repeats: true }
     })
   }
@@ -585,14 +585,14 @@ export namespace PeerstoreRequest {
 }
 
 export interface PeerstoreResponse {
-  peer?: PeerInfo
+  peer: PeerInfo
   protos: string[]
 }
 
 export namespace PeerstoreResponse {
   export const codec = (): Codec<PeerstoreResponse> => {
     return message<PeerstoreResponse>({
-      1: { name: 'peer', codec: PeerInfo.codec(), optional: true },
+      1: { name: 'peer', codec: PeerInfo.codec() },
       2: { name: 'protos', codec: string, repeats: true }
     })
   }
