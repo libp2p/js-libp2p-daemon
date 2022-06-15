@@ -1,3 +1,14 @@
+## [@libp2p/daemon-protocol-v2.0.0](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-v1.0.6...@libp2p/daemon-protocol-v2.0.0) (2022-06-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* uses new single-issue libp2p interface modules
+
+### Features
+
+* update to latest libp2p interfaces ([#102](https://github.com/libp2p/js-libp2p-daemon/issues/102)) ([f5e9121](https://github.com/libp2p/js-libp2p-daemon/commit/f5e91210654ab3c411e316c1c657356c037a0f6a))
+
 ## [@libp2p/daemon-protocol-v1.0.6](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-v1.0.5...@libp2p/daemon-protocol-v1.0.6) (2022-05-25)
 
 
