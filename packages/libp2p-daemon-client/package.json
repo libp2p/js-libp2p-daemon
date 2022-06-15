@@ -130,7 +130,7 @@
     "release": "aegir release"
   },
   "dependencies": {
-    "@libp2p/daemon-protocol": "^1.0.0",
+    "@libp2p/daemon-protocol": "^2.0.0",
     "@libp2p/interface-peer-id": "^1.0.2",
     "@libp2p/interface-peer-info": "^1.0.1",
     "@libp2p/logger": "^2.0.0",
@@ -143,7 +143,7 @@
   },
   "devDependencies": {
     "@libp2p/components": "^1.0.0",
-    "@libp2p/daemon-server": "^1.0.0",
+    "@libp2p/daemon-server": "^2.0.0",
     "@libp2p/interface-compliance-tests": "^3.0.1",
     "@libp2p/interface-dht": "^1.0.0",
     "@libp2p/interface-mocks": "^1.0.1",

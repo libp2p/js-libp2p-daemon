@@ -132,7 +132,7 @@
     "release": "aegir release"
   },
   "dependencies": {
-    "@libp2p/daemon-server": "^1.0.0",
+    "@libp2p/daemon-server": "^2.0.0",
     "@multiformats/multiaddr": "^10.1.8",
     "es-main": "^1.0.2",
     "yargs": "^17.3.1",
