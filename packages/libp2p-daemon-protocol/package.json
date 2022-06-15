@@ -36,18 +36,21 @@
   },
   "files": [
     "src",
-    "dist",
+    "dist/src",
     "!dist/test",
     "!**/*.tsbuildinfo"
   ],
   "exports": {
     ".": {
+      "types": "./src/index.d.ts",
       "import": "./dist/src/index.js"
     },
     "./stream-handler": {
+      "types": "./dist/src/stream-handler.d.ts",
       "import": "./dist/src/stream-handler.js"
     },
     "./upgrader": {
+      "types": "./dist/src/upgrader.d.ts",
       "import": "./dist/src/upgrader.js"
     }
   },
@@ -150,10 +153,12 @@
     "release": "aegir release"
   },
   "dependencies": {
+    "@libp2p/interface-transport": "^1.0.0",
+    "it-handshake": "^4.0.0",
     "protons-runtime": "^1.0.4"
   },
   "devDependencies": {
-    "aegir": "^37.0.14",
+    "aegir": "^37.2.0",
     "protons": "^3.0.4"
   }
 }

@@ -5,12 +5,12 @@ import { StreamHandler } from '@libp2p/daemon-protocol/stream-handler'
 import { Multiaddr } from '@multiformats/multiaddr'
 import { DHT } from './dht.js'
 import { Pubsub } from './pubsub.js'
-import { isPeerId, PeerId } from '@libp2p/interfaces/peer-id'
+import { isPeerId, PeerId } from '@libp2p/interface-peer-id'
 import { passThroughUpgrader } from '@libp2p/daemon-protocol/upgrader'
 import { peerIdFromBytes } from '@libp2p/peer-id'
 import type { Duplex } from 'it-stream-types'
 import type { CID } from 'multiformats/cid'
-import type { PeerInfo } from '@libp2p/interfaces/peer-info'
+import type { PeerInfo } from '@libp2p/interface-peer-info'
 
 class Client implements DaemonClient {
   private readonly multiaddr: Multiaddr

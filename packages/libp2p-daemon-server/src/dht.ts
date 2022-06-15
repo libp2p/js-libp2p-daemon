@@ -4,8 +4,8 @@ import {
   DHTResponse
 } from '@libp2p/daemon-protocol'
 import { ErrorResponse, OkResponse } from './responses.js'
-import type { PeerId } from '@libp2p/interfaces/peer-id'
-import type { DualDHT } from '@libp2p/interfaces/dht'
+import type { PeerId } from '@libp2p/interface-peer-id'
+import type { DualDHT } from '@libp2p/interface-dht'
 import type { CID } from 'multiformats/cid'
 import drain from 'it-drain'
 import { logger } from '@libp2p/logger'
