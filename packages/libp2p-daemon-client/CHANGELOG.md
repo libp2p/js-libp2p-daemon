@@ -1,3 +1,10 @@
+## [@libp2p/daemon-client-v2.0.2](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v2.0.1...@libp2p/daemon-client-v2.0.2) (2022-06-17)
+
+
+### Trivial Changes
+
+* update deps ([#105](https://github.com/libp2p/js-libp2p-daemon/issues/105)) ([0bdab0e](https://github.com/libp2p/js-libp2p-daemon/commit/0bdab0ee254e32d6dca0e5fe239d4ef16db41b87))
+
 ## [@libp2p/daemon-client-v2.0.1](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v2.0.0...@libp2p/daemon-client-v2.0.1) (2022-06-15)
 
 
