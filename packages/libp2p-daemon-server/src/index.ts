@@ -122,13 +122,13 @@ export class Server implements Libp2pServer {
     const peerId = peerIdFromBytes(peer)
 
     const connection = await this.libp2p.dial(peerId)
-    const { stream, protocol } = await connection.newStream(proto)
+    const stream = await connection.newStream(proto)
 
     return {
       streamInfo: {
         peer: peerId.toBytes(),
         addr: connection.remoteAddr.bytes,
-        proto: protocol
+        proto: stream.stat.protocol ?? ''
       },
       connection: stream
     }
@@ -157,11 +157,11 @@ export class Server implements Libp2pServer {
     await Promise.all(
       protocols.map(async (proto) => {
         // Connect the client socket with the libp2p connection
-        await this.libp2p.handle(proto, ({ connection, stream, protocol }) => {
+        await this.libp2p.handle(proto, ({ connection, stream }) => {
           const message = StreamInfo.encode({
             peer: connection.remotePeer.toBytes(),
             addr: connection.remoteAddr.bytes,
-            proto: protocol
+            proto: stream.stat.protocol ?? ''
           })
           const encodedMessage = lp.encode.single(message)
 
