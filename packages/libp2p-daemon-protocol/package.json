@@ -155,7 +155,7 @@
   "dependencies": {
     "@libp2p/interface-transport": "^1.0.0",
     "it-handshake": "^4.0.0",
-    "protons-runtime": "^1.0.4"
+    "protons-runtime": "^2.0.1"
   },
   "devDependencies": {
     "aegir": "^37.2.0",
