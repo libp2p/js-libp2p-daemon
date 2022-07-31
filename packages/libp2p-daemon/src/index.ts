@@ -6,7 +6,6 @@ import yargs from 'yargs'
 // @ts-expect-error no types
 import YargsPromise from 'yargs-promise'
 import type { Libp2pServer } from '@libp2p/daemon-server'
-// @ts-expect-error no types
 import esMain from 'es-main'
 
 const args = process.argv.slice(2)

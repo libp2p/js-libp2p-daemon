@@ -169,6 +169,8 @@ export class Server implements Libp2pServer {
           // And then begin piping the client and peer connection
           void pipe(
             [encodedMessage, stream.source],
+            // @ts-expect-error because we use a passthrough upgrader,
+            // this is actually a MultiaddrConnection and not a Connection
             clientConnection,
             stream.sink
           ).catch(err => {

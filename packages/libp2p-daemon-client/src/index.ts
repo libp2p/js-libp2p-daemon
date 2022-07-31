@@ -11,6 +11,7 @@ import { peerIdFromBytes } from '@libp2p/peer-id'
 import type { Duplex } from 'it-stream-types'
 import type { CID } from 'multiformats/cid'
 import type { PeerInfo } from '@libp2p/interface-peer-info'
+import type { MultiaddrConnection } from '@libp2p/interface-connection'
 
 class Client implements DaemonClient {
   private readonly multiaddr: Multiaddr
@@ -33,7 +34,9 @@ class Client implements DaemonClient {
    * @async
    * @returns {MultiaddrConnection}
    */
-  async connectDaemon () {
+  async connectDaemon (): Promise<MultiaddrConnection> {
+    // @ts-expect-error because we use a passthrough upgrader,
+    // this is actually a MultiaddrConnection and not a Connection
     return await this.tcp.dial(this.multiaddr, {
       upgrader: passThroughUpgrader
     })
