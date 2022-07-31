@@ -128,7 +128,7 @@ export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Pro
   throw new Error('Not implemented yet')
 }
 
-if (esMain(import.meta) === true) {
+if (esMain(import.meta)) {
   main(process.argv)
     .catch((err) => {
       console.error(err)
