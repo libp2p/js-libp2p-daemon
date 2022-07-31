@@ -1,3 +1,15 @@
+## [@libp2p/daemon-protocol-v2.0.1](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-v2.0.0...@libp2p/daemon-protocol-v2.0.1) (2022-07-31)
+
+
+### Trivial Changes
+
+* update project config ([#111](https://github.com/libp2p/js-libp2p-daemon/issues/111)) ([345e663](https://github.com/libp2p/js-libp2p-daemon/commit/345e663e34278e780fc2f3a6b595294f925c4521))
+
+
+### Dependencies
+
+* update uint8arraylist and protons deps ([#115](https://github.com/libp2p/js-libp2p-daemon/issues/115)) ([34a8334](https://github.com/libp2p/js-libp2p-daemon/commit/34a83340ba855a9c08319ae1cd735dfa8b71c248))
+
 ## [@libp2p/daemon-protocol-v2.0.0](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-v1.0.6...@libp2p/daemon-protocol-v2.0.0) (2022-06-15)
 
 
