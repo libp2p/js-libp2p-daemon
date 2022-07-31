@@ -57,7 +57,7 @@ export class PubSubOperations {
           topicIDs: [msg.topic],
           signature: msg.signature,
           key: msg.key
-        }))
+        }).subarray())
       })
 
       yield OkResponse()

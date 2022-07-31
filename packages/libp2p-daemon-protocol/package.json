@@ -159,10 +159,11 @@
   "dependencies": {
     "@libp2p/interface-transport": "^1.0.0",
     "it-handshake": "^4.0.0",
-    "protons-runtime": "^1.0.4"
+    "protons-runtime": "^2.0.2",
+    "uint8arraylist": "^2.0.0"
   },
   "devDependencies": {
     "aegir": "^37.2.0",
-    "protons": "^3.0.4"
+    "protons": "^4.0.1"
   }
 }
