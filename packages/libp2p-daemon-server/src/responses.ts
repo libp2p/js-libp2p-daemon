@@ -8,7 +8,7 @@ export function OkResponse (data?: Partial<Response>): Uint8Array {
     type: Response.Type.OK,
     peers: [],
     ...data
-  })
+  }).subarray()
 }
 
 /**
@@ -21,5 +21,5 @@ export function ErrorResponse (err: Error): Uint8Array {
       msg: err.message
     },
     peers: []
-  })
+  }).subarray()
 }
