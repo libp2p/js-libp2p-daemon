@@ -1,3 +1,15 @@
+## [@libp2p/daemon-server-v2.0.4](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v2.0.3...@libp2p/daemon-server-v2.0.4) (2022-08-10)
+
+
+### Bug Fixes
+
+* update all deps ([#124](https://github.com/libp2p/js-libp2p-daemon/issues/124)) ([5e46e1e](https://github.com/libp2p/js-libp2p-daemon/commit/5e46e1e26c23428046a6007ab158420d3d830145))
+
+
+### Documentation
+
+* readme update ([f569ffc](https://github.com/libp2p/js-libp2p-daemon/commit/f569ffc5c3956248e685d99904408fd3f4d868f4))
+
 ## [@libp2p/daemon-server-v2.0.3](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v2.0.2...@libp2p/daemon-server-v2.0.3) (2022-07-31)
 
 
