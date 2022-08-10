@@ -198,7 +198,7 @@ describe('daemon dht client', function () {
       const cid = CID.parse('QmVzw6MPsF96TyXBSRs1ptLoVMWRv5FCYJZZGJSVB2Hp38')
       const id = peerIdFromString('12D3KooWJKCJW8Y26pRFNv78TCMGLNTfyN8oKaFswMRYXTzSbSsa')
 
-      dht.getClosestPeers.withArgs(cid.bytes).returns(async function * () {
+      dht.getClosestPeers.returns(async function * () {
         const event: PeerResponseEvent = {
           name: 'PEER_RESPONSE',
           type: EventTypes.PEER_RESPONSE,

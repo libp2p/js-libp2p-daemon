@@ -50,14 +50,21 @@ export class PubSubOperations {
           return
         }
 
-        onMessage.push(PSMessage.encode({
-          from: msg.from.toBytes(),
-          data: msg.data,
-          seqno: msg.sequenceNumber == null ? undefined : uint8ArrayFromString(msg.sequenceNumber.toString(16).padStart(16, '0'), 'base16'),
-          topicIDs: [msg.topic],
-          signature: msg.signature,
-          key: msg.key
-        }).subarray())
+        if (msg.type === 'signed') {
+          onMessage.push(PSMessage.encode({
+            from: msg.from.toBytes(),
+            data: msg.data,
+            seqno: msg.sequenceNumber == null ? undefined : uint8ArrayFromString(msg.sequenceNumber.toString(16).padStart(16, '0'), 'base16'),
+            topicIDs: [msg.topic],
+            signature: msg.signature,
+            key: msg.key
+          }).subarray())
+        } else {
+          onMessage.push(PSMessage.encode({
+            data: msg.data,
+            topicIDs: [msg.topic]
+          }).subarray())
+        }
       })
 
       yield OkResponse()
