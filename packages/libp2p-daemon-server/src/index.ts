@@ -443,6 +443,11 @@ export class Server implements Libp2pServer {
                 await pipe(
                   stream,
                   response.connection,
+                  async function * (source) {
+                    for await (const list of source) {
+                      yield * list
+                    }
+                  },
                   stream
                 )
                 // Exit the iterator, no more requests can come through
