@@ -34,7 +34,7 @@ import { createServer } from '@libp2p/daemon-server'
 import { createLibp2p } from 'libp2p'
 
 const libp2p = await createLibp2p({
-  // .. config
+  // ..config
 })
 
 const multiaddr = new Multiaddr('/ip4/0.0.0.0/tcp/0')
