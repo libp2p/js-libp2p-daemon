@@ -159,7 +159,7 @@
   "dependencies": {
     "@libp2p/interface-transport": "^1.0.0",
     "it-handshake": "^4.0.0",
-    "protons-runtime": "^2.0.2",
+    "protons-runtime": "^3.0.1",
     "uint8arraylist": "^2.0.0"
   },
   "devDependencies": {
