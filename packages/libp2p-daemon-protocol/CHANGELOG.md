@@ -1,3 +1,14 @@
+## [@libp2p/daemon-protocol-v3.0.0](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-v2.0.2...@libp2p/daemon-protocol-v3.0.0) (2022-09-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* the stream type returned by `client.openStream` has changed
+
+### Bug Fixes
+
+* allow opening remote streams ([#126](https://github.com/libp2p/js-libp2p-daemon/issues/126)) ([361cc57](https://github.com/libp2p/js-libp2p-daemon/commit/361cc5750de505ab0381ae43609c67d5d4f659a7))
+
 ## [@libp2p/daemon-protocol-v2.0.2](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-v2.0.1...@libp2p/daemon-protocol-v2.0.2) (2022-08-10)
 
 
