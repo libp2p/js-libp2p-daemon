@@ -1,6 +1,7 @@
 #! /usr/bin/env node
 /* eslint no-console: ["error", { allow: ["log", "warn", "error"] }] */
 
+import { promises as fs } from 'fs'
 import { Multiaddr } from '@multiformats/multiaddr'
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
@@ -14,6 +15,8 @@ import { WebSockets } from '@libp2p/websockets'
 import { Bootstrap } from '@libp2p/bootstrap'
 import { GossipSub } from '@chainsafe/libp2p-gossipsub'
 import { FloodSub } from '@libp2p/floodsub'
+import { unmarshalPrivateKey } from '@libp2p/crypto/keys'
+import { createFromPrivKey } from '@libp2p/peer-id-factory'
 
 const log = console.log
 
@@ -131,14 +134,22 @@ export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Pro
     streamMuxers: [ new Mplex() ]
   }
 
-	if (argv.bootstrap) {
-		options.peerDiscovery = [
+  if (argv.id) {
+    const marshaledKey: Buffer = await fs.readFile(argv.id);
+    const unmarshaledKey = await unmarshalPrivateKey(marshaledKey)
+    const peerId = await createFromPrivKey(unmarshaledKey)
+
+    options.peerId = peerId;
+  }
+
+  if (argv.bootstrap) {
+    options.peerDiscovery = [
       new Bootstrap({
         interval: 60e3,
         list: argv.bootstrapPeers.split(",")
       })
     ]
-	}
+  }
 
   if (argv.pubsub) {
     switch (argv.pubsubRouter) {
