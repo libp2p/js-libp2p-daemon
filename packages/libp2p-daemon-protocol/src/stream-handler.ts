@@ -14,7 +14,7 @@ export interface StreamHandlerOptions {
 
 export class StreamHandler {
   private readonly stream: Duplex<Uint8Array>
-  private readonly shake: Handshake
+  private readonly shake: Handshake<Uint8Array>
   public decoder: Source<Uint8ArrayList>
   /**
    * Create a stream handler for connection
@@ -54,7 +54,7 @@ export class StreamHandler {
    */
   rest () {
     this.shake.rest()
-    return this.shake.stream
+    return this.shake.stream as Duplex<Uint8Array | Uint8ArrayList>
   }
 
   /**

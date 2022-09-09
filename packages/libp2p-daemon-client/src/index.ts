@@ -175,7 +175,7 @@ class Client implements DaemonClient {
       throw errcode(new Error(response.error?.msg ?? 'Open stream failed'), 'ERR_OPEN_STREAM_FAILED')
     }
 
-    return sh.rest()
+    return sh.rest() as Duplex<Uint8Array>
   }
 
   /**
