@@ -15,7 +15,7 @@ import {
   StreamInfo
 } from '@libp2p/daemon-protocol'
 import type { Listener } from '@libp2p/interface-transport'
-import type { Connection, Stream } from '@libp2p/interface-connection'
+import type { Connection, MultiaddrConnection, Stream } from '@libp2p/interface-connection'
 import type { PeerId } from '@libp2p/interface-peer-id'
 import type { AbortOptions } from '@libp2p/interfaces'
 import type { StreamHandler as StreamCallback } from '@libp2p/interface-registrar'
@@ -67,7 +67,6 @@ export class Server implements Libp2pServer {
   private readonly libp2p: Libp2p
   private readonly tcp: TCP
   private readonly listener: Listener
-  private readonly streamHandlers: Record<string, StreamHandler>
   private readonly dhtOperations?: DHTOperations
   private readonly pubsubOperations?: PubSubOperations
 
@@ -81,7 +80,6 @@ export class Server implements Libp2pServer {
       handler: this.handleConnection.bind(this),
       upgrader: passThroughUpgrader
     })
-    this.streamHandlers = {}
     this._onExit = this._onExit.bind(this)
 
     if (libp2pNode.dht != null) {
@@ -118,9 +116,7 @@ export class Server implements Libp2pServer {
     }
 
     const { peer, proto } = request.streamOpen
-
     const peerId = peerIdFromBytes(peer)
-
     const connection = await this.libp2p.dial(peerId)
     const stream = await connection.newStream(proto)
 
@@ -146,18 +142,18 @@ export class Server implements Libp2pServer {
 
     const protocols = request.streamHandler.proto
     const addr = new Multiaddr(request.streamHandler.addr)
-    const addrString = addr.toString()
+    let conn: MultiaddrConnection
 
-    // If we have a handler, end it
-    if (this.streamHandlers[addrString] != null) {
-      await this.streamHandlers[addrString].close()
-      delete this.streamHandlers[addrString] // eslint-disable-line @typescript-eslint/no-dynamic-delete
-    }
+    await this.libp2p.handle(protocols, ({ connection, stream }) => {
+      Promise.resolve()
+        .then(async () => {
+          // Connect the client socket with the libp2p connection
+          // @ts-expect-error because we use a passthrough upgrader,
+          // this is actually a MultiaddrConnection and not a Connection
+          conn = await this.tcp.dial(addr, {
+            upgrader: passThroughUpgrader
+          })
 
-    await Promise.all(
-      protocols.map(async (proto) => {
-        // Connect the client socket with the libp2p connection
-        await this.libp2p.handle(proto, ({ connection, stream }) => {
           const message = StreamInfo.encode({
             peer: connection.remotePeer.toBytes(),
             addr: connection.remoteAddr.bytes,
@@ -167,21 +163,36 @@ export class Server implements Libp2pServer {
 
           // Tell the client about the new connection
           // And then begin piping the client and peer connection
-          void pipe(
-            [encodedMessage, stream.source],
-            // @ts-expect-error because we use a passthrough upgrader,
-            // this is actually a MultiaddrConnection and not a Connection
-            clientConnection,
+          await pipe(
+            (async function * () {
+              yield encodedMessage
+              yield * stream.source
+            }()),
+            async function * (source) {
+              for await (const list of source) {
+                // convert Uint8ArrayList to Uint8Arrays for the socket
+                yield * list
+              }
+            },
+            conn,
             stream.sink
-          ).catch(err => {
-            log.error(err)
-          })
+          )
         })
-      })
-    )
+        .catch(async err => {
+          log.error(err)
 
-    const clientConnection = await this.tcp.dial(addr, {
-      upgrader: passThroughUpgrader
+          if (conn != null) {
+            await conn.close(err)
+          }
+        })
+        .finally(() => {
+          if (conn != null) {
+            conn.close()
+              .catch(err => {
+                log.error(err)
+              })
+          }
+        })
     })
   }
 
