@@ -4,8 +4,6 @@
 import { Multiaddr } from '@multiformats/multiaddr'
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
-// @ts-expect-error no types
-import YargsPromise from 'yargs-promise'
 import esMain from 'es-main'
 import { Libp2p, createLibp2p, Libp2pOptions } from 'libp2p'
 import { Noise } from '@chainsafe/libp2p-noise'
