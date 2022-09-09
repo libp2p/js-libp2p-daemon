@@ -3,18 +3,16 @@
 
 import { Multiaddr } from '@multiformats/multiaddr'
 import yargs from 'yargs'
+import { hideBin } from 'yargs/helpers'
 // @ts-expect-error no types
 import YargsPromise from 'yargs-promise'
 import type { Libp2pServer } from '@libp2p/daemon-server'
 import esMain from 'es-main'
 
-const args = process.argv.slice(2)
-const parser = new YargsPromise(yargs)
-
 const log = console.log
 
 export default async function main (processArgs: string[]) {
-  parser.yargs
+  const argv: { [key: string]: any } = yargs(hideBin(process.argv))
     .option('listen', {
       desc: 'daemon control listen multiaddr',
       type: 'string',
@@ -95,22 +93,14 @@ export default async function main (processArgs: string[]) {
         throw err // preserve stack
       }
 
-      if (args.length > 0) {
+      if (hideBin(process.argv).length > 0) {
         // eslint-disable-next-line
         log(msg)
       }
 
       yargs.showHelp()
     })
-
-  const { data, argv } = await parser.parse(processArgs)
-
-  if (data != null) {
-    // Log help and exit
-    // eslint-disable-next-line
-    log(data)
-    process.exit(0)
-  }
+		.parse()
 
   const daemon = await createLibp2pServer(new Multiaddr(argv.listen), argv)
   await daemon.start()
@@ -124,8 +114,6 @@ export default async function main (processArgs: string[]) {
 export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Promise<Libp2pServer> {
   // const libp2p = await createLibp2p(argv)
   // const daemon = await createServer(new Multiaddr(argv.listen), libp2p)
-
-  throw new Error('Not implemented yet')
 }
 
 if (esMain(import.meta)) {
