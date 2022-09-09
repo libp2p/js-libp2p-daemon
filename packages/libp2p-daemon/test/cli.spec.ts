@@ -4,7 +4,7 @@ import { expect } from 'aegir/chai'
 import sinon from 'sinon'
 import cli from '../src/index.js'
 
-describe.skip('cli', () => {
+describe('cli', () => {
   const daemon = { createDaemon: (options: any) => {} }
 
   afterEach(() => {
