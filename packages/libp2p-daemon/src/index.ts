@@ -5,6 +5,7 @@ import { Multiaddr } from '@multiformats/multiaddr'
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
 import esMain from 'es-main'
+import { createServer, Libp2pServer } from '@libp2p/daemon-server'
 import { Libp2p, createLibp2p, Libp2pOptions } from 'libp2p'
 import { Noise } from '@chainsafe/libp2p-noise'
 import { Mplex } from '@libp2p/mplex'
@@ -116,7 +117,7 @@ export default async function main (processArgs: string[]) {
   }
 }
 
-export function createLibp2pServer (listenAddr: Multiaddr, argv: any): Promise<Libp2p> {
+export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Promise<Libp2pServer> {
   const options: Libp2pOptions = {
     addresses: {
       listen: argv.hostAddrs.split(",")
@@ -150,7 +151,10 @@ export function createLibp2pServer (listenAddr: Multiaddr, argv: any): Promise<L
     }
   }
 
-  return createLibp2p(options)
+	const libp2p: Libp2p = await createLibp2p(options);
+  const daemon: Libp2pServer = await createServer(new Multiaddr(argv.listen), libp2p)
+
+  return daemon;
 }
 
 if (esMain(import.meta)) {
