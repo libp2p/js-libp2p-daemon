@@ -126,20 +126,19 @@ export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Pro
       announce: argv.announceAddrs.split(",")
     },
 
-    transports: [
-      new TCP(),
-      new WebSockets()
-    ],
+    transports: [ new TCP(), new WebSockets() ],
+    connectionEncryption: [ new Noise() ],
+    streamMuxers: [ new Mplex() ]
+  }
 
-    connectionEncryption: [new Noise()],
-    streamMuxers: [new Mplex()],
-    peerDiscovery: [
+	if (argv.bootstrap) {
+		options.peerDiscovery = [
       new Bootstrap({
         interval: 60e3,
         list: argv.bootstrapPeers.split(",")
       })
     ]
-  }
+	}
 
   if (argv.pubsub) {
     switch (argv.pubsubRouter) {
