@@ -6,8 +6,12 @@ import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
 // @ts-expect-error no types
 import YargsPromise from 'yargs-promise'
-import type { Libp2pServer } from '@libp2p/daemon-server'
 import esMain from 'es-main'
+import { Libp2p, createLibp2p } from 'libp2p'
+import { Noise } from "@chainsafe/libp2p-noise";
+import { Mplex } from "@libp2p/mplex";
+import { TCP } from "@libp2p/tcp";
+import { Bootstrap } from "@libp2p/bootstrap";
 
 const log = console.log
 
@@ -111,9 +115,25 @@ export default async function main (processArgs: string[]) {
   }
 }
 
-export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Promise<Libp2pServer> {
-  // const libp2p = await createLibp2p(argv)
-  // const daemon = await createServer(new Multiaddr(argv.listen), libp2p)
+export function createLibp2pServer (listenAddr: Multiaddr, argv: any): Promise<Libp2p> {
+  return createLibp2p({
+		addresses: {
+			listen: argv.hostAddrs.split(",")
+		},
+
+		transports: [
+			new TCP()
+		],
+
+		connectionEncryption: [new Noise()],
+		streamMuxers: [new Mplex()],
+		peerDiscovery: [
+			new Bootstrap({
+				interval: 60e3,
+				list: argv.bootstrapPeers.split(",")
+			})
+		]
+	})
 }
 
 if (esMain(import.meta)) {
