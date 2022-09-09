@@ -8,10 +8,11 @@ import { hideBin } from 'yargs/helpers'
 import YargsPromise from 'yargs-promise'
 import esMain from 'es-main'
 import { Libp2p, createLibp2p } from 'libp2p'
-import { Noise } from "@chainsafe/libp2p-noise";
-import { Mplex } from "@libp2p/mplex";
-import { TCP } from "@libp2p/tcp";
-import { Bootstrap } from "@libp2p/bootstrap";
+import { Noise } from '@chainsafe/libp2p-noise'
+import { Mplex } from '@libp2p/mplex'
+import { TCP } from '@libp2p/tcp'
+import { WebSockets } from '@libp2p/websockets'
+import { Bootstrap } from '@libp2p/bootstrap'
 
 const log = console.log
 
@@ -116,24 +117,27 @@ export default async function main (processArgs: string[]) {
 }
 
 export function createLibp2pServer (listenAddr: Multiaddr, argv: any): Promise<Libp2p> {
-  return createLibp2p({
-		addresses: {
-			listen: argv.hostAddrs.split(",")
-		},
+  const options = {
+    addresses: {
+      listen: argv.hostAddrs.split(",")
+    },
 
-		transports: [
-			new TCP()
-		],
+    transports: [
+      new TCP(),
+      new WebSockets()
+    ],
 
-		connectionEncryption: [new Noise()],
-		streamMuxers: [new Mplex()],
-		peerDiscovery: [
-			new Bootstrap({
-				interval: 60e3,
-				list: argv.bootstrapPeers.split(",")
-			})
-		]
-	})
+    connectionEncryption: [new Noise()],
+    streamMuxers: [new Mplex()],
+    peerDiscovery: [
+      new Bootstrap({
+        interval: 60e3,
+        list: argv.bootstrapPeers.split(",")
+      })
+    ]
+  }
+
+  return createLibp2p(options)
 }
 
 if (esMain(import.meta)) {
