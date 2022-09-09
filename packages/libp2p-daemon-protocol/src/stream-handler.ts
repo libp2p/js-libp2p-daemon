@@ -14,7 +14,7 @@ export interface StreamHandlerOptions {
 
 export class StreamHandler {
   private readonly stream: Duplex<Uint8Array>
-  private readonly shake: Handshake
+  private readonly shake: Handshake<Uint8Array>
   public decoder: Source<Uint8ArrayList>
   /**
    * Create a stream handler for connection
@@ -34,7 +34,7 @@ export class StreamHandler {
     // @ts-expect-error decoder is really a generator
     const msg = await this.decoder.next()
     if (msg.value != null) {
-      return msg.value.slice()
+      return msg.value.subarray()
     }
 
     log('read received no value, closing stream')
