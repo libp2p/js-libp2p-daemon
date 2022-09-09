@@ -7,12 +7,14 @@ import { hideBin } from 'yargs/helpers'
 // @ts-expect-error no types
 import YargsPromise from 'yargs-promise'
 import esMain from 'es-main'
-import { Libp2p, createLibp2p } from 'libp2p'
+import { Libp2p, createLibp2p, Libp2pOptions } from 'libp2p'
 import { Noise } from '@chainsafe/libp2p-noise'
 import { Mplex } from '@libp2p/mplex'
 import { TCP } from '@libp2p/tcp'
 import { WebSockets } from '@libp2p/websockets'
 import { Bootstrap } from '@libp2p/bootstrap'
+import { GossipSub } from '@chainsafe/libp2p-gossipsub'
+import { FloodSub } from '@libp2p/floodsub'
 
 const log = console.log
 
@@ -117,7 +119,7 @@ export default async function main (processArgs: string[]) {
 }
 
 export function createLibp2pServer (listenAddr: Multiaddr, argv: any): Promise<Libp2p> {
-  const options = {
+  const options: Libp2pOptions = {
     addresses: {
       listen: argv.hostAddrs.split(",")
     },
@@ -135,6 +137,19 @@ export function createLibp2pServer (listenAddr: Multiaddr, argv: any): Promise<L
         list: argv.bootstrapPeers.split(",")
       })
     ]
+  }
+
+  if (argv.pubsub) {
+    switch (argv.pubsubRouter) {
+      case "gossipsub":
+        options.pubsub = new GossipSub({ allowPublishToZeroPeers: true })
+        break
+      case "floodsub":
+        options.pubsub = new FloodSub()
+        break
+      default:
+        throw new Error("invalid pubsubRouter type")
+    }
   }
 
   return createLibp2p(options)

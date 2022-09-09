@@ -136,9 +136,11 @@
     "release": "aegir release"
   },
   "dependencies": {
+    "@chainsafe/libp2p-gossipsub": "^4.1.1",
     "@chainsafe/libp2p-noise": "^8.0.1",
     "@libp2p/bootstrap": "^2.0.0",
     "@libp2p/daemon-server": "^2.0.0",
+    "@libp2p/floodsub": "^3.0.7",
     "@libp2p/mplex": "^5.2.1",
     "@libp2p/tcp": "^3.0.6",
     "@libp2p/websockets": "^3.0.3",
