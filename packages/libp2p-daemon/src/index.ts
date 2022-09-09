@@ -18,11 +18,13 @@ import { FloodSub } from '@libp2p/floodsub'
 const log = console.log
 
 export default async function main (processArgs: string[]) {
-  const argv: { [key: string]: any } = yargs(hideBin(process.argv))
+  const argv: { [key: string]: any } = yargs(hideBin(processArgs))
     .option('listen', {
       desc: 'daemon control listen multiaddr',
       type: 'string',
-      default: '/unix/tmp/p2pd.sock'
+      //default: '/unix/tmp/p2pd.sock'
+      // UNIX sockets are not supported by @libp2p/tcp yet...
+      default: '/ip4/127.0.0.1/tcp/0'
     })
     .option('quiet', {
       alias: 'q',
@@ -99,7 +101,7 @@ export default async function main (processArgs: string[]) {
         throw err // preserve stack
       }
 
-      if (hideBin(process.argv).length > 0) {
+      if (hideBin(processArgs).length > 0) {
         // eslint-disable-next-line
         log(msg)
       }
@@ -151,8 +153,8 @@ export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Pro
     }
   }
 
-	const libp2p: Libp2p = await createLibp2p(options);
-  const daemon: Libp2pServer = await createServer(new Multiaddr(argv.listen), libp2p)
+  const libp2p: Libp2p = await createLibp2p(options);
+  const daemon: Libp2pServer = createServer(listenAddr, libp2p)
 
   return daemon;
 }
