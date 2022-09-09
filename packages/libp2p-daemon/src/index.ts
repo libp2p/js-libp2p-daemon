@@ -122,7 +122,8 @@ export default async function main (processArgs: string[]) {
 export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Promise<Libp2pServer> {
   const options: Libp2pOptions = {
     addresses: {
-      listen: argv.hostAddrs.split(",")
+      listen: argv.hostAddrs.split(","),
+      announce: argv.announceAddrs.split(",")
     },
 
     transports: [
