@@ -26,7 +26,7 @@ export default async function main (processArgs: string[]) {
     .option('listen', {
       desc: 'daemon control listen multiaddr',
       type: 'string',
-      //default: '/unix/tmp/p2pd.sock'
+      // default: '/unix/tmp/p2pd.sock'
       // UNIX sockets are not supported by @libp2p/tcp yet...
       default: '/ip4/127.0.0.1/tcp/0'
     })
@@ -112,7 +112,7 @@ export default async function main (processArgs: string[]) {
 
       yargs.showHelp()
     })
-		.parse()
+    .parse()
 
   const daemon = await createLibp2pServer(new Multiaddr(argv.listen), argv)
   await daemon.start()
@@ -127,57 +127,57 @@ export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Pro
   // Minimum libp2p setup.
   const options: Libp2pOptions = {
     addresses: {
-      listen: argv.hostAddrs.split(","),
-      announce: argv.announceAddrs.split(",")
+      listen: argv.hostAddrs.split(','),
+      announce: argv.announceAddrs.split(',')
     },
 
-    transports: [ new TCP(), new WebSockets() ],
-    connectionEncryption: [ new Noise() ],
-    streamMuxers: [ new Mplex() ]
+    transports: [new TCP(), new WebSockets()],
+    connectionEncryption: [new Noise()],
+    streamMuxers: [new Mplex()]
   }
 
   // Load key file as peer ID.
-  if (argv.id) {
-    const marshaledKey: Buffer = await fs.readFile(argv.id);
+  if (argv.id == null) {
+    const marshaledKey: Buffer = await fs.readFile(argv.id)
     const unmarshaledKey = await unmarshalPrivateKey(marshaledKey)
     const peerId = await createFromPrivKey(unmarshaledKey)
 
-    options.peerId = peerId;
+    options.peerId = peerId
   }
 
   // Enable bootstrap peers.
-  if (argv.bootstrap) {
+  if (argv.bootstrap == null) {
     options.peerDiscovery = [
       new Bootstrap({
         interval: 60e3,
-        list: argv.bootstrapPeers.split(",")
+        list: argv.bootstrapPeers.split(',')
       })
     ]
   }
 
   // Configure PubSub
-  if (argv.pubsub) {
+  if (argv.pubsub == null) {
     switch (argv.pubsubRouter) {
-      case "gossipsub":
+      case 'gossipsub':
         options.pubsub = new GossipSub({ allowPublishToZeroPeers: true })
         break
-      case "floodsub":
+      case 'floodsub':
         options.pubsub = new FloodSub()
         break
       default:
-        throw new Error("invalid pubsubRouter type")
+        throw new Error('invalid pubsubRouter type')
     }
   }
 
   // Enable DHT
-  if (argv.dht) {
+  if (argv.dht == null) {
     options.dht = new KadDHT()
   }
 
-  const libp2p: Libp2p = await createLibp2p(options);
+  const libp2p: Libp2p = await createLibp2p(options)
   const daemon: Libp2pServer = createServer(listenAddr, libp2p)
 
-  return daemon;
+  return daemon
 }
 
 if (esMain(import.meta)) {
