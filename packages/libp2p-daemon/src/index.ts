@@ -17,6 +17,7 @@ import { GossipSub } from '@chainsafe/libp2p-gossipsub'
 import { FloodSub } from '@libp2p/floodsub'
 import { unmarshalPrivateKey } from '@libp2p/crypto/keys'
 import { createFromPrivKey } from '@libp2p/peer-id-factory'
+import { KadDHT } from '@libp2p/kad-dht'
 
 const log = console.log
 
@@ -162,6 +163,10 @@ export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Pro
       default:
         throw new Error("invalid pubsubRouter type")
     }
+  }
+
+  if (argv.dht) {
+    options.dht = new KadDHT()
   }
 
   const libp2p: Libp2p = await createLibp2p(options);

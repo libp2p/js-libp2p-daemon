@@ -142,6 +142,7 @@
     "@libp2p/crypto": "^1.0.4",
     "@libp2p/daemon-server": "^2.0.0",
     "@libp2p/floodsub": "^3.0.7",
+    "@libp2p/kad-dht": "^3.0.4",
     "@libp2p/mplex": "^5.2.1",
     "@libp2p/peer-id-factory": "^1.0.18",
     "@libp2p/tcp": "^3.0.6",
