@@ -73,7 +73,7 @@ export default async function main (processArgs: string[]) {
       default: false
     })
     .option('nat', {
-      desc: 'Enables UPnP NAT hole punching',
+      desc: '(Not yet supported) Enables UPnP NAT hole punching',
       type: 'boolean',
       default: false
     })
@@ -124,6 +124,7 @@ export default async function main (processArgs: string[]) {
 }
 
 export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Promise<Libp2pServer> {
+  // Minimum libp2p setup.
   const options: Libp2pOptions = {
     addresses: {
       listen: argv.hostAddrs.split(","),
@@ -135,6 +136,7 @@ export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Pro
     streamMuxers: [ new Mplex() ]
   }
 
+  // Load key file as peer ID.
   if (argv.id) {
     const marshaledKey: Buffer = await fs.readFile(argv.id);
     const unmarshaledKey = await unmarshalPrivateKey(marshaledKey)
@@ -143,6 +145,7 @@ export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Pro
     options.peerId = peerId;
   }
 
+  // Enable bootstrap peers.
   if (argv.bootstrap) {
     options.peerDiscovery = [
       new Bootstrap({
@@ -152,6 +155,7 @@ export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Pro
     ]
   }
 
+  // Configure PubSub
   if (argv.pubsub) {
     switch (argv.pubsubRouter) {
       case "gossipsub":
@@ -165,6 +169,7 @@ export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Pro
     }
   }
 
+  // Enable DHT
   if (argv.dht) {
     options.dht = new KadDHT()
   }
