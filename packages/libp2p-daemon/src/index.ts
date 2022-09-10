@@ -28,7 +28,7 @@ export default async function main (processArgs: string[]) {
       type: 'string',
       // default: '/unix/tmp/p2pd.sock'
       // UNIX sockets are not supported by @libp2p/tcp yet...
-      default: '/ip4/127.0.0.1/tcp/0'
+      default: '/ip4/127.0.0.1/tcp/1234'
     })
     .option('quiet', {
       alias: 'q',
