@@ -85,6 +85,7 @@ describe('daemon stream client', function () {
       async (source) => await all(source)
     )
 
+    expect(data).to.have.lengthOf(1)
     expect(uint8ArrayToString(data[0].subarray())).to.equal('hello world')
   })
 })

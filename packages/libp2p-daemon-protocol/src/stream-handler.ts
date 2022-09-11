@@ -34,7 +34,7 @@ export class StreamHandler {
     // @ts-expect-error decoder is really a generator
     const msg = await this.decoder.next()
     if (msg.value != null) {
-      return msg.value.slice()
+      return msg.value.subarray()
     }
 
     log('read received no value, closing stream')

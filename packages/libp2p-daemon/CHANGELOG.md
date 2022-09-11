@@ -1,3 +1,15 @@
+## [@libp2p/daemon-v2.0.2](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-v2.0.1...@libp2p/daemon-v2.0.2) (2022-09-09)
+
+
+### Trivial Changes
+
+* update project config ([#111](https://github.com/libp2p/js-libp2p-daemon/issues/111)) ([345e663](https://github.com/libp2p/js-libp2p-daemon/commit/345e663e34278e780fc2f3a6b595294f925c4521))
+
+
+### Dependencies
+
+* update sibling dependencies ([56711c4](https://github.com/libp2p/js-libp2p-daemon/commit/56711c4f14b0cf2370b8612fe07d42ed2ac8363c))
+
 ## [@libp2p/daemon-v2.0.1](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-v2.0.0...@libp2p/daemon-v2.0.1) (2022-06-15)
 
 

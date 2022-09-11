@@ -1,6 +1,6 @@
 {
   "name": "@libp2p/daemon-client",
-  "version": "2.0.4",
+  "version": "3.0.0",
   "description": "libp2p-daemon client implementation",
   "license": "Apache-2.0 OR MIT",
   "homepage": "https://github.com/libp2p/js-libp2p-daemon/tree/master/packages/libp2p-daemon-client#readme",
@@ -134,7 +134,7 @@
     "release": "aegir release"
   },
   "dependencies": {
-    "@libp2p/daemon-protocol": "^2.0.0",
+    "@libp2p/daemon-protocol": "^3.0.0",
     "@libp2p/interface-peer-id": "^1.0.2",
     "@libp2p/interface-peer-info": "^1.0.1",
     "@libp2p/logger": "^2.0.0",
@@ -143,11 +143,12 @@
     "@multiformats/multiaddr": "^10.1.8",
     "err-code": "^3.0.1",
     "it-stream-types": "^1.0.4",
-    "multiformats": "^9.6.4"
+    "multiformats": "^9.6.4",
+    "uint8arraylist": "^2.3.2"
   },
   "devDependencies": {
     "@libp2p/components": "^2.0.0",
-    "@libp2p/daemon-server": "^2.0.0",
+    "@libp2p/daemon-server": "^3.0.0",
     "@libp2p/interface-compliance-tests": "^3.0.1",
     "@libp2p/interface-dht": "^1.0.0",
     "@libp2p/interface-mocks": "^4.0.1",

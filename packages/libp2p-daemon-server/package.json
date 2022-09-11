@@ -1,6 +1,6 @@
 {
   "name": "@libp2p/daemon-server",
-  "version": "2.0.4",
+  "version": "3.0.0",
   "description": "API server for libp2p-daemon instances",
   "license": "Apache-2.0 OR MIT",
   "homepage": "https://github.com/libp2p/js-libp2p-daemon/tree/master/packages/libp2p-daemon-server#readme",
@@ -138,7 +138,7 @@
     "release": "aegir release"
   },
   "dependencies": {
-    "@libp2p/daemon-protocol": "^2.0.0",
+    "@libp2p/daemon-protocol": "^3.0.0",
     "@libp2p/interface-connection": "^3.0.1",
     "@libp2p/interface-dht": "^1.0.0",
     "@libp2p/interface-peer-id": "^1.0.2",
