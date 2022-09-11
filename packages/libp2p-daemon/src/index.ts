@@ -8,6 +8,7 @@ import { hideBin } from 'yargs/helpers'
 import esMain from 'es-main'
 import { createServer, Libp2pServer } from '@libp2p/daemon-server'
 import { Libp2p, createLibp2p, Libp2pOptions } from 'libp2p'
+import { PreSharedKeyConnectionProtector } from "libp2p/pnet";
 import { Noise } from '@chainsafe/libp2p-noise'
 import { Mplex } from '@libp2p/mplex'
 import { TCP } from '@libp2p/tcp'
@@ -100,6 +101,10 @@ export default async function main (processArgs: string[]) {
       type: 'string',
       default: 'gossipsub'
     })
+    .option('psk', {
+      desc: 'Pre-shared key file',
+      type: 'string'
+    })
     .fail((msg: string, err: Error | undefined, yargs?: any) => {
       if (err != null) {
         throw err // preserve stack
@@ -172,6 +177,15 @@ export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Pro
   // Enable DHT
   if (argv.dht != null) {
     options.dht = new KadDHT()
+  }
+
+  // Configure PSK
+  if (argv.psk != null) {
+    const swarmKey: Buffer = await fs.readFile(argv.psk)
+
+    options.connectionProtector = new PreSharedKeyConnectionProtector({
+      psk: swarmKey
+    })
   }
 
   const libp2p: Libp2p = await createLibp2p(options)
