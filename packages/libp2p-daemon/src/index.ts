@@ -8,7 +8,7 @@ import { hideBin } from 'yargs/helpers'
 import esMain from 'es-main'
 import { createServer, Libp2pServer } from '@libp2p/daemon-server'
 import { Libp2p, createLibp2p, Libp2pOptions } from 'libp2p'
-import { PreSharedKeyConnectionProtector } from "libp2p/pnet";
+import { PreSharedKeyConnectionProtector } from 'libp2p/pnet'
 import { Noise } from '@chainsafe/libp2p-noise'
 import { Mplex } from '@libp2p/mplex'
 import { TCP } from '@libp2p/tcp'
@@ -39,8 +39,7 @@ export default async function main (processArgs: string[]) {
     })
     .option('id', {
       desc: 'peer identity; private key file',
-      type: 'string',
-      default: ''
+      type: 'string'
     })
     .option('hostAddrs', {
       desc: 'Comma separated list of multiaddrs the host should listen on',
@@ -151,7 +150,7 @@ export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Pro
   }
 
   // Enable bootstrap peers.
-  if (argv.bootstrap != null) {
+  if (argv.bootstrap === true) {
     options.peerDiscovery = [
       new Bootstrap({
         interval: 60e3,
@@ -161,7 +160,7 @@ export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Pro
   }
 
   // Configure PubSub
-  if (argv.pubsub != null) {
+  if (argv.pubsub === true) {
     switch (argv.pubsubRouter) {
       case 'gossipsub':
         options.pubsub = new GossipSub({ allowPublishToZeroPeers: true })
@@ -175,7 +174,7 @@ export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Pro
   }
 
   // Enable DHT
-  if (argv.dht != null) {
+  if (argv.dht === true) {
     options.dht = new KadDHT()
   }
 
