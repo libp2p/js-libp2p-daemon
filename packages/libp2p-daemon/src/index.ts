@@ -137,7 +137,7 @@ export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Pro
   }
 
   // Load key file as peer ID.
-  if (argv.id == null) {
+  if (argv.id != null) {
     const marshaledKey: Buffer = await fs.readFile(argv.id)
     const unmarshaledKey = await unmarshalPrivateKey(marshaledKey)
     const peerId = await createFromPrivKey(unmarshaledKey)
@@ -146,7 +146,7 @@ export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Pro
   }
 
   // Enable bootstrap peers.
-  if (argv.bootstrap == null) {
+  if (argv.bootstrap != null) {
     options.peerDiscovery = [
       new Bootstrap({
         interval: 60e3,
@@ -156,7 +156,7 @@ export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Pro
   }
 
   // Configure PubSub
-  if (argv.pubsub == null) {
+  if (argv.pubsub != null) {
     switch (argv.pubsubRouter) {
       case 'gossipsub':
         options.pubsub = new GossipSub({ allowPublishToZeroPeers: true })
@@ -170,7 +170,7 @@ export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Pro
   }
 
   // Enable DHT
-  if (argv.dht == null) {
+  if (argv.dht != null) {
     options.dht = new KadDHT()
   }
 
