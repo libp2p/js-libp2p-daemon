@@ -178,7 +178,7 @@ class Client implements DaemonClient {
       throw errcode(new Error(response.error?.msg ?? 'Open stream failed'), 'ERR_OPEN_STREAM_FAILED')
     }
 
-    return sh.rest() as Duplex<Uint8Array>
+    return sh.rest() as Duplex<Uint8ArrayList, Uint8Array>
   }
 
   /**
@@ -211,7 +211,7 @@ class Client implements DaemonClient {
               throw errcode(new Error('Incorrect protocol'), 'ERR_OPEN_STREAM_FAILED')
             }
 
-            await handler(sh.rest())
+            await handler(sh.rest() as Duplex<Uint8ArrayList, Uint8Array>)
           })
           .finally(() => {
             connection.close()
