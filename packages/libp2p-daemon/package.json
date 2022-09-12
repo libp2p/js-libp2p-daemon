@@ -145,6 +145,7 @@
     "@libp2p/kad-dht": "^3.0.4",
     "@libp2p/mplex": "^5.2.1",
     "@libp2p/peer-id-factory": "^1.0.18",
+    "@libp2p/pubsub-peer-discovery": "^6.0.2",
     "@libp2p/tcp": "^3.0.6",
     "@libp2p/websockets": "^3.0.3",
     "@multiformats/multiaddr": "^10.1.8",

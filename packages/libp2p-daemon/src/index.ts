@@ -16,6 +16,7 @@ import { WebSockets } from '@libp2p/websockets'
 import { Bootstrap } from '@libp2p/bootstrap'
 import { GossipSub } from '@chainsafe/libp2p-gossipsub'
 import { FloodSub } from '@libp2p/floodsub'
+import { PubSubPeerDiscovery } from '@libp2p/pubsub-peer-discovery'
 import { unmarshalPrivateKey } from '@libp2p/crypto/keys'
 import { createFromPrivKey } from '@libp2p/peer-id-factory'
 import { KadDHT } from '@libp2p/kad-dht'
@@ -100,6 +101,11 @@ export default async function main (processArgs: string[]) {
       type: 'string',
       default: 'gossipsub'
     })
+    .option('pubsubDiscovery', {
+      desc: 'Enables pubsub peer discovery',
+      type: 'boolean',
+      default: false
+    })
     .option('psk', {
       desc: 'Pre-shared key file',
       type: 'string'
@@ -137,7 +143,8 @@ export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Pro
 
     transports: [new TCP(), new WebSockets()],
     connectionEncryption: [new Noise()],
-    streamMuxers: [new Mplex()]
+    streamMuxers: [new Mplex()],
+    peerDiscovery: []
   }
 
   // Load key file as peer ID.
@@ -150,17 +157,18 @@ export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Pro
   }
 
   // Enable bootstrap peers.
-  if (argv.bootstrap === true) {
-    options.peerDiscovery = [
+  if (argv.bootstrap === true && options.peerDiscovery != null) {
+    options.peerDiscovery.push(
       new Bootstrap({
         interval: 60e3,
         list: argv.bootstrapPeers.split(',')
       })
-    ]
+    )
   }
 
   // Configure PubSub
   if (argv.pubsub === true) {
+    // Router implementation.
     switch (argv.pubsubRouter) {
       case 'gossipsub':
         options.pubsub = new GossipSub({ allowPublishToZeroPeers: true })
@@ -170,6 +178,13 @@ export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Pro
         break
       default:
         throw new Error('invalid pubsubRouter type')
+    }
+
+    // Peer discovery
+    if (argv.pubsubDiscovery === true && options.peerDiscovery != null) {
+      options.peerDiscovery.push(
+        new PubSubPeerDiscovery({ interval: 60e3 })
+      )
     }
   }
 
