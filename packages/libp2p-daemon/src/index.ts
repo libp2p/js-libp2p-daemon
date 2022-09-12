@@ -110,6 +110,11 @@ export default async function main (processArgs: string[]) {
       desc: 'Pre-shared key file',
       type: 'string'
     })
+    .option('discoveryInterval', {
+      desc: 'The interval (ms) to perform peer discovery',
+      type: 'number',
+      default: 60e3
+    })
     .fail((msg: string, err: Error | undefined, yargs?: any) => {
       if (err != null) {
         throw err // preserve stack
@@ -160,7 +165,7 @@ export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Pro
   if (argv.bootstrap === true && options.peerDiscovery != null) {
     options.peerDiscovery.push(
       new Bootstrap({
-        interval: 60e3,
+        interval: argv.discoveryInterval,
         list: argv.bootstrapPeers.split(',')
       })
     )
@@ -183,7 +188,7 @@ export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Pro
     // Peer discovery
     if (argv.pubsubDiscovery === true && options.peerDiscovery != null) {
       options.peerDiscovery.push(
-        new PubSubPeerDiscovery({ interval: 60e3 })
+        new PubSubPeerDiscovery({ interval: argv.discoveryInterval })
       )
     }
   }
