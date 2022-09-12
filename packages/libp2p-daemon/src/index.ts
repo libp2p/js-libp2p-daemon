@@ -115,6 +115,31 @@ export default async function main (processArgs: string[]) {
       type: 'number',
       default: 60e3
     })
+    .option('relay', {
+      desc: 'Enables relay',
+      type: 'boolean',
+      default: false
+    })
+    .option('relayHop', {
+      desc: 'Enables relay HOP',
+      type: 'boolean',
+      default: false
+    })
+    .option('relayAdvertise', {
+      desc: 'Enables realy HOP advertisement',
+      type: 'boolean',
+      default: false
+    })
+    .option('relayAuto', {
+      desc: 'Enables Auto Relay',
+      type: 'boolean',
+      default: false
+    })
+    .option('relayAutoListeners', {
+      desc: 'Maximum number of simultaneous HOP connections for Auto Relay to open',
+      type: 'number',
+      default: 2
+    })
     .fail((msg: string, err: Error | undefined, yargs?: any) => {
       if (err != null) {
         throw err // preserve stack
@@ -205,6 +230,32 @@ export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Pro
     options.connectionProtector = new PreSharedKeyConnectionProtector({
       psk: swarmKey
     })
+  }
+
+  // Configure relay
+  if (argv.relay === true) {
+    options.relay = {
+      enabled: true
+    }
+
+    if (argv.relayAuto === true) {
+      options.relay.autoRelay = {
+        enabled: true,
+        maxListeners: argv.relayAutoListeners
+      }
+    }
+
+    if (argv.relayHop === true) {
+      options.relay.hop = {
+        enabled: true
+      }
+    }
+
+    if (argv.relayAdvertise === true) {
+      options.relay.advertise = {
+        enabled: true
+      }
+    }
   }
 
   const libp2p: Libp2p = await createLibp2p(options)
