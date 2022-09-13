@@ -4,7 +4,7 @@ import {
   PSMessage
 } from '@libp2p/daemon-protocol'
 import { ErrorResponse, OkResponse } from './responses.js'
-import type { PubSub } from '@libp2p/interfaces/pubsub'
+import type { PubSub } from '@libp2p/interface-pubsub'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { pushable } from 'it-pushable'
 import { logger } from '@libp2p/logger'
@@ -40,7 +40,7 @@ export class PubSubOperations {
 
   async * subscribe (topic: string) {
     try {
-      const onMessage = pushable<Uint8Array>()
+      const onMessage = pushable()
       this.pubsub.subscribe(topic)
 
       await this.pubsub.addEventListener('message', (evt) => {
@@ -50,14 +50,21 @@ export class PubSubOperations {
           return
         }
 
-        onMessage.push(PSMessage.encode({
-          from: msg.from.toBytes(),
-          data: msg.data,
-          seqno: msg.sequenceNumber == null ? undefined : uint8ArrayFromString(msg.sequenceNumber.toString(16).padStart(16, '0'), 'base16'),
-          topicIDs: [msg.topic],
-          signature: msg.signature,
-          key: msg.key
-        }))
+        if (msg.type === 'signed') {
+          onMessage.push(PSMessage.encode({
+            from: msg.from.toBytes(),
+            data: msg.data,
+            seqno: msg.sequenceNumber == null ? undefined : uint8ArrayFromString(msg.sequenceNumber.toString(16).padStart(16, '0'), 'base16'),
+            topicIDs: [msg.topic],
+            signature: msg.signature,
+            key: msg.key
+          }).subarray())
+        } else {
+          onMessage.push(PSMessage.encode({
+            data: msg.data,
+            topicIDs: [msg.topic]
+          }).subarray())
+        }
       })
 
       yield OkResponse()

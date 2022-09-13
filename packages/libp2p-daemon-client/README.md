@@ -1,30 +1,34 @@
-# libp2p-daemon client JavaScript implementation <!-- omit in toc -->
+# @libp2p/daemon-client <!-- omit in toc -->
 
-[![](https://img.shields.io/badge/made%20by-Protocol%20Labs-blue.svg?style=flat-square)](https://protocol.ai/)
-[![](https://img.shields.io/badge/project-libp2p-yellow.svg?style=flat-square)](http://libp2p.io/)
-[![](https://img.shields.io/badge/freenode-%23ipfs-blue.svg?style=flat-square)](http://webchat.freenode.net/?channels=%23libp2p)
-[![Discourse posts](https://img.shields.io/discourse/https/discuss.libp2p.io/posts.svg)](https://discuss.libp2p.io)
+[![libp2p.io](https://img.shields.io/badge/project-libp2p-yellow.svg?style=flat-square)](http://libp2p.io/)
+[![IRC](https://img.shields.io/badge/freenode-%23libp2p-yellow.svg?style=flat-square)](http://webchat.freenode.net/?channels=%23libp2p)
+[![Discuss](https://img.shields.io/discourse/https/discuss.libp2p.io/posts.svg?style=flat-square)](https://discuss.libp2p.io)
+[![codecov](https://img.shields.io/codecov/c/github/libp2p/js-libp2p-daemon.svg?style=flat-square)](https://codecov.io/gh/libp2p/js-libp2p-daemon)
+[![CI](https://img.shields.io/github/workflow/status/libp2p/js-libp2p-interfaces/test%20&%20maybe%20release/master?style=flat-square)](https://github.com/libp2p/js-libp2p-daemon/actions/workflows/js-test-and-release.yml)
 
-> A Javascript client to interact with a standalone deployment of a libp2p host, running in its own OS process. Essentially, this client allows to communicate with other peers, interact with the DHT, participate in pubsub, etc. no matter the language they are implemented with.
+> libp2p-daemon client implementation
 
-## Table of Contents <!-- omit in toc -->
+## Table of contents <!-- omit in toc -->
 
-- [Specs](#specs)
 - [Install](#install)
+- [Specs](#specs)
 - [Usage](#usage)
   - [Run a daemon process](#run-a-daemon-process)
   - [Interact with the daemon process using the client](#interact-with-the-daemon-process-using-the-client)
 - [API](#api)
 - [Contribute](#contribute)
 - [License](#license)
+- [Contribution](#contribution)
+
+## Install
+
+```console
+$ npm i @libp2p/daemon-client
+```
 
 ## Specs
 
 The specs for the daemon are currently housed in the go implementation. You can read them at [libp2p/go-libp2p-daemon](https://github.com/libp2p/go-libp2p-daemon/blob/master/specs/README.md)
-
-## Install
-
-`npm install @libp2p/daemon-client`
 
 ## Usage
 
@@ -58,20 +62,20 @@ await client.close()
 
 ## API
 
-* [Getting started](API.md#getting-started)
-* [`close`](API.md#close)
-* [`connect`](API.md#connect)
-* [`identify`](API.md#identify)
-* [`listPeers`](API.md#listPeers)
-* [`openStream`](API.md#openStream)
-* [`registerStream`](API.md#registerStream)
-* [`dht.put`](API.md#dht.put)
-* [`dht.get`](API.md#dht.get)
-* [`dht.findPeer`](API.md#dht.findPeer)
-* [`dht.provide`](API.md#dht.provide)
-* [`dht.findProviders`](API.md#dht.findProviders)
-* [`dht.getClosestPeers`](API.md#dht.getClosestPeers)
-* [`dht.getPublicKey`](API.md#dht.getPublicKey)
+- [Getting started](API.md#getting-started)
+- [`close`](API.md#close)
+- [`connect`](API.md#connect)
+- [`identify`](API.md#identify)
+- [`listPeers`](API.md#listPeers)
+- [`openStream`](API.md#openStream)
+- [`registerStream`](API.md#registerStream)
+- [`dht.put`](API.md#dht.put)
+- [`dht.get`](API.md#dht.get)
+- [`dht.findPeer`](API.md#dht.findPeer)
+- [`dht.provide`](API.md#dht.provide)
+- [`dht.findProviders`](API.md#dht.findProviders)
+- [`dht.getClosestPeers`](API.md#dht.getClosestPeers)
+- [`dht.getPublicKey`](API.md#dht.getPublicKey)
 
 ## Contribute
 
@@ -79,4 +83,11 @@ This module is actively under development. Please check out the issues and submi
 
 ## License
 
-[Apache-2.0](LICENSE-APACHE) or [MIT](LICENSE-MIT) © Protocol Labs
+Licensed under either of
+
+- Apache 2.0, ([LICENSE-APACHE](LICENSE-APACHE) / <http://www.apache.org/licenses/LICENSE-2.0>)
+- MIT ([LICENSE-MIT](LICENSE-MIT) / <http://opensource.org/licenses/MIT>)
+
+## Contribution
+
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any additional terms or conditions.

@@ -6,7 +6,6 @@ import yargs from 'yargs'
 // @ts-expect-error no types
 import YargsPromise from 'yargs-promise'
 import type { Libp2pServer } from '@libp2p/daemon-server'
-// @ts-expect-error no types
 import esMain from 'es-main'
 
 const args = process.argv.slice(2)
@@ -129,7 +128,7 @@ export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Pro
   throw new Error('Not implemented yet')
 }
 
-if (esMain(import.meta) === true) {
+if (esMain(import.meta)) {
   main(process.argv)
     .catch((err) => {
       console.error(err)

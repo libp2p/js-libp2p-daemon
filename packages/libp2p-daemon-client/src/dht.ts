@@ -8,8 +8,8 @@ import {
   DHTResponse
 } from '@libp2p/daemon-protocol'
 import type { DaemonClient } from './index.js'
-import { isPeerId, PeerId } from '@libp2p/interfaces/peer-id'
-import type { PeerInfo } from '@libp2p/interfaces/peer-info'
+import { isPeerId, PeerId } from '@libp2p/interface-peer-id'
+import type { PeerInfo } from '@libp2p/interface-peer-info'
 import { peerIdFromBytes } from '@libp2p/peer-id'
 
 export class DHT {

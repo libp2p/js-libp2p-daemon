@@ -1,3 +1,33 @@
+## [@libp2p/daemon-v2.0.2](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-v2.0.1...@libp2p/daemon-v2.0.2) (2022-09-09)
+
+
+### Trivial Changes
+
+* update project config ([#111](https://github.com/libp2p/js-libp2p-daemon/issues/111)) ([345e663](https://github.com/libp2p/js-libp2p-daemon/commit/345e663e34278e780fc2f3a6b595294f925c4521))
+
+
+### Dependencies
+
+* update sibling dependencies ([56711c4](https://github.com/libp2p/js-libp2p-daemon/commit/56711c4f14b0cf2370b8612fe07d42ed2ac8363c))
+
+## [@libp2p/daemon-v2.0.1](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-v2.0.0...@libp2p/daemon-v2.0.1) (2022-06-15)
+
+
+### Trivial Changes
+
+* update deps ([#103](https://github.com/libp2p/js-libp2p-daemon/issues/103)) ([2bfaa37](https://github.com/libp2p/js-libp2p-daemon/commit/2bfaa37e2f056dcd5de5a3882b77f52553c595d4))
+
+## [@libp2p/daemon-v2.0.0](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-v1.0.4...@libp2p/daemon-v2.0.0) (2022-06-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* uses new single-issue libp2p interface modules
+
+### Features
+
+* update to latest libp2p interfaces ([#102](https://github.com/libp2p/js-libp2p-daemon/issues/102)) ([f5e9121](https://github.com/libp2p/js-libp2p-daemon/commit/f5e91210654ab3c411e316c1c657356c037a0f6a))
+
 ## [@libp2p/daemon-v1.0.4](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-v1.0.3...@libp2p/daemon-v1.0.4) (2022-05-25)
 
 

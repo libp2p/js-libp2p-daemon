@@ -6,10 +6,10 @@ import { createServer, Libp2p, Libp2pServer } from '@libp2p/daemon-server'
 import { createClient, DaemonClient } from '../src/index.js'
 import { Multiaddr } from '@multiformats/multiaddr'
 import { StubbedInstance, stubInterface } from 'ts-sinon'
-import { isPeerId } from '@libp2p/interfaces/peer-id'
+import { isPeerId } from '@libp2p/interface-peer-id'
 import { peerIdFromString } from '@libp2p/peer-id'
-import { mockConnection, mockDuplex, mockMultiaddrConnection } from '@libp2p/interface-compliance-tests/mocks'
-import type { PeerStore, AddressBook } from '@libp2p/interfaces/peer-store'
+import { mockConnection, mockDuplex, mockMultiaddrConnection } from '@libp2p/interface-mocks'
+import type { PeerStore, AddressBook } from '@libp2p/interface-peer-store'
 
 const defaultMultiaddr = new Multiaddr('/ip4/0.0.0.0/tcp/0')
 

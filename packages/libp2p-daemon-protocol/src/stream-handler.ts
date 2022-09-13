@@ -3,6 +3,7 @@ import { handshake } from 'it-handshake'
 import { logger } from '@libp2p/logger'
 import type { Duplex, Source } from 'it-stream-types'
 import type { Handshake } from 'it-handshake'
+import type { Uint8ArrayList } from 'uint8arraylist'
 
 const log = logger('libp2p:daemon-protocol:stream-handler')
 
@@ -13,8 +14,8 @@ export interface StreamHandlerOptions {
 
 export class StreamHandler {
   private readonly stream: Duplex<Uint8Array>
-  private readonly shake: Handshake
-  public decoder: Source<Uint8Array>
+  private readonly shake: Handshake<Uint8Array>
+  public decoder: Source<Uint8ArrayList>
   /**
    * Create a stream handler for connection
    */
@@ -33,7 +34,7 @@ export class StreamHandler {
     // @ts-expect-error decoder is really a generator
     const msg = await this.decoder.next()
     if (msg.value != null) {
-      return msg.value.slice()
+      return msg.value.subarray()
     }
 
     log('read received no value, closing stream')
@@ -41,10 +42,10 @@ export class StreamHandler {
     await this.close()
   }
 
-  write (msg: Uint8Array) {
+  write (msg: Uint8Array | Uint8ArrayList) {
     log('write message')
     this.shake.write(
-      lp.encode.single(msg).slice()
+      lp.encode.single(msg).subarray()
     )
   }
 

@@ -1,3 +1,44 @@
+## [@libp2p/daemon-protocol-v3.0.0](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-v2.0.2...@libp2p/daemon-protocol-v3.0.0) (2022-09-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* the stream type returned by `client.openStream` has changed
+
+### Bug Fixes
+
+* allow opening remote streams ([#126](https://github.com/libp2p/js-libp2p-daemon/issues/126)) ([361cc57](https://github.com/libp2p/js-libp2p-daemon/commit/361cc5750de505ab0381ae43609c67d5d4f659a7))
+
+## [@libp2p/daemon-protocol-v2.0.2](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-v2.0.1...@libp2p/daemon-protocol-v2.0.2) (2022-08-10)
+
+
+### Bug Fixes
+
+* update all deps ([#124](https://github.com/libp2p/js-libp2p-daemon/issues/124)) ([5e46e1e](https://github.com/libp2p/js-libp2p-daemon/commit/5e46e1e26c23428046a6007ab158420d3d830145))
+
+## [@libp2p/daemon-protocol-v2.0.1](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-v2.0.0...@libp2p/daemon-protocol-v2.0.1) (2022-07-31)
+
+
+### Trivial Changes
+
+* update project config ([#111](https://github.com/libp2p/js-libp2p-daemon/issues/111)) ([345e663](https://github.com/libp2p/js-libp2p-daemon/commit/345e663e34278e780fc2f3a6b595294f925c4521))
+
+
+### Dependencies
+
+* update uint8arraylist and protons deps ([#115](https://github.com/libp2p/js-libp2p-daemon/issues/115)) ([34a8334](https://github.com/libp2p/js-libp2p-daemon/commit/34a83340ba855a9c08319ae1cd735dfa8b71c248))
+
+## [@libp2p/daemon-protocol-v2.0.0](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-v1.0.6...@libp2p/daemon-protocol-v2.0.0) (2022-06-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* uses new single-issue libp2p interface modules
+
+### Features
+
+* update to latest libp2p interfaces ([#102](https://github.com/libp2p/js-libp2p-daemon/issues/102)) ([f5e9121](https://github.com/libp2p/js-libp2p-daemon/commit/f5e91210654ab3c411e316c1c657356c037a0f6a))
+
 ## [@libp2p/daemon-protocol-v1.0.6](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-v1.0.5...@libp2p/daemon-protocol-v1.0.6) (2022-05-25)
 
 

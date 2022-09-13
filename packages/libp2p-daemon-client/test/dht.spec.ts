@@ -7,7 +7,7 @@ import { createServer, Libp2p, Libp2pServer } from '@libp2p/daemon-server'
 import { createClient, DaemonClient } from '../src/index.js'
 import { Multiaddr } from '@multiformats/multiaddr'
 import { StubbedInstance, stubInterface } from 'ts-sinon'
-import { DualDHT, ValueEvent, FinalPeerEvent, PeerResponseEvent, MessageType, EventTypes } from '@libp2p/interfaces/dht'
+import { DualDHT, ValueEvent, FinalPeerEvent, PeerResponseEvent, MessageType, EventTypes } from '@libp2p/interface-dht'
 import { peerIdFromString } from '@libp2p/peer-id'
 import { CID } from 'multiformats/cid'
 import all from 'it-all'
@@ -198,7 +198,7 @@ describe('daemon dht client', function () {
       const cid = CID.parse('QmVzw6MPsF96TyXBSRs1ptLoVMWRv5FCYJZZGJSVB2Hp38')
       const id = peerIdFromString('12D3KooWJKCJW8Y26pRFNv78TCMGLNTfyN8oKaFswMRYXTzSbSsa')
 
-      dht.getClosestPeers.withArgs(cid.bytes).returns(async function * () {
+      dht.getClosestPeers.returns(async function * () {
         const event: PeerResponseEvent = {
           name: 'PEER_RESPONSE',
           type: EventTypes.PEER_RESPONSE,

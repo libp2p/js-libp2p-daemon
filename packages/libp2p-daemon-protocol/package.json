@@ -1,6 +1,6 @@
 {
   "name": "@libp2p/daemon-protocol",
-  "version": "1.0.6",
+  "version": "3.0.0",
   "description": "Communication protocol between libp2p daemons and clients",
   "author": "",
   "license": "Apache-2.0 OR MIT",
@@ -36,18 +36,21 @@
   },
   "files": [
     "src",
-    "dist",
+    "dist/src",
     "!dist/test",
     "!**/*.tsbuildinfo"
   ],
   "exports": {
     ".": {
+      "types": "./src/index.d.ts",
       "import": "./dist/src/index.js"
     },
     "./stream-handler": {
+      "types": "./dist/src/stream-handler.d.ts",
       "import": "./dist/src/stream-handler.js"
     },
     "./upgrader": {
+      "types": "./dist/src/upgrader.d.ts",
       "import": "./dist/src/upgrader.js"
     }
   },
@@ -88,15 +91,15 @@
               "release": "patch"
             },
             {
-              "type": "chore",
-              "release": "patch"
-            },
-            {
               "type": "docs",
               "release": "patch"
             },
             {
               "type": "test",
+              "release": "patch"
+            },
+            {
+              "type": "deps",
               "release": "patch"
             },
             {
@@ -126,7 +129,11 @@
               },
               {
                 "type": "docs",
-                "section": "Trivial Changes"
+                "section": "Documentation"
+              },
+              {
+                "type": "deps",
+                "section": "Dependencies"
               },
               {
                 "type": "test",
@@ -150,10 +157,13 @@
     "release": "aegir release"
   },
   "dependencies": {
-    "protons-runtime": "^1.0.4"
+    "@libp2p/interface-transport": "^1.0.0",
+    "it-handshake": "^4.0.0",
+    "protons-runtime": "^3.0.1",
+    "uint8arraylist": "^2.3.2"
   },
   "devDependencies": {
-    "aegir": "^37.0.14",
-    "protons": "^3.0.4"
+    "aegir": "^37.2.0",
+    "protons": "^5.0.0"
   }
 }

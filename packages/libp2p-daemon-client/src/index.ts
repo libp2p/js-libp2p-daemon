@@ -1,16 +1,21 @@
 import errcode from 'err-code'
 import { TCP } from '@libp2p/tcp'
-import { PSMessage, Request, Response } from '@libp2p/daemon-protocol'
+import { PSMessage, Request, Response, StreamInfo } from '@libp2p/daemon-protocol'
 import { StreamHandler } from '@libp2p/daemon-protocol/stream-handler'
 import { Multiaddr } from '@multiformats/multiaddr'
 import { DHT } from './dht.js'
 import { Pubsub } from './pubsub.js'
-import { isPeerId, PeerId } from '@libp2p/interfaces/peer-id'
+import { isPeerId, PeerId } from '@libp2p/interface-peer-id'
 import { passThroughUpgrader } from '@libp2p/daemon-protocol/upgrader'
 import { peerIdFromBytes } from '@libp2p/peer-id'
 import type { Duplex } from 'it-stream-types'
 import type { CID } from 'multiformats/cid'
-import type { PeerInfo } from '@libp2p/interfaces/peer-info'
+import type { PeerInfo } from '@libp2p/interface-peer-info'
+import type { MultiaddrConnection } from '@libp2p/interface-connection'
+import type { Uint8ArrayList } from 'uint8arraylist'
+import { logger } from '@libp2p/logger'
+
+const log = logger('libp2p:daemon-client')
 
 class Client implements DaemonClient {
   private readonly multiaddr: Multiaddr
@@ -21,7 +26,6 @@ class Client implements DaemonClient {
   constructor (addr: Multiaddr) {
     this.multiaddr = addr
     this.tcp = new TCP()
-
     this.dht = new DHT(this)
     this.pubsub = new Pubsub(this)
   }
@@ -33,7 +37,9 @@ class Client implements DaemonClient {
    * @async
    * @returns {MultiaddrConnection}
    */
-  async connectDaemon () {
+  async connectDaemon (): Promise<MultiaddrConnection> {
+    // @ts-expect-error because we use a passthrough upgrader,
+    // this is actually a MultiaddrConnection and not a Connection
     return await this.tcp.dial(this.multiaddr, {
       upgrader: passThroughUpgrader
     })
@@ -147,7 +153,7 @@ class Client implements DaemonClient {
   /**
    * Initiate an outbound stream to a peer on one of a set of protocols.
    */
-  async openStream (peerId: PeerId, protocol: string): Promise<Duplex<Uint8Array>> {
+  async openStream (peerId: PeerId, protocol: string): Promise<Duplex<Uint8ArrayList, Uint8Array>> {
     if (!isPeerId(peerId)) {
       throw errcode(new Error('invalid peer id received'), 'ERR_INVALID_PEER_ID')
     }
@@ -178,20 +184,58 @@ class Client implements DaemonClient {
   /**
    * Register a handler for inbound streams on a given protocol
    */
-  async registerStreamHandler (addr: Multiaddr, protocol: string) {
-    if (!Multiaddr.isMultiaddr(addr)) {
-      throw errcode(new Error('invalid multiaddr received'), 'ERR_INVALID_MULTIADDR')
-    }
-
+  async registerStreamHandler (protocol: string, handler: StreamHandlerFunction): Promise<void> {
     if (typeof protocol !== 'string') {
       throw errcode(new Error('invalid protocol received'), 'ERR_INVALID_PROTOCOL')
     }
 
+    // open a tcp port, pipe any data from it to the handler function
+    const listener = this.tcp.createListener({
+      upgrader: passThroughUpgrader,
+      handler: (connection) => {
+        Promise.resolve()
+          .then(async () => {
+            const sh = new StreamHandler({
+              // @ts-expect-error because we are using a passthrough upgrader, this is a MultiaddrConnection
+              stream: connection
+            })
+            const message = await sh.read()
+
+            if (message == null) {
+              throw errcode(new Error('Could not read open stream response'), 'ERR_OPEN_STREAM_FAILED')
+            }
+
+            const response = StreamInfo.decode(message)
+
+            if (response.proto !== protocol) {
+              throw errcode(new Error('Incorrect protocol'), 'ERR_OPEN_STREAM_FAILED')
+            }
+
+            await handler(sh.rest())
+          })
+          .finally(() => {
+            connection.close()
+              .catch(err => {
+                log.error(err)
+              })
+            listener.close()
+              .catch(err => {
+                log.error(err)
+              })
+          })
+      }
+    })
+    await listener.listen(new Multiaddr('/ip4/127.0.0.1/tcp/0'))
+    const address = listener.getAddrs()[0]
+
+    if (address == null) {
+      throw errcode(new Error('Could not listen on port'), 'ERR_REGISTER_STREAM_HANDLER_FAILED')
+    }
+
     const sh = await this.send({
       type: Request.Type.STREAM_HANDLER,
-      streamOpen: undefined,
       streamHandler: {
-        addr: addr.bytes,
+        addr: address.bytes,
         proto: [protocol]
       }
     })
@@ -210,6 +254,10 @@ class Client implements DaemonClient {
 export interface IdentifyResult {
   peerId: PeerId
   addrs: Multiaddr[]
+}
+
+export interface StreamHandlerFunction {
+  (stream: Duplex<Uint8ArrayList, Uint8Array>): Promise<void>
 }
 
 export interface DHTClient {
@@ -235,7 +283,8 @@ export interface DaemonClient {
   pubsub: PubSubClient
 
   send: (request: Request) => Promise<StreamHandler>
-  openStream: (peerId: PeerId, protocol: string) => Promise<Duplex<Uint8Array>>
+  openStream: (peerId: PeerId, protocol: string) => Promise<Duplex<Uint8ArrayList, Uint8Array>>
+  registerStreamHandler: (protocol: string, handler: StreamHandlerFunction) => Promise<void>
 }
 
 export function createClient (multiaddr: Multiaddr): DaemonClient {

@@ -7,13 +7,13 @@ import { createClient, DaemonClient } from '../src/index.js'
 import { Multiaddr } from '@multiformats/multiaddr'
 import { StubbedInstance, stubInterface } from 'ts-sinon'
 import { peerIdFromString } from '@libp2p/peer-id'
-import { mockRegistrar, connectionPair } from '@libp2p/interface-compliance-tests/mocks'
-import type { PeerStore, AddressBook } from '@libp2p/interfaces/peer-store'
+import { mockRegistrar, connectionPair } from '@libp2p/interface-mocks'
+import type { PeerStore, AddressBook } from '@libp2p/interface-peer-store'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import all from 'it-all'
 import { pipe } from 'it-pipe'
-import { Components } from '@libp2p/interfaces/components'
+import { Components } from '@libp2p/components'
 
 const defaultMultiaddr = new Multiaddr('/ip4/0.0.0.0/tcp/0')
 
@@ -86,6 +86,6 @@ describe('daemon stream client', function () {
     )
 
     expect(data).to.have.lengthOf(1)
-    expect(uint8ArrayToString(data[0])).to.equal('hello world')
+    expect(uint8ArrayToString(data[0].subarray())).to.equal('hello world')
   })
 })

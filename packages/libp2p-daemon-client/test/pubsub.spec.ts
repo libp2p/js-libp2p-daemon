@@ -7,7 +7,7 @@ import { createServer, Libp2p, Libp2pServer } from '@libp2p/daemon-server'
 import { createClient, DaemonClient } from '../src/index.js'
 import { Multiaddr } from '@multiformats/multiaddr'
 import { StubbedInstance, stubInterface } from 'ts-sinon'
-import type { PubSub } from '@libp2p/interfaces/pubsub'
+import type { PubSub } from '@libp2p/interface-pubsub'
 
 const defaultMultiaddr = new Multiaddr('/ip4/0.0.0.0/tcp/12345')
 
