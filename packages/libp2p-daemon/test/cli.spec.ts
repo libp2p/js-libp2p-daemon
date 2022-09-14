@@ -29,7 +29,7 @@ describe('cli', () => {
         dhtClient: false,
         q: false,
         quiet: false,
-        listen: '/ip4/127.0.0.1/tcp/1234'
+        listen: '/unix/tmp/p2pd.sock'
       })
 
       return {
@@ -62,9 +62,7 @@ describe('cli', () => {
         id: '/path/to/key',
         q: true,
         quiet: true,
-        // listen: '/unix/tmp/d.sock'
-        // UNIX sockets are not supported by @libp2p/tcp yet...
-        listen: '/ip4/127.0.0.1/tcp/1234'
+        listen: '/unix/tmp/d.sock'
       })
 
       return {
@@ -86,9 +84,7 @@ describe('cli', () => {
       '--dhtClient=true',
       '--quiet=true',
       '--id=/path/to/key',
-      // '--listen=/unix/tmp/d.sock'
-      // UNIX sockets are not supported by @libp2p/tcp yet...
-      '--listen=/ip4/127.0.0.1/tcp/1234'
+      '--listen=/unix/tmp/d.sock'
     ])
   })
 })

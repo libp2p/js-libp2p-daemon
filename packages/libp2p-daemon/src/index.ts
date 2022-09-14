@@ -14,9 +14,7 @@ export default async function main (processArgs: string[]) {
     .option('listen', {
       desc: 'daemon control listen multiaddr',
       type: 'string',
-      // default: '/unix/tmp/p2pd.sock'
-      // UNIX sockets are not supported by @libp2p/tcp yet...
-      default: '/ip4/127.0.0.1/tcp/1234'
+      default: '/unix/tmp/p2pd.sock'
     })
     .option('quiet', {
       alias: 'q',
