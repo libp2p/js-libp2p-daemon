@@ -1603,11 +1603,13 @@ export interface PeerstoreRequest {
 
 export namespace PeerstoreRequest {
   export enum Type {
+    UNSPECIFIED = 'UNSPECIFIED',
     GET_PROTOCOLS = 'GET_PROTOCOLS',
     GET_PEER_INFO = 'GET_PEER_INFO'
   }
 
   enum __TypeValues {
+    UNSPECIFIED = 0,
     GET_PROTOCOLS = 1,
     GET_PEER_INFO = 2
   }
@@ -1653,7 +1655,7 @@ export namespace PeerstoreRequest {
         }
       }, (reader, length) => {
         const obj: any = {
-          type: Type.GET_PROTOCOLS,
+          type: Type.UNSPECIFIED,
           protos: []
         }
 
