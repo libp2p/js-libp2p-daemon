@@ -5,14 +5,14 @@ import sinon from 'sinon'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { createServer, Libp2p, Libp2pServer } from '@libp2p/daemon-server'
 import { createClient, DaemonClient } from '../src/index.js'
-import { Multiaddr } from '@multiformats/multiaddr'
+import { multiaddr } from '@multiformats/multiaddr'
 import { StubbedInstance, stubInterface } from 'ts-sinon'
 import { DualDHT, ValueEvent, FinalPeerEvent, PeerResponseEvent, MessageType, EventTypes } from '@libp2p/interface-dht'
 import { peerIdFromString } from '@libp2p/peer-id'
 import { CID } from 'multiformats/cid'
 import all from 'it-all'
 
-const defaultMultiaddr = new Multiaddr('/ip4/0.0.0.0/tcp/12345')
+const defaultMultiaddr = multiaddr('/ip4/0.0.0.0/tcp/12345')
 
 describe('daemon dht client', function () {
   this.timeout(30e3)

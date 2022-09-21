@@ -1,7 +1,8 @@
 #! /usr/bin/env node
 /* eslint no-console: ["error", { allow: ["log", "warn", "error"] }] */
 
-import { Multiaddr } from '@multiformats/multiaddr'
+import type { Multiaddr } from '@multiformats/multiaddr'
+import { multiaddr } from '@multiformats/multiaddr'
 import yargs from 'yargs'
 // @ts-expect-error no types
 import YargsPromise from 'yargs-promise'
@@ -112,7 +113,7 @@ export default async function main (processArgs: string[]) {
     process.exit(0)
   }
 
-  const daemon = await createLibp2pServer(new Multiaddr(argv.listen), argv)
+  const daemon = await createLibp2pServer(multiaddr(argv.listen), argv)
   await daemon.start()
 
   if (argv.quiet !== true) {
@@ -123,7 +124,7 @@ export default async function main (processArgs: string[]) {
 
 export async function createLibp2pServer (listenAddr: Multiaddr, argv: any): Promise<Libp2pServer> {
   // const libp2p = await createLibp2p(argv)
-  // const daemon = await createServer(new Multiaddr(argv.listen), libp2p)
+  // const daemon = await createServer(multiaddr(argv.listen), libp2p)
 
   throw new Error('Not implemented yet')
 }

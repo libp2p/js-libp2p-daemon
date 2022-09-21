@@ -1,5 +1,5 @@
 import { CID } from 'multiformats/cid'
-import { Multiaddr } from '@multiformats/multiaddr'
+import { multiaddr } from '@multiformats/multiaddr'
 import errcode from 'err-code'
 import {
   Request,
@@ -113,7 +113,7 @@ export class DHT {
 
     return {
       id: peerIdFromBytes(response.dht.peer.id),
-      multiaddrs: response.dht.peer.addrs.map((a) => new Multiaddr(a)),
+      multiaddrs: response.dht.peer.addrs.map((a) => multiaddr(a)),
       protocols: []
     }
   }
@@ -185,7 +185,7 @@ export class DHT {
       if (response.type === DHTResponse.Type.VALUE && response.peer != null && response.peer?.addrs != null) {
         yield {
           id: peerIdFromBytes(response.peer.id),
-          multiaddrs: response.peer.addrs.map((a) => new Multiaddr(a)),
+          multiaddrs: response.peer.addrs.map((a) => multiaddr(a)),
           protocols: []
         }
       } else {

@@ -32,12 +32,13 @@ The specs for the daemon are currently housed in the go implementation. You can 
 ```js
 import { createServer } from '@libp2p/daemon-server'
 import { createLibp2p } from 'libp2p'
+import { multiaddr } from '@multiformats/multiaddr'
 
 const libp2p = await createLibp2p({
   // ..config
 })
 
-const multiaddr = new Multiaddr('/ip4/0.0.0.0/tcp/0')
+const multiaddr = multiaddr('/ip4/0.0.0.0/tcp/0')
 
 const server = await createServer(multiaddr, libp2p)
 await server.start()
