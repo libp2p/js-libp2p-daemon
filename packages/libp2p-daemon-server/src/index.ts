@@ -1,7 +1,8 @@
 /* eslint max-depth: ["error", 6] */
 
 import { TCP } from '@libp2p/tcp'
-import { Multiaddr, protocols } from '@multiformats/multiaddr'
+import { multiaddr, protocols } from '@multiformats/multiaddr'
+import type { Multiaddr } from '@multiformats/multiaddr'
 import { CID } from 'multiformats/cid'
 import * as lp from 'it-length-prefixed'
 import { pipe } from 'it-pipe'
@@ -100,7 +101,7 @@ export class Server implements Libp2pServer {
     }
 
     const peer = request.connect.peer
-    const addrs = request.connect.addrs.map((a) => new Multiaddr(a))
+    const addrs = request.connect.addrs.map((a) => multiaddr(a))
     const peerId = peerIdFromBytes(peer)
 
     await this.libp2p.peerStore.addressBook.set(peerId, addrs)
@@ -141,7 +142,7 @@ export class Server implements Libp2pServer {
     }
 
     const protocols = request.streamHandler.proto
-    const addr = new Multiaddr(request.streamHandler.addr)
+    const addr = multiaddr(request.streamHandler.addr)
     let conn: MultiaddrConnection
 
     await this.libp2p.handle(protocols, ({ connection, stream }) => {

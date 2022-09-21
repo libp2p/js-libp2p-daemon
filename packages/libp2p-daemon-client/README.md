@@ -43,9 +43,9 @@ There are currently two implementations of the `libp2p-daemon`:
 
 ```js
 import { createClient } from '@libp2p/daemon-client'
-import { Multiaddr } from '@multiformats/multiaddr'
+import { multiaddr } from '@multiformats/multiaddr'
 
-const serverAddr = new Multiaddr('/ip4/127.0.0.1/tcp/1234')
+const serverAddr = multiaddr('/ip4/127.0.0.1/tcp/1234')
 const client = createClient(serverAddr)
 
 // interact with the daemon

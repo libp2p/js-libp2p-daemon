@@ -4,14 +4,14 @@ import { expect } from 'aegir/chai'
 import sinon from 'sinon'
 import { createServer, Libp2p, Libp2pServer } from '@libp2p/daemon-server'
 import { createClient, DaemonClient } from '../src/index.js'
-import { Multiaddr } from '@multiformats/multiaddr'
+import { multiaddr } from '@multiformats/multiaddr'
 import { StubbedInstance, stubInterface } from 'ts-sinon'
 import { isPeerId } from '@libp2p/interface-peer-id'
 import { peerIdFromString } from '@libp2p/peer-id'
 import { mockConnection, mockDuplex, mockMultiaddrConnection } from '@libp2p/interface-mocks'
 import type { PeerStore, AddressBook } from '@libp2p/interface-peer-store'
 
-const defaultMultiaddr = new Multiaddr('/ip4/0.0.0.0/tcp/0')
+const defaultMultiaddr = multiaddr('/ip4/0.0.0.0/tcp/0')
 
 describe('daemon client', function () {
   this.timeout(30e3)
@@ -44,7 +44,7 @@ describe('daemon client', function () {
     it('should be able to identify', async () => {
       libp2p.peerId = peerIdFromString('12D3KooWJKCJW8Y26pRFNv78TCMGLNTfyN8oKaFswMRYXTzSbSsa')
       libp2p.getMultiaddrs.returns([
-        new Multiaddr('/ip4/0.0.0.0/tcp/1234/p2p/12D3KooWJKCJW8Y26pRFNv78TCMGLNTfyN8oKaFswMRYXTzSbSsa')
+        multiaddr('/ip4/0.0.0.0/tcp/1234/p2p/12D3KooWJKCJW8Y26pRFNv78TCMGLNTfyN8oKaFswMRYXTzSbSsa')
       ])
 
       const identify = await client.identify()
@@ -87,20 +87,20 @@ describe('daemon client', function () {
   describe('connect', () => {
     it('should be able to connect', async () => {
       const remotePeer = peerIdFromString('12D3KooWJKCJW8Y26pRFNv78TCMGLNTfyN8oKaFswMRYXTzSbSsa')
-      const multiaddr = new Multiaddr('/ip4/1.2.3.4/tcp/1234')
+      const ma = multiaddr('/ip4/1.2.3.4/tcp/1234')
 
-      await client.connect(remotePeer, [multiaddr])
+      await client.connect(remotePeer, [ma])
 
       expect(libp2p.dial.calledWith(remotePeer)).to.be.true()
     })
 
     it('should error if receive an error message', async () => {
       const remotePeer = peerIdFromString('12D3KooWJKCJW8Y26pRFNv78TCMGLNTfyN8oKaFswMRYXTzSbSsa')
-      const multiaddr = new Multiaddr('/ip4/1.2.3.4/tcp/1234')
+      const ma = multiaddr('/ip4/1.2.3.4/tcp/1234')
 
       libp2p.dial.rejects(new Error('Urk!'))
 
-      await expect(client.connect(remotePeer, [multiaddr])).to.eventually.be.rejectedWith(/Urk!/)
+      await expect(client.connect(remotePeer, [ma])).to.eventually.be.rejectedWith(/Urk!/)
     })
   })
 })

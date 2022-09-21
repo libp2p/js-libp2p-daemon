@@ -2,7 +2,8 @@ import errcode from 'err-code'
 import { TCP } from '@libp2p/tcp'
 import { PSMessage, Request, Response, StreamInfo } from '@libp2p/daemon-protocol'
 import { StreamHandler } from '@libp2p/daemon-protocol/stream-handler'
-import { Multiaddr } from '@multiformats/multiaddr'
+import type { Multiaddr } from '@multiformats/multiaddr'
+import { multiaddr, isMultiaddr } from '@multiformats/multiaddr'
 import { DHT } from './dht.js'
 import { Pubsub } from './pubsub.js'
 import { isPeerId, PeerId } from '@libp2p/interface-peer-id'
@@ -70,7 +71,7 @@ class Client implements DaemonClient {
     }
 
     addrs.forEach((addr) => {
-      if (!Multiaddr.isMultiaddr(addr)) {
+      if (!isMultiaddr(addr)) {
         throw errcode(new Error('received an address that is not a multiaddr'), 'ERR_NO_MULTIADDR_RECEIVED')
       }
     })
@@ -123,7 +124,7 @@ class Client implements DaemonClient {
     }
 
     const peerId = peerIdFromBytes(response.identify?.id)
-    const addrs = response.identify.addrs.map((a) => new Multiaddr(a))
+    const addrs = response.identify.addrs.map((a) => multiaddr(a))
 
     await sh.close()
 
@@ -225,7 +226,7 @@ class Client implements DaemonClient {
           })
       }
     })
-    await listener.listen(new Multiaddr('/ip4/127.0.0.1/tcp/0'))
+    await listener.listen(multiaddr('/ip4/127.0.0.1/tcp/0'))
     const address = listener.getAddrs()[0]
 
     if (address == null) {
