@@ -1,3 +1,10 @@
+## [@libp2p/daemon-server-v3.0.1](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v3.0.0...@libp2p/daemon-server-v3.0.1) (2022-09-21)
+
+
+### Dependencies
+
+* update @multiformats/multiaddr to 11.0.0 ([#128](https://github.com/libp2p/js-libp2p-daemon/issues/128)) ([885d901](https://github.com/libp2p/js-libp2p-daemon/commit/885d9013d82a62e6756b06350932df1242a13296))
+
 ## [@libp2p/daemon-server-v3.0.0](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v2.0.4...@libp2p/daemon-server-v3.0.0) (2022-09-09)
 
 
