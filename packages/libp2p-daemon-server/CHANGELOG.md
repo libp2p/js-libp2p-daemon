@@ -1,3 +1,11 @@
+## [@libp2p/daemon-server-v3.0.2](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v3.0.1...@libp2p/daemon-server-v3.0.2) (2022-10-07)
+
+
+### Dependencies
+
+* bump @libp2p/interface-transport from 1.0.4 to 2.0.0 ([#132](https://github.com/libp2p/js-libp2p-daemon/issues/132)) ([1a7b2cc](https://github.com/libp2p/js-libp2p-daemon/commit/1a7b2cc653dfb51e92edb1f652452e3c793156c3))
+* bump @libp2p/tcp from 3.0.0 to 4.0.1 ([4e64dce](https://github.com/libp2p/js-libp2p-daemon/commit/4e64dce5e6d18dadaa54a20fff7b2da8bbca11ae))
+
 ## [@libp2p/daemon-server-v3.0.1](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v3.0.0...@libp2p/daemon-server-v3.0.1) (2022-09-21)
 
 
