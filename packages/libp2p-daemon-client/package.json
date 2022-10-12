@@ -153,7 +153,7 @@
     "@libp2p/interface-dht": "^1.0.0",
     "@libp2p/interface-mocks": "^6.0.0",
     "@libp2p/interface-peer-store": "^1.0.0",
-    "@libp2p/interface-pubsub": "^2.0.1",
+    "@libp2p/interface-pubsub": "^3.0.0",
     "@libp2p/peer-id-factory": "^1.0.9",
     "aegir": "^37.2.0",
     "it-all": "^1.0.6",
