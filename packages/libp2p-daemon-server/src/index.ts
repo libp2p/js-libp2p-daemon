@@ -1,6 +1,6 @@
 /* eslint max-depth: ["error", 6] */
 
-import { TCP } from '@libp2p/tcp'
+import { tcp } from '@libp2p/tcp'
 import { multiaddr, protocols } from '@multiformats/multiaddr'
 import type { Multiaddr } from '@multiformats/multiaddr'
 import { CID } from 'multiformats/cid'
@@ -15,7 +15,7 @@ import {
   PSRequest,
   StreamInfo
 } from '@libp2p/daemon-protocol'
-import type { Listener } from '@libp2p/interface-transport'
+import type { Listener, Transport } from '@libp2p/interface-transport'
 import type { Connection, MultiaddrConnection, Stream } from '@libp2p/interface-connection'
 import type { PeerId } from '@libp2p/interface-peer-id'
 import type { AbortOptions } from '@libp2p/interfaces'
@@ -66,7 +66,7 @@ export interface Libp2pServer {
 export class Server implements Libp2pServer {
   private readonly multiaddr: Multiaddr
   private readonly libp2p: Libp2p
-  private readonly tcp: TCP
+  private readonly tcp: Transport
   private readonly listener: Listener
   private readonly dhtOperations?: DHTOperations
   private readonly pubsubOperations?: PubSubOperations
@@ -76,7 +76,7 @@ export class Server implements Libp2pServer {
 
     this.multiaddr = multiaddr
     this.libp2p = libp2pNode
-    this.tcp = new TCP()
+    this.tcp = tcp()()
     this.listener = this.tcp.createListener({
       handler: this.handleConnection.bind(this),
       upgrader: passThroughUpgrader

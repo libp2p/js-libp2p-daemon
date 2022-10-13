@@ -1,5 +1,5 @@
 import errcode from 'err-code'
-import { TCP } from '@libp2p/tcp'
+import { tcp } from '@libp2p/tcp'
 import { PSMessage, Request, Response, StreamInfo } from '@libp2p/daemon-protocol'
 import { StreamHandler } from '@libp2p/daemon-protocol/stream-handler'
 import type { Multiaddr } from '@multiformats/multiaddr'
@@ -15,6 +15,7 @@ import type { PeerInfo } from '@libp2p/interface-peer-info'
 import type { MultiaddrConnection } from '@libp2p/interface-connection'
 import type { Uint8ArrayList } from 'uint8arraylist'
 import { logger } from '@libp2p/logger'
+import type { Transport } from '@libp2p/interface-transport'
 
 const log = logger('libp2p:daemon-client')
 
@@ -22,11 +23,11 @@ class Client implements DaemonClient {
   private readonly multiaddr: Multiaddr
   public dht: DHT
   public pubsub: Pubsub
-  private readonly tcp: TCP
+  private readonly tcp: Transport
 
   constructor (addr: Multiaddr) {
     this.multiaddr = addr
-    this.tcp = new TCP()
+    this.tcp = tcp()()
     this.dht = new DHT(this)
     this.pubsub = new Pubsub(this)
   }
