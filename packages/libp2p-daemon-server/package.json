@@ -154,7 +154,7 @@
     "it-pipe": "^2.0.3",
     "it-pushable": "^3.0.0",
     "multiformats": "^9.6.4",
-    "uint8arrays": "^3.0.0"
+    "uint8arrays": "^4.0.2"
   },
   "devDependencies": {
     "aegir": "^37.2.0",
