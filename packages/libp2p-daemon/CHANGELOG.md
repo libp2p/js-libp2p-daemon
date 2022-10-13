@@ -1,3 +1,10 @@
+## [@libp2p/daemon-v2.0.4](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-v2.0.3...@libp2p/daemon-v2.0.4) (2022-10-13)
+
+
+### Dependencies
+
+* update uint8arrays, protons and multiformats ([#143](https://github.com/libp2p/js-libp2p-daemon/issues/143)) ([661139c](https://github.com/libp2p/js-libp2p-daemon/commit/661139c674c9994724e32227d7d9ae2c5da1cea2))
+
 ## [@libp2p/daemon-v2.0.3](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-v2.0.2...@libp2p/daemon-v2.0.3) (2022-09-21)
 
 
