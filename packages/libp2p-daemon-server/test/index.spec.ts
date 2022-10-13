@@ -4,7 +4,7 @@
 import { multiaddr } from '@multiformats/multiaddr'
 import { expect } from 'aegir/chai'
 import { createServer, Libp2p } from '../src/index.js'
-import { stubInterface } from 'ts-sinon'
+import { stubInterface } from 'sinon-ts'
 
 const ma = multiaddr('/ip4/0.0.0.0/tcp/0')
 
