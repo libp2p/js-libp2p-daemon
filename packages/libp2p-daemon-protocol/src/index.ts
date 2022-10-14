@@ -8,7 +8,7 @@ import type { Uint8ArrayList } from 'uint8arraylist'
 import type { Codec } from 'protons-runtime'
 
 export interface Request {
-  type: Request.Type
+  type?: Request.Type
   connect?: ConnectRequest
   streamOpen?: StreamOpenRequest
   streamHandler?: StreamHandlerRequest
@@ -61,7 +61,7 @@ export namespace Request {
           w.fork()
         }
 
-        if (opts.writeDefaults === true || (obj.type != null && __TypeValues[obj.type] !== 0)) {
+        if (obj.type != null) {
           w.uint32(8)
           Request.Type.codec().encode(obj.type, w)
         }
@@ -126,9 +126,7 @@ export namespace Request {
           w.ldelim()
         }
       }, (reader, length) => {
-        const obj: any = {
-          type: Type.IDENTIFY
-        }
+        const obj: any = {}
 
         const end = length == null ? reader.len : reader.pos + length
 
@@ -186,7 +184,7 @@ export namespace Request {
 }
 
 export interface Response {
-  type: Response.Type
+  type?: Response.Type
   error?: ErrorResponse
   streamInfo?: StreamInfo
   identify?: IdentifyResponse
@@ -222,7 +220,7 @@ export namespace Response {
           w.fork()
         }
 
-        if (opts.writeDefaults === true || (obj.type != null && __TypeValues[obj.type] !== 0)) {
+        if (obj.type != null) {
           w.uint32(8)
           Response.Type.codec().encode(obj.type, w)
         }
@@ -283,7 +281,6 @@ export namespace Response {
         }
       }, (reader, length) => {
         const obj: any = {
-          type: Type.OK,
           peers: []
         }
 
@@ -774,7 +771,7 @@ export namespace StreamInfo {
 }
 
 export interface DHTRequest {
-  type: DHTRequest.Type
+  type?: DHTRequest.Type
   peer?: Uint8Array
   cid?: Uint8Array
   key?: Uint8Array
@@ -823,7 +820,7 @@ export namespace DHTRequest {
           w.fork()
         }
 
-        if (opts.writeDefaults === true || (obj.type != null && __TypeValues[obj.type] !== 0)) {
+        if (obj.type != null) {
           w.uint32(8)
           DHTRequest.Type.codec().encode(obj.type, w)
         }
@@ -862,9 +859,7 @@ export namespace DHTRequest {
           w.ldelim()
         }
       }, (reader, length) => {
-        const obj: any = {
-          type: Type.FIND_PEER
-        }
+        const obj: any = {}
 
         const end = length == null ? reader.len : reader.pos + length
 
@@ -916,7 +911,7 @@ export namespace DHTRequest {
 }
 
 export interface DHTResponse {
-  type: DHTResponse.Type
+  type?: DHTResponse.Type
   peer?: PeerInfo
   value?: Uint8Array
 }
@@ -949,7 +944,7 @@ export namespace DHTResponse {
           w.fork()
         }
 
-        if (opts.writeDefaults === true || (obj.type != null && __TypeValues[obj.type] !== 0)) {
+        if (obj.type != null) {
           w.uint32(8)
           DHTResponse.Type.codec().encode(obj.type, w)
         }
@@ -970,9 +965,7 @@ export namespace DHTResponse {
           w.ldelim()
         }
       }, (reader, length) => {
-        const obj: any = {
-          type: Type.BEGIN
-        }
+        const obj: any = {}
 
         const end = length == null ? reader.len : reader.pos + length
 
@@ -1082,7 +1075,7 @@ export namespace PeerInfo {
 }
 
 export interface ConnManagerRequest {
-  type: ConnManagerRequest.Type
+  type?: ConnManagerRequest.Type
   peer?: Uint8Array
   tag?: string
   weight?: bigint
@@ -1116,7 +1109,7 @@ export namespace ConnManagerRequest {
           w.fork()
         }
 
-        if (opts.writeDefaults === true || (obj.type != null && __TypeValues[obj.type] !== 0)) {
+        if (obj.type != null) {
           w.uint32(8)
           ConnManagerRequest.Type.codec().encode(obj.type, w)
         }
@@ -1140,9 +1133,7 @@ export namespace ConnManagerRequest {
           w.ldelim()
         }
       }, (reader, length) => {
-        const obj: any = {
-          type: Type.TAG_PEER
-        }
+        const obj: any = {}
 
         const end = length == null ? reader.len : reader.pos + length
 
@@ -1243,7 +1234,7 @@ export namespace DisconnectRequest {
 }
 
 export interface PSRequest {
-  type: PSRequest.Type
+  type?: PSRequest.Type
   topic?: string
   data?: Uint8Array
 }
@@ -1278,7 +1269,7 @@ export namespace PSRequest {
           w.fork()
         }
 
-        if (opts.writeDefaults === true || (obj.type != null && __TypeValues[obj.type] !== 0)) {
+        if (obj.type != null) {
           w.uint32(8)
           PSRequest.Type.codec().encode(obj.type, w)
         }
@@ -1297,9 +1288,7 @@ export namespace PSRequest {
           w.ldelim()
         }
       }, (reader, length) => {
-        const obj: any = {
-          type: Type.GET_TOPICS
-        }
+        const obj: any = {}
 
         const end = length == null ? reader.len : reader.pos + length
 
@@ -1516,7 +1505,7 @@ export namespace PSResponse {
 }
 
 export interface PeerstoreRequest {
-  type: PeerstoreRequest.Type
+  type?: PeerstoreRequest.Type
   id?: Uint8Array
   protos: string[]
 }
@@ -1549,7 +1538,7 @@ export namespace PeerstoreRequest {
           w.fork()
         }
 
-        if (opts.writeDefaults === true || (obj.type != null && __TypeValues[obj.type] !== 0)) {
+        if (obj.type != null) {
           w.uint32(8)
           PeerstoreRequest.Type.codec().encode(obj.type, w)
         }
@@ -1571,7 +1560,6 @@ export namespace PeerstoreRequest {
         }
       }, (reader, length) => {
         const obj: any = {
-          type: Type.UNSPECIFIED,
           protos: []
         }
 

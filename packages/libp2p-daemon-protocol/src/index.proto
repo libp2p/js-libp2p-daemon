@@ -14,7 +14,11 @@ message Request {
     PEERSTORE      = 9;
   }
 
-  Type type = 1;
+  // the proto2 version of this field is "required" which means it will have
+  // no default value. the default for proto3 is "singluar" which omits the
+  // value on the wire if it's the default so for proto3 we make it "optional"
+  // to ensure a value is always written on to the wire
+  optional Type type = 1;
 
   optional ConnectRequest connect = 2;
   optional StreamOpenRequest streamOpen = 3;
@@ -32,7 +36,12 @@ message Response {
     ERROR = 1;
   }
 
-  Type type = 1;
+  // the proto2 version of this field is "required" which means it will have
+  // no default value. the default for proto3 is "singluar" which omits the
+  // value on the wire if it's the default so for proto3 we make it "optional"
+  // to ensure a value is always written on to the wire
+  optional Type type = 1;
+
   optional ErrorResponse error = 2;
   optional StreamInfo streamInfo = 3;
   optional IdentifyResponse identify = 4;
@@ -87,7 +96,12 @@ message DHTRequest {
     PROVIDE                      = 8;
   }
 
-  Type type = 1;
+  // the proto2 version of this field is "required" which means it will have
+  // no default value. the default for proto3 is "singluar" which omits the
+  // value on the wire if it's the default so for proto3 we make it "optional"
+  // to ensure a value is always written on to the wire
+  optional Type type = 1;
+
   optional bytes peer = 2;
   optional bytes cid = 3;
   optional bytes key = 4;
@@ -103,7 +117,12 @@ message DHTResponse {
     END   = 2;
   }
 
-  Type type = 1;
+  // the proto2 version of this field is "required" which means it will have
+  // no default value. the default for proto3 is "singluar" which omits the
+  // value on the wire if it's the default so for proto3 we make it "optional"
+  // to ensure a value is always written on to the wire
+  optional Type type = 1;
+
   optional PeerInfo peer = 2;
   optional bytes value = 3;
 }
@@ -120,7 +139,11 @@ message ConnManagerRequest {
     TRIM            = 2;
   }
 
-  Type type = 1;
+  // the proto2 version of this field is "required" which means it will have
+  // no default value. the default for proto3 is "singluar" which omits the
+  // value on the wire if it's the default so for proto3 we make it "optional"
+  // to ensure a value is always written on to the wire
+  optional Type type = 1;
 
   optional bytes peer = 2;
   optional string tag = 3;
@@ -139,7 +162,12 @@ message PSRequest {
     SUBSCRIBE  = 3;
   }
 
-  Type type = 1;
+  // the proto2 version of this field is "required" which means it will have
+  // no default value. the default for proto3 is "singluar" which omits the
+  // value on the wire if it's the default so for proto3 we make it "optional"
+  // to ensure a value is always written on to the wire
+  optional Type type = 1;
+
   optional string topic = 2;
   optional bytes data = 3;
 }
@@ -165,7 +193,12 @@ message PeerstoreRequest {
     GET_PEER_INFO = 2;
   }
 
-  Type type = 1;
+  // the proto2 version of this field is "required" which means it will have
+  // no default value. the default for proto3 is "singluar" which omits the
+  // value on the wire if it's the default so for proto3 we make it "optional"
+  // to ensure a value is always written on to the wire
+  optional Type type = 1;
+
   optional bytes id = 2;
   repeated string protos = 3;
 }
