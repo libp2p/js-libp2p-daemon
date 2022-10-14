@@ -41,6 +41,11 @@ export class DHT {
     })
 
     const message = await sh.read()
+
+    if (message == null) {
+      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+    }
+
     const response = Response.decode(message)
 
     await sh.close()
@@ -67,6 +72,11 @@ export class DHT {
     })
 
     const message = await sh.read()
+
+    if (message == null) {
+      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+    }
+
     const response = Response.decode(message)
 
     await sh.close()
@@ -99,6 +109,11 @@ export class DHT {
     })
 
     const message = await sh.read()
+
+    if (message == null) {
+      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+    }
+
     const response = Response.decode(message)
 
     await sh.close()
@@ -135,6 +150,11 @@ export class DHT {
     })
 
     const message = await sh.read()
+
+    if (message == null) {
+      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+    }
+
     const response = Response.decode(message)
 
     await sh.close()
@@ -163,6 +183,10 @@ export class DHT {
 
     let message = await sh.read()
 
+    if (message == null) {
+      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+    }
+
     // stream begin message
     const response = Response.decode(message)
 
@@ -173,6 +197,11 @@ export class DHT {
 
     while (true) {
       message = await sh.read()
+
+      if (message == null) {
+        throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+      }
+
       const response = DHTResponse.decode(message)
 
       // Stream end
@@ -214,6 +243,11 @@ export class DHT {
 
     // stream begin message
     let message = await sh.read()
+
+    if (message == null) {
+      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+    }
+
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
@@ -223,6 +257,11 @@ export class DHT {
 
     while (true) {
       message = await sh.read()
+
+      if (message == null) {
+        throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+      }
+
       const response = DHTResponse.decode(message)
 
       // Stream end
@@ -265,6 +304,11 @@ export class DHT {
     })
 
     const message = await sh.read()
+
+    if (message == null) {
+      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+    }
+
     const response = Response.decode(message)
 
     await sh.close()

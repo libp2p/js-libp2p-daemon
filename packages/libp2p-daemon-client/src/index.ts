@@ -114,6 +114,11 @@ class Client implements DaemonClient {
     })
 
     const message = await sh.read()
+
+    if (message == null) {
+      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+    }
+
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
@@ -141,6 +146,11 @@ class Client implements DaemonClient {
     })
 
     const message = await sh.read()
+
+    if (message == null) {
+      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+    }
+
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
@@ -173,6 +183,11 @@ class Client implements DaemonClient {
     })
 
     const message = await sh.read()
+
+    if (message == null) {
+      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+    }
+
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
@@ -243,6 +258,11 @@ class Client implements DaemonClient {
     })
 
     const message = await sh.read()
+
+    if (message == null) {
+      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+    }
+
     const response = Response.decode(message)
 
     await sh.close()
