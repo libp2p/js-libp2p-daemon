@@ -1,3 +1,10 @@
+## [@libp2p/daemon-server-v3.0.4](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v3.0.3...@libp2p/daemon-server-v3.0.4) (2022-10-14)
+
+
+### Dependencies
+
+* **dev:** bump sinon-ts from 0.0.2 to 1.0.0 ([#144](https://github.com/libp2p/js-libp2p-daemon/issues/144)) ([cfc8755](https://github.com/libp2p/js-libp2p-daemon/commit/cfc8755aa1280ac4fc2aae67cf47d7b0b93f605d))
+
 ## [@libp2p/daemon-server-v3.0.3](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v3.0.2...@libp2p/daemon-server-v3.0.3) (2022-10-13)
 
 
