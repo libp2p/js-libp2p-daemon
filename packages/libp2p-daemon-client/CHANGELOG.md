@@ -1,3 +1,10 @@
+## [@libp2p/daemon-client-v3.0.5](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v3.0.4...@libp2p/daemon-client-v3.0.5) (2022-10-14)
+
+
+### Bug Fixes
+
+* handle empty responses ([#145](https://github.com/libp2p/js-libp2p-daemon/issues/145)) ([0dfb823](https://github.com/libp2p/js-libp2p-daemon/commit/0dfb8236a0ab57a55fa0ebb91ac7a776a9f709da))
+
 ## [@libp2p/daemon-client-v3.0.4](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v3.0.3...@libp2p/daemon-client-v3.0.4) (2022-10-14)
 
 
