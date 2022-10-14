@@ -28,6 +28,11 @@ export class Pubsub {
     })
 
     const message = await sh.read()
+
+    if (message == null) {
+      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+    }
+
     const response = Response.decode(message)
 
     await sh.close()
@@ -65,6 +70,11 @@ export class Pubsub {
     })
 
     const message = await sh.read()
+
+    if (message == null) {
+      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+    }
+
     const response = Response.decode(message)
 
     await sh.close()
@@ -91,6 +101,11 @@ export class Pubsub {
     })
 
     let message = await sh.read()
+
+    if (message == null) {
+      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+    }
+
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
@@ -100,6 +115,11 @@ export class Pubsub {
     // stream messages
     while (true) {
       message = await sh.read()
+
+      if (message == null) {
+        throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+      }
+
       yield PSMessage.decode(message)
     }
   }
