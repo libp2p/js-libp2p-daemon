@@ -1,3 +1,10 @@
+## [@libp2p/daemon-client-v3.0.6](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v3.0.5...@libp2p/daemon-client-v3.0.6) (2022-10-17)
+
+
+### Dependencies
+
+* **dev:** bump it-all from 1.0.6 to 2.0.0 ([#148](https://github.com/libp2p/js-libp2p-daemon/issues/148)) ([1caa500](https://github.com/libp2p/js-libp2p-daemon/commit/1caa5006157e864bcbe4efb8f9474328b08821c3))
+
 ## [@libp2p/daemon-client-v3.0.5](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v3.0.4...@libp2p/daemon-client-v3.0.5) (2022-10-14)
 
 
