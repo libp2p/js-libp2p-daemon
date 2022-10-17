@@ -1,3 +1,10 @@
+## [@libp2p/daemon-server-v3.0.5](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v3.0.4...@libp2p/daemon-server-v3.0.5) (2022-10-17)
+
+
+### Dependencies
+
+* bump it-drain from 1.0.5 to 2.0.0 ([#147](https://github.com/libp2p/js-libp2p-daemon/issues/147)) ([56663f8](https://github.com/libp2p/js-libp2p-daemon/commit/56663f83255a0720b4bf4c7e3805ee4ced8dc86d))
+
 ## [@libp2p/daemon-server-v3.0.4](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v3.0.3...@libp2p/daemon-server-v3.0.4) (2022-10-14)
 
 
