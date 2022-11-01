@@ -2,7 +2,7 @@
 
 import { expect } from 'aegir/chai'
 import sinon from 'sinon'
-import { Multiaddr } from '@multiformats/multiaddr'
+import { multiaddr } from '@multiformats/multiaddr'
 import cli from '../src/index.js'
 import server from '../src/server.js'
 
@@ -35,7 +35,7 @@ describe('cli', () => {
       return {
         start: async () => {},
         stop: async () => {},
-        getMultiaddr: () => new Multiaddr()
+        getMultiaddr: () => multiaddr()
       }
     })
 
@@ -68,7 +68,7 @@ describe('cli', () => {
       return {
         start: async () => {},
         stop: async () => {},
-        getMultiaddr: () => new Multiaddr()
+        getMultiaddr: () => multiaddr()
       }
     })
 
