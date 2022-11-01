@@ -1,3 +1,25 @@
+## [@libp2p/daemon-protocol-v3.0.4](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-v3.0.3...@libp2p/daemon-protocol-v3.0.4) (2022-10-14)
+
+
+### Bug Fixes
+
+* handle empty responses ([#145](https://github.com/libp2p/js-libp2p-daemon/issues/145)) ([0dfb823](https://github.com/libp2p/js-libp2p-daemon/commit/0dfb8236a0ab57a55fa0ebb91ac7a776a9f709da))
+* restore proto2 compatibility ([#146](https://github.com/libp2p/js-libp2p-daemon/issues/146)) ([9fe8e04](https://github.com/libp2p/js-libp2p-daemon/commit/9fe8e042757ec107cc137a9452fd021a62620b3c))
+
+## [@libp2p/daemon-protocol-v3.0.3](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-v3.0.2...@libp2p/daemon-protocol-v3.0.3) (2022-10-13)
+
+
+### Dependencies
+
+* update uint8arrays, protons and multiformats ([#143](https://github.com/libp2p/js-libp2p-daemon/issues/143)) ([661139c](https://github.com/libp2p/js-libp2p-daemon/commit/661139c674c9994724e32227d7d9ae2c5da1cea2))
+
+## [@libp2p/daemon-protocol-v3.0.2](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-v3.0.1...@libp2p/daemon-protocol-v3.0.2) (2022-10-07)
+
+
+### Dependencies
+
+* bump @libp2p/interface-transport from 1.0.4 to 2.0.0 ([#132](https://github.com/libp2p/js-libp2p-daemon/issues/132)) ([1a7b2cc](https://github.com/libp2p/js-libp2p-daemon/commit/1a7b2cc653dfb51e92edb1f652452e3c793156c3))
+
 ## [@libp2p/daemon-protocol-v3.0.1](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-v3.0.0...@libp2p/daemon-protocol-v3.0.1) (2022-09-14)
 
 

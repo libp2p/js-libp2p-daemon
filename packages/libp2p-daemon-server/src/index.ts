@@ -1,7 +1,8 @@
 /* eslint max-depth: ["error", 6] */
 
-import { TCP } from '@libp2p/tcp'
-import { Multiaddr, protocols } from '@multiformats/multiaddr'
+import { tcp } from '@libp2p/tcp'
+import { multiaddr, protocols } from '@multiformats/multiaddr'
+import type { Multiaddr } from '@multiformats/multiaddr'
 import { CID } from 'multiformats/cid'
 import * as lp from 'it-length-prefixed'
 import { pipe } from 'it-pipe'
@@ -14,7 +15,7 @@ import {
   PSRequest,
   StreamInfo
 } from '@libp2p/daemon-protocol'
-import type { Listener } from '@libp2p/interface-transport'
+import type { Listener, Transport } from '@libp2p/interface-transport'
 import type { Connection, MultiaddrConnection, Stream } from '@libp2p/interface-connection'
 import type { PeerId } from '@libp2p/interface-peer-id'
 import type { AbortOptions } from '@libp2p/interfaces'
@@ -65,7 +66,7 @@ export interface Libp2pServer {
 export class Server implements Libp2pServer {
   private readonly multiaddr: Multiaddr
   private readonly libp2p: Libp2p
-  private readonly tcp: TCP
+  private readonly tcp: Transport
   private readonly listener: Listener
   private readonly dhtOperations?: DHTOperations
   private readonly pubsubOperations?: PubSubOperations
@@ -75,7 +76,7 @@ export class Server implements Libp2pServer {
 
     this.multiaddr = multiaddr
     this.libp2p = libp2pNode
-    this.tcp = new TCP()
+    this.tcp = tcp()()
     this.listener = this.tcp.createListener({
       handler: this.handleConnection.bind(this),
       upgrader: passThroughUpgrader
@@ -100,7 +101,7 @@ export class Server implements Libp2pServer {
     }
 
     const peer = request.connect.peer
-    const addrs = request.connect.addrs.map((a) => new Multiaddr(a))
+    const addrs = request.connect.addrs.map((a) => multiaddr(a))
     const peerId = peerIdFromBytes(peer)
 
     await this.libp2p.peerStore.addressBook.set(peerId, addrs)
@@ -141,7 +142,7 @@ export class Server implements Libp2pServer {
     }
 
     const protocols = request.streamHandler.proto
-    const addr = new Multiaddr(request.streamHandler.addr)
+    const addr = multiaddr(request.streamHandler.addr)
     let conn: MultiaddrConnection
 
     await this.libp2p.handle(protocols, ({ connection, stream }) => {

@@ -1,3 +1,39 @@
+## [@libp2p/daemon-server-v3.0.5](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v3.0.4...@libp2p/daemon-server-v3.0.5) (2022-10-17)
+
+
+### Dependencies
+
+* bump it-drain from 1.0.5 to 2.0.0 ([#147](https://github.com/libp2p/js-libp2p-daemon/issues/147)) ([56663f8](https://github.com/libp2p/js-libp2p-daemon/commit/56663f83255a0720b4bf4c7e3805ee4ced8dc86d))
+
+## [@libp2p/daemon-server-v3.0.4](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v3.0.3...@libp2p/daemon-server-v3.0.4) (2022-10-14)
+
+
+### Dependencies
+
+* **dev:** bump sinon-ts from 0.0.2 to 1.0.0 ([#144](https://github.com/libp2p/js-libp2p-daemon/issues/144)) ([cfc8755](https://github.com/libp2p/js-libp2p-daemon/commit/cfc8755aa1280ac4fc2aae67cf47d7b0b93f605d))
+
+## [@libp2p/daemon-server-v3.0.3](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v3.0.2...@libp2p/daemon-server-v3.0.3) (2022-10-13)
+
+
+### Dependencies
+
+* update uint8arrays, protons and multiformats ([#143](https://github.com/libp2p/js-libp2p-daemon/issues/143)) ([661139c](https://github.com/libp2p/js-libp2p-daemon/commit/661139c674c9994724e32227d7d9ae2c5da1cea2))
+
+## [@libp2p/daemon-server-v3.0.2](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v3.0.1...@libp2p/daemon-server-v3.0.2) (2022-10-07)
+
+
+### Dependencies
+
+* bump @libp2p/interface-transport from 1.0.4 to 2.0.0 ([#132](https://github.com/libp2p/js-libp2p-daemon/issues/132)) ([1a7b2cc](https://github.com/libp2p/js-libp2p-daemon/commit/1a7b2cc653dfb51e92edb1f652452e3c793156c3))
+* bump @libp2p/tcp from 3.0.0 to 4.0.1 ([4e64dce](https://github.com/libp2p/js-libp2p-daemon/commit/4e64dce5e6d18dadaa54a20fff7b2da8bbca11ae))
+
+## [@libp2p/daemon-server-v3.0.1](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v3.0.0...@libp2p/daemon-server-v3.0.1) (2022-09-21)
+
+
+### Dependencies
+
+* update @multiformats/multiaddr to 11.0.0 ([#128](https://github.com/libp2p/js-libp2p-daemon/issues/128)) ([885d901](https://github.com/libp2p/js-libp2p-daemon/commit/885d9013d82a62e6756b06350932df1242a13296))
+
 ## [@libp2p/daemon-server-v3.0.0](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v2.0.4...@libp2p/daemon-server-v3.0.0) (2022-09-09)
 
 

@@ -5,14 +5,18 @@ import sinon from 'sinon'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { createServer, Libp2p, Libp2pServer } from '@libp2p/daemon-server'
 import { createClient, DaemonClient } from '../src/index.js'
-import { Multiaddr } from '@multiformats/multiaddr'
-import { StubbedInstance, stubInterface } from 'ts-sinon'
+import { multiaddr } from '@multiformats/multiaddr'
+import { StubbedInstance, stubInterface } from 'sinon-ts'
 import { DualDHT, ValueEvent, FinalPeerEvent, PeerResponseEvent, MessageType, EventTypes } from '@libp2p/interface-dht'
 import { peerIdFromString } from '@libp2p/peer-id'
 import { CID } from 'multiformats/cid'
 import all from 'it-all'
 
-const defaultMultiaddr = new Multiaddr('/ip4/0.0.0.0/tcp/12345')
+const defaultMultiaddr = multiaddr('/ip4/0.0.0.0/tcp/12345')
+
+function match (cid: CID) {
+  return sinon.match((c: CID) => c.toString() === cid.toString(), 'cid')
+}
 
 describe('daemon dht client', function () {
   this.timeout(30e3)
@@ -138,7 +142,7 @@ describe('daemon dht client', function () {
 
       await client.dht.provide(cid)
 
-      expect(dht.provide.calledWith(cid)).to.be.true()
+      expect(dht.provide.calledWith(match(cid))).to.be.true()
     })
 
     it('should error if receive an error message', async () => {
@@ -157,7 +161,7 @@ describe('daemon dht client', function () {
       const cid = CID.parse('QmVzw6MPsF96TyXBSRs1ptLoVMWRv5FCYJZZGJSVB2Hp38')
       const id = peerIdFromString('12D3KooWJKCJW8Y26pRFNv78TCMGLNTfyN8oKaFswMRYXTzSbSsa')
 
-      dht.findProviders.withArgs(cid).returns(async function * () {
+      dht.findProviders.withArgs(match(cid)).returns(async function * () {
         const event: PeerResponseEvent = {
           name: 'PEER_RESPONSE',
           type: EventTypes.PEER_RESPONSE,

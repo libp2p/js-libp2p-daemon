@@ -1,8 +1,9 @@
 import errcode from 'err-code'
-import { TCP } from '@libp2p/tcp'
+import { tcp } from '@libp2p/tcp'
 import { PSMessage, Request, Response, StreamInfo } from '@libp2p/daemon-protocol'
 import { StreamHandler } from '@libp2p/daemon-protocol/stream-handler'
-import { Multiaddr } from '@multiformats/multiaddr'
+import type { Multiaddr } from '@multiformats/multiaddr'
+import { multiaddr, isMultiaddr } from '@multiformats/multiaddr'
 import { DHT } from './dht.js'
 import { Pubsub } from './pubsub.js'
 import { isPeerId, PeerId } from '@libp2p/interface-peer-id'
@@ -14,6 +15,7 @@ import type { PeerInfo } from '@libp2p/interface-peer-info'
 import type { MultiaddrConnection } from '@libp2p/interface-connection'
 import type { Uint8ArrayList } from 'uint8arraylist'
 import { logger } from '@libp2p/logger'
+import type { Transport } from '@libp2p/interface-transport'
 
 const log = logger('libp2p:daemon-client')
 
@@ -21,11 +23,11 @@ class Client implements DaemonClient {
   private readonly multiaddr: Multiaddr
   public dht: DHT
   public pubsub: Pubsub
-  private readonly tcp: TCP
+  private readonly tcp: Transport
 
   constructor (addr: Multiaddr) {
     this.multiaddr = addr
-    this.tcp = new TCP()
+    this.tcp = tcp()()
     this.dht = new DHT(this)
     this.pubsub = new Pubsub(this)
   }
@@ -70,7 +72,7 @@ class Client implements DaemonClient {
     }
 
     addrs.forEach((addr) => {
-      if (!Multiaddr.isMultiaddr(addr)) {
+      if (!isMultiaddr(addr)) {
         throw errcode(new Error('received an address that is not a multiaddr'), 'ERR_NO_MULTIADDR_RECEIVED')
       }
     })
@@ -112,6 +114,11 @@ class Client implements DaemonClient {
     })
 
     const message = await sh.read()
+
+    if (message == null) {
+      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+    }
+
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
@@ -123,7 +130,7 @@ class Client implements DaemonClient {
     }
 
     const peerId = peerIdFromBytes(response.identify?.id)
-    const addrs = response.identify.addrs.map((a) => new Multiaddr(a))
+    const addrs = response.identify.addrs.map((a) => multiaddr(a))
 
     await sh.close()
 
@@ -139,6 +146,11 @@ class Client implements DaemonClient {
     })
 
     const message = await sh.read()
+
+    if (message == null) {
+      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+    }
+
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
@@ -171,6 +183,11 @@ class Client implements DaemonClient {
     })
 
     const message = await sh.read()
+
+    if (message == null) {
+      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+    }
+
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
@@ -225,7 +242,7 @@ class Client implements DaemonClient {
           })
       }
     })
-    await listener.listen(new Multiaddr('/ip4/127.0.0.1/tcp/0'))
+    await listener.listen(multiaddr('/ip4/127.0.0.1/tcp/0'))
     const address = listener.getAddrs()[0]
 
     if (address == null) {
@@ -241,6 +258,11 @@ class Client implements DaemonClient {
     })
 
     const message = await sh.read()
+
+    if (message == null) {
+      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+    }
+
     const response = Response.decode(message)
 
     await sh.close()

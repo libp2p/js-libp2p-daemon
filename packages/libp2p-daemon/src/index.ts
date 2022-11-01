@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 /* eslint no-console: ["error", { allow: ["log", "warn", "error"] }] */
 
-import { Multiaddr } from '@multiformats/multiaddr'
+import { multiaddr } from '@multiformats/multiaddr'
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
 import esMain from 'es-main'
@@ -138,7 +138,7 @@ export default async function main (processArgs: string[]) {
     })
     .parse()
 
-  const daemon = await server.createLibp2pServer(new Multiaddr(argv.listen), argv)
+  const daemon = await server.createLibp2pServer(multiaddr(argv.listen), argv)
   await daemon.start()
 
   if (argv.quiet !== true) {

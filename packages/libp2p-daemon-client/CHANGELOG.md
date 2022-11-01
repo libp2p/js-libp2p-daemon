@@ -1,3 +1,47 @@
+## [@libp2p/daemon-client-v3.0.6](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v3.0.5...@libp2p/daemon-client-v3.0.6) (2022-10-17)
+
+
+### Dependencies
+
+* **dev:** bump it-all from 1.0.6 to 2.0.0 ([#148](https://github.com/libp2p/js-libp2p-daemon/issues/148)) ([1caa500](https://github.com/libp2p/js-libp2p-daemon/commit/1caa5006157e864bcbe4efb8f9474328b08821c3))
+
+## [@libp2p/daemon-client-v3.0.5](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v3.0.4...@libp2p/daemon-client-v3.0.5) (2022-10-14)
+
+
+### Bug Fixes
+
+* handle empty responses ([#145](https://github.com/libp2p/js-libp2p-daemon/issues/145)) ([0dfb823](https://github.com/libp2p/js-libp2p-daemon/commit/0dfb8236a0ab57a55fa0ebb91ac7a776a9f709da))
+
+## [@libp2p/daemon-client-v3.0.4](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v3.0.3...@libp2p/daemon-client-v3.0.4) (2022-10-14)
+
+
+### Dependencies
+
+* **dev:** bump sinon-ts from 0.0.2 to 1.0.0 ([#144](https://github.com/libp2p/js-libp2p-daemon/issues/144)) ([cfc8755](https://github.com/libp2p/js-libp2p-daemon/commit/cfc8755aa1280ac4fc2aae67cf47d7b0b93f605d))
+
+## [@libp2p/daemon-client-v3.0.3](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v3.0.2...@libp2p/daemon-client-v3.0.3) (2022-10-13)
+
+
+### Dependencies
+
+* update uint8arrays, protons and multiformats ([#143](https://github.com/libp2p/js-libp2p-daemon/issues/143)) ([661139c](https://github.com/libp2p/js-libp2p-daemon/commit/661139c674c9994724e32227d7d9ae2c5da1cea2))
+
+## [@libp2p/daemon-client-v3.0.2](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v3.0.1...@libp2p/daemon-client-v3.0.2) (2022-10-07)
+
+
+### Dependencies
+
+* bump @libp2p/tcp from 3.0.0 to 4.0.1 ([4e64dce](https://github.com/libp2p/js-libp2p-daemon/commit/4e64dce5e6d18dadaa54a20fff7b2da8bbca11ae))
+* **dev:** bump @libp2p/components from 2.1.1 to 3.0.1 ([#133](https://github.com/libp2p/js-libp2p-daemon/issues/133)) ([6d75a57](https://github.com/libp2p/js-libp2p-daemon/commit/6d75a5742040a594c02aa92ee6acf4ef9080ebac))
+* **dev:** bump @libp2p/interface-mocks from 4.0.3 to 6.0.0 ([#130](https://github.com/libp2p/js-libp2p-daemon/issues/130)) ([3807d1d](https://github.com/libp2p/js-libp2p-daemon/commit/3807d1dd9b037938dbe3dd9e9fb2560489d5d603))
+
+## [@libp2p/daemon-client-v3.0.1](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v3.0.0...@libp2p/daemon-client-v3.0.1) (2022-09-21)
+
+
+### Dependencies
+
+* update @multiformats/multiaddr to 11.0.0 ([#128](https://github.com/libp2p/js-libp2p-daemon/issues/128)) ([885d901](https://github.com/libp2p/js-libp2p-daemon/commit/885d9013d82a62e6756b06350932df1242a13296))
+
 ## [@libp2p/daemon-client-v3.0.0](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v2.0.4...@libp2p/daemon-client-v3.0.0) (2022-09-09)
 
 

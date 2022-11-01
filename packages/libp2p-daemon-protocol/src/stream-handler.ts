@@ -30,7 +30,7 @@ export class StreamHandler {
   /**
    * Read and decode message
    */
-  async read () {
+  async read (): Promise<Uint8Array | undefined> {
     // @ts-expect-error decoder is really a generator
     const msg = await this.decoder.next()
     if (msg.value != null) {
@@ -52,7 +52,7 @@ export class StreamHandler {
   /**
    * Return the handshake rest stream and invalidate handler
    */
-  rest () {
+  rest (): Duplex<Uint8ArrayList, Uint8Array> {
     this.shake.rest()
     return this.shake.stream as Duplex<Uint8Array | Uint8ArrayList>
   }
@@ -60,7 +60,7 @@ export class StreamHandler {
   /**
    * Close the stream
    */
-  async close () {
+  async close (): Promise<void> {
     log('closing the stream')
     await this.rest().sink([])
   }

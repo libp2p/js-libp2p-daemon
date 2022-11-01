@@ -4,8 +4,8 @@ import { expect } from 'aegir/chai'
 import sinon from 'sinon'
 import { createServer, Libp2p, Libp2pServer } from '@libp2p/daemon-server'
 import { createClient, DaemonClient } from '../src/index.js'
-import { Multiaddr } from '@multiformats/multiaddr'
-import { StubbedInstance, stubInterface } from 'ts-sinon'
+import { multiaddr } from '@multiformats/multiaddr'
+import { StubbedInstance, stubInterface } from 'sinon-ts'
 import { peerIdFromString } from '@libp2p/peer-id'
 import { mockRegistrar, connectionPair } from '@libp2p/interface-mocks'
 import type { PeerStore, AddressBook } from '@libp2p/interface-peer-store'
@@ -15,7 +15,7 @@ import all from 'it-all'
 import { pipe } from 'it-pipe'
 import { Components } from '@libp2p/components'
 
-const defaultMultiaddr = new Multiaddr('/ip4/0.0.0.0/tcp/0')
+const defaultMultiaddr = multiaddr('/ip4/0.0.0.0/tcp/0')
 
 describe('daemon stream client', function () {
   this.timeout(50e3)

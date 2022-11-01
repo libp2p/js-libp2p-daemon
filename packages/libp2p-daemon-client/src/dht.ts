@@ -1,5 +1,5 @@
 import { CID } from 'multiformats/cid'
-import { Multiaddr } from '@multiformats/multiaddr'
+import { multiaddr } from '@multiformats/multiaddr'
 import errcode from 'err-code'
 import {
   Request,
@@ -41,6 +41,11 @@ export class DHT {
     })
 
     const message = await sh.read()
+
+    if (message == null) {
+      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+    }
+
     const response = Response.decode(message)
 
     await sh.close()
@@ -67,6 +72,11 @@ export class DHT {
     })
 
     const message = await sh.read()
+
+    if (message == null) {
+      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+    }
+
     const response = Response.decode(message)
 
     await sh.close()
@@ -99,6 +109,11 @@ export class DHT {
     })
 
     const message = await sh.read()
+
+    if (message == null) {
+      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+    }
+
     const response = Response.decode(message)
 
     await sh.close()
@@ -113,7 +128,7 @@ export class DHT {
 
     return {
       id: peerIdFromBytes(response.dht.peer.id),
-      multiaddrs: response.dht.peer.addrs.map((a) => new Multiaddr(a)),
+      multiaddrs: response.dht.peer.addrs.map((a) => multiaddr(a)),
       protocols: []
     }
   }
@@ -135,6 +150,11 @@ export class DHT {
     })
 
     const message = await sh.read()
+
+    if (message == null) {
+      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+    }
+
     const response = Response.decode(message)
 
     await sh.close()
@@ -163,6 +183,10 @@ export class DHT {
 
     let message = await sh.read()
 
+    if (message == null) {
+      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+    }
+
     // stream begin message
     const response = Response.decode(message)
 
@@ -173,6 +197,11 @@ export class DHT {
 
     while (true) {
       message = await sh.read()
+
+      if (message == null) {
+        throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+      }
+
       const response = DHTResponse.decode(message)
 
       // Stream end
@@ -185,7 +214,7 @@ export class DHT {
       if (response.type === DHTResponse.Type.VALUE && response.peer != null && response.peer?.addrs != null) {
         yield {
           id: peerIdFromBytes(response.peer.id),
-          multiaddrs: response.peer.addrs.map((a) => new Multiaddr(a)),
+          multiaddrs: response.peer.addrs.map((a) => multiaddr(a)),
           protocols: []
         }
       } else {
@@ -214,6 +243,11 @@ export class DHT {
 
     // stream begin message
     let message = await sh.read()
+
+    if (message == null) {
+      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+    }
+
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
@@ -223,6 +257,11 @@ export class DHT {
 
     while (true) {
       message = await sh.read()
+
+      if (message == null) {
+        throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+      }
+
       const response = DHTResponse.decode(message)
 
       // Stream end
@@ -265,6 +304,11 @@ export class DHT {
     })
 
     const message = await sh.read()
+
+    if (message == null) {
+      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+    }
+
     const response = Response.decode(message)
 
     await sh.close()

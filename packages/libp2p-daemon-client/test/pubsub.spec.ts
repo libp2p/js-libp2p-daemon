@@ -5,11 +5,11 @@ import sinon from 'sinon'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { createServer, Libp2p, Libp2pServer } from '@libp2p/daemon-server'
 import { createClient, DaemonClient } from '../src/index.js'
-import { Multiaddr } from '@multiformats/multiaddr'
-import { StubbedInstance, stubInterface } from 'ts-sinon'
+import { multiaddr } from '@multiformats/multiaddr'
+import { StubbedInstance, stubInterface } from 'sinon-ts'
 import type { PubSub } from '@libp2p/interface-pubsub'
 
-const defaultMultiaddr = new Multiaddr('/ip4/0.0.0.0/tcp/12345')
+const defaultMultiaddr = multiaddr('/ip4/0.0.0.0/tcp/12345')
 
 describe('daemon pubsub client', function () {
   this.timeout(30e3)
