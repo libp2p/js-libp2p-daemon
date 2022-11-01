@@ -54,7 +54,7 @@ export class StreamHandler {
    */
   rest (): Duplex<Uint8ArrayList, Uint8Array> {
     this.shake.rest()
-    return this.shake.stream as Duplex<Uint8Array | Uint8ArrayList>
+    return this.shake.stream
   }
 
   /**
