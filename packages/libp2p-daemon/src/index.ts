@@ -29,7 +29,7 @@ export default async function main (processArgs: string[]) {
     .option('hostAddrs', {
       desc: 'Comma separated list of multiaddrs the host should listen on',
       type: 'string',
-      default: '/ip4/0.0.0.0/tcp/0'
+      default: '/ip4/127.0.0.1/tcp/0'
     })
     .option('announceAddrs', {
       desc: 'Comma separated list of multiaddrs the host should announce to the network',
