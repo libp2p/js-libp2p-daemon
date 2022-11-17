@@ -147,7 +147,7 @@
     "@libp2p/interfaces": "^3.0.2",
     "@libp2p/logger": "^2.0.0",
     "@libp2p/peer-id": "^1.1.10",
-    "@libp2p/tcp": "^5.0.0",
+    "@libp2p/tcp": "^6.0.1",
     "@multiformats/multiaddr": "^11.0.0",
     "it-drain": "^2.0.0",
     "it-length-prefixed": "^8.0.2",
