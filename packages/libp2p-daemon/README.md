@@ -18,7 +18,7 @@
 ## Install
 
 ```console
-$ npm i @libp2p/daemon
+$ npm i --location=global @libp2p/daemon
 ```
 
 ## Specs
