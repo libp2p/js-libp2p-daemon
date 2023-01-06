@@ -22,7 +22,7 @@
   "types": "./dist/src/index.d.ts",
   "files": [
     "src",
-    "dist/src",
+    "dist",
     "!dist/test",
     "!**/*.tsbuildinfo"
   ],
@@ -156,7 +156,7 @@
     "@libp2p/interface-peer-store": "^1.0.0",
     "@libp2p/interface-pubsub": "^3.0.0",
     "@libp2p/peer-id-factory": "^1.0.9",
-    "aegir": "^37.2.0",
+    "aegir": "^37.9.1",
     "it-all": "^2.0.0",
     "it-pipe": "^2.0.3",
     "sinon": "^14.0.0",
