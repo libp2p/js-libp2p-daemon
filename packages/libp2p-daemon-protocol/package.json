@@ -36,7 +36,7 @@
   },
   "files": [
     "src",
-    "dist/src",
+    "dist",
     "!dist/test",
     "!**/*.tsbuildinfo"
   ],
@@ -163,7 +163,7 @@
     "uint8arraylist": "^2.3.2"
   },
   "devDependencies": {
-    "aegir": "^37.2.0",
+    "aegir": "^37.9.1",
     "protons": "^6.0.0"
   }
 }

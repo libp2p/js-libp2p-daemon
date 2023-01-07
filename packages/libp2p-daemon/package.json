@@ -25,7 +25,7 @@
   "types": "./dist/src/index.d.ts",
   "files": [
     "src",
-    "dist/src",
+    "dist",
     "!dist/test",
     "!**/*.tsbuildinfo"
   ],
@@ -143,7 +143,7 @@
     "yargs-promise": "^1.1.0"
   },
   "devDependencies": {
-    "aegir": "^37.2.0",
+    "aegir": "^37.9.1",
     "sinon": "^14.0.0"
   }
 }
