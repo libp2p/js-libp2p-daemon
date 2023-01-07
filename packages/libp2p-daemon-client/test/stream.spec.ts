@@ -65,12 +65,12 @@ describe('daemon stream client', function () {
     })
 
     const [peerAtoPeerB] = connectionPair({
-        peerId: peerA,
-        registrar: registrarA
-      }, {
-        peerId: peerB,
-        registrar: registrarB
-      }
+      peerId: peerA,
+      registrar: registrarA
+    }, {
+      peerId: peerB,
+      registrar: registrarB
+    }
     )
 
     libp2p.dial.withArgs(peerB).resolves(peerAtoPeerB)
