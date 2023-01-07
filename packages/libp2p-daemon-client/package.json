@@ -148,7 +148,7 @@
     "uint8arraylist": "^2.3.2"
   },
   "devDependencies": {
-    "@libp2p/daemon-server": "^3.0.0",
+    "@libp2p/daemon-server": "^4.0.0",
     "@libp2p/interface-compliance-tests": "^3.0.1",
     "@libp2p/interface-dht": "^2.0.0",
     "@libp2p/interface-mocks": "^9.0.0",
