@@ -1,3 +1,14 @@
+## [@libp2p/daemon-server-v4.0.0](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v3.0.5...@libp2p/daemon-server-v4.0.0) (2023-01-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* Update multiformats and related dependencies (#170)
+
+### Dependencies
+
+* Update multiformats and related dependencies ([#170](https://github.com/libp2p/js-libp2p-daemon/issues/170)) ([06744a7](https://github.com/libp2p/js-libp2p-daemon/commit/06744a77006dc77dcfb7bd860e4dc6f36a535603))
+
 ## [@libp2p/daemon-server-v3.0.5](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v3.0.4...@libp2p/daemon-server-v3.0.5) (2022-10-17)
 
 
