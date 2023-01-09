@@ -1,4 +1,4 @@
-import errcode from 'err-code'
+import { CodeError } from '@libp2p/interfaces/errors'
 import { tcp } from '@libp2p/tcp'
 import { PSMessage, Request, Response, StreamInfo } from '@libp2p/daemon-protocol'
 import { StreamHandler } from '@libp2p/daemon-protocol/stream-handler'
@@ -64,16 +64,16 @@ class Client implements DaemonClient {
    */
   async connect (peerId: PeerId, addrs: Multiaddr[]) {
     if (!isPeerId(peerId)) {
-      throw errcode(new Error('invalid peer id received'), 'ERR_INVALID_PEER_ID')
+      throw new CodeError('invalid peer id received', 'ERR_INVALID_PEER_ID')
     }
 
     if (!Array.isArray(addrs)) {
-      throw errcode(new Error('addrs received are not in an array'), 'ERR_INVALID_ADDRS_TYPE')
+      throw new CodeError('addrs received are not in an array', 'ERR_INVALID_ADDRS_TYPE')
     }
 
     addrs.forEach((addr) => {
       if (!isMultiaddr(addr)) {
-        throw errcode(new Error('received an address that is not a multiaddr'), 'ERR_NO_MULTIADDR_RECEIVED')
+        throw new CodeError('received an address that is not a multiaddr', 'ERR_NO_MULTIADDR_RECEIVED')
       }
     })
 
@@ -87,13 +87,13 @@ class Client implements DaemonClient {
 
     const message = await sh.read()
     if (message == null) {
-      throw errcode(new Error('unspecified'), 'ERR_CONNECT_FAILED')
+      throw new CodeError('unspecified', 'ERR_CONNECT_FAILED')
     }
 
     const response = Response.decode(message)
     if (response.type !== Response.Type.OK) {
       const errResponse = response.error ?? { msg: 'unspecified' }
-      throw errcode(new Error(errResponse.msg ?? 'unspecified'), 'ERR_CONNECT_FAILED')
+      throw new CodeError(errResponse.msg ?? 'unspecified', 'ERR_CONNECT_FAILED')
     }
 
     await sh.close()
@@ -116,17 +116,17 @@ class Client implements DaemonClient {
     const message = await sh.read()
 
     if (message == null) {
-      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+      throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
     }
 
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(new Error(response.error?.msg ?? 'Identify failed'), 'ERR_IDENTIFY_FAILED')
+      throw new CodeError(response.error?.msg ?? 'Identify failed', 'ERR_IDENTIFY_FAILED')
     }
 
     if (response.identify == null || response.identify.addrs == null) {
-      throw errcode(new Error('Invalid response'), 'ERR_IDENTIFY_FAILED')
+      throw new CodeError('Invalid response', 'ERR_IDENTIFY_FAILED')
     }
 
     const peerId = peerIdFromBytes(response.identify?.id)
@@ -148,13 +148,13 @@ class Client implements DaemonClient {
     const message = await sh.read()
 
     if (message == null) {
-      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+      throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
     }
 
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(new Error(response.error?.msg ?? 'List peers failed'), 'ERR_LIST_PEERS_FAILED')
+      throw new CodeError(response.error?.msg ?? 'List peers failed', 'ERR_LIST_PEERS_FAILED')
     }
 
     await sh.close()
@@ -167,11 +167,11 @@ class Client implements DaemonClient {
    */
   async openStream (peerId: PeerId, protocol: string): Promise<Duplex<Uint8ArrayList, Uint8Array>> {
     if (!isPeerId(peerId)) {
-      throw errcode(new Error('invalid peer id received'), 'ERR_INVALID_PEER_ID')
+      throw new CodeError('invalid peer id received', 'ERR_INVALID_PEER_ID')
     }
 
     if (typeof protocol !== 'string') {
-      throw errcode(new Error('invalid protocol received'), 'ERR_INVALID_PROTOCOL')
+      throw new CodeError('invalid protocol received', 'ERR_INVALID_PROTOCOL')
     }
 
     const sh = await this.send({
@@ -185,14 +185,14 @@ class Client implements DaemonClient {
     const message = await sh.read()
 
     if (message == null) {
-      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+      throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
     }
 
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
       await sh.close()
-      throw errcode(new Error(response.error?.msg ?? 'Open stream failed'), 'ERR_OPEN_STREAM_FAILED')
+      throw new CodeError(response.error?.msg ?? 'Open stream failed', 'ERR_OPEN_STREAM_FAILED')
     }
 
     return sh.rest()
@@ -203,7 +203,7 @@ class Client implements DaemonClient {
    */
   async registerStreamHandler (protocol: string, handler: StreamHandlerFunction): Promise<void> {
     if (typeof protocol !== 'string') {
-      throw errcode(new Error('invalid protocol received'), 'ERR_INVALID_PROTOCOL')
+      throw new CodeError('invalid protocol received', 'ERR_INVALID_PROTOCOL')
     }
 
     // open a tcp port, pipe any data from it to the handler function
@@ -219,13 +219,13 @@ class Client implements DaemonClient {
             const message = await sh.read()
 
             if (message == null) {
-              throw errcode(new Error('Could not read open stream response'), 'ERR_OPEN_STREAM_FAILED')
+              throw new CodeError('Could not read open stream response', 'ERR_OPEN_STREAM_FAILED')
             }
 
             const response = StreamInfo.decode(message)
 
             if (response.proto !== protocol) {
-              throw errcode(new Error('Incorrect protocol'), 'ERR_OPEN_STREAM_FAILED')
+              throw new CodeError('Incorrect protocol', 'ERR_OPEN_STREAM_FAILED')
             }
 
             await handler(sh.rest())
@@ -246,7 +246,7 @@ class Client implements DaemonClient {
     const address = listener.getAddrs()[0]
 
     if (address == null) {
-      throw errcode(new Error('Could not listen on port'), 'ERR_REGISTER_STREAM_HANDLER_FAILED')
+      throw new CodeError('Could not listen on port', 'ERR_REGISTER_STREAM_HANDLER_FAILED')
     }
 
     const sh = await this.send({
@@ -260,7 +260,7 @@ class Client implements DaemonClient {
     const message = await sh.read()
 
     if (message == null) {
-      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+      throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
     }
 
     const response = Response.decode(message)
@@ -268,7 +268,7 @@ class Client implements DaemonClient {
     await sh.close()
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(new Error(response.error?.msg ?? 'Register stream handler failed'), 'ERR_REGISTER_STREAM_HANDLER_FAILED')
+      throw new CodeError(response.error?.msg ?? 'Register stream handler failed', 'ERR_REGISTER_STREAM_HANDLER_FAILED')
     }
   }
 }
