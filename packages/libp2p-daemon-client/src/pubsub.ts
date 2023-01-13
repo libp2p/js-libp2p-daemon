@@ -1,4 +1,4 @@
-import errcode from 'err-code'
+import { CodeError } from '@libp2p/interfaces/errors'
 import {
   Request,
   Response,
@@ -30,7 +30,7 @@ export class Pubsub {
     const message = await sh.read()
 
     if (message == null) {
-      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+      throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
     }
 
     const response = Response.decode(message)
@@ -38,11 +38,11 @@ export class Pubsub {
     await sh.close()
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(new Error(response.error?.msg ?? 'Pubsub get topics failed'), 'ERR_PUBSUB_GET_TOPICS_FAILED')
+      throw new CodeError(response.error?.msg ?? 'Pubsub get topics failed', 'ERR_PUBSUB_GET_TOPICS_FAILED')
     }
 
     if (response.pubsub == null || response.pubsub.topics == null) {
-      throw errcode(new Error('Invalid response'), 'ERR_PUBSUB_GET_TOPICS_FAILED')
+      throw new CodeError('Invalid response', 'ERR_PUBSUB_GET_TOPICS_FAILED')
     }
 
     return response.pubsub.topics
@@ -53,11 +53,11 @@ export class Pubsub {
    */
   async publish (topic: string, data: Uint8Array) {
     if (typeof topic !== 'string') {
-      throw errcode(new Error('invalid topic received'), 'ERR_INVALID_TOPIC')
+      throw new CodeError('invalid topic received', 'ERR_INVALID_TOPIC')
     }
 
     if (!(data instanceof Uint8Array)) {
-      throw errcode(new Error('data received is not a Uint8Array'), 'ERR_INVALID_DATA')
+      throw new CodeError('data received is not a Uint8Array', 'ERR_INVALID_DATA')
     }
 
     const sh = await this.client.send({
@@ -72,7 +72,7 @@ export class Pubsub {
     const message = await sh.read()
 
     if (message == null) {
-      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+      throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
     }
 
     const response = Response.decode(message)
@@ -80,7 +80,7 @@ export class Pubsub {
     await sh.close()
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(new Error(response.error?.msg ?? 'Pubsub publish failed'), 'ERR_PUBSUB_PUBLISH_FAILED')
+      throw new CodeError(response.error?.msg ?? 'Pubsub publish failed', 'ERR_PUBSUB_PUBLISH_FAILED')
     }
   }
 
@@ -89,7 +89,7 @@ export class Pubsub {
    */
   async * subscribe (topic: string) {
     if (typeof topic !== 'string') {
-      throw errcode(new Error('invalid topic received'), 'ERR_INVALID_TOPIC')
+      throw new CodeError('invalid topic received', 'ERR_INVALID_TOPIC')
     }
 
     const sh = await this.client.send({
@@ -103,13 +103,13 @@ export class Pubsub {
     let message = await sh.read()
 
     if (message == null) {
-      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+      throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
     }
 
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(new Error(response.error?.msg ?? 'Pubsub publish failed'), 'ERR_PUBSUB_PUBLISH_FAILED')
+      throw new CodeError(response.error?.msg ?? 'Pubsub publish failed', 'ERR_PUBSUB_PUBLISH_FAILED')
     }
 
     // stream messages
@@ -117,7 +117,7 @@ export class Pubsub {
       message = await sh.read()
 
       if (message == null) {
-        throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+        throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
       }
 
       yield PSMessage.decode(message)

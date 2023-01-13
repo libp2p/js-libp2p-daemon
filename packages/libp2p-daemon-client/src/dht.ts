@@ -1,6 +1,6 @@
 import { CID } from 'multiformats/cid'
 import { multiaddr } from '@multiformats/multiaddr'
-import errcode from 'err-code'
+import { CodeError } from '@libp2p/interfaces/errors'
 import {
   Request,
   Response,
@@ -24,11 +24,11 @@ export class DHT {
    */
   async put (key: Uint8Array, value: Uint8Array): Promise<void> {
     if (!(key instanceof Uint8Array)) {
-      throw errcode(new Error('invalid key received'), 'ERR_INVALID_KEY')
+      throw new CodeError('invalid key received', 'ERR_INVALID_KEY')
     }
 
     if (!(value instanceof Uint8Array)) {
-      throw errcode(new Error('value received is not a Uint8Array'), 'ERR_INVALID_VALUE')
+      throw new CodeError('value received is not a Uint8Array', 'ERR_INVALID_VALUE')
     }
 
     const sh = await this.client.send({
@@ -43,7 +43,7 @@ export class DHT {
     const message = await sh.read()
 
     if (message == null) {
-      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+      throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
     }
 
     const response = Response.decode(message)
@@ -51,7 +51,7 @@ export class DHT {
     await sh.close()
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(new Error(response.error?.msg ?? 'DHT put failed'), 'ERR_DHT_PUT_FAILED')
+      throw new CodeError(response.error?.msg ?? 'DHT put failed', 'ERR_DHT_PUT_FAILED')
     }
   }
 
@@ -60,7 +60,7 @@ export class DHT {
    */
   async get (key: Uint8Array): Promise<Uint8Array> {
     if (!(key instanceof Uint8Array)) {
-      throw errcode(new Error('invalid key received'), 'ERR_INVALID_KEY')
+      throw new CodeError('invalid key received', 'ERR_INVALID_KEY')
     }
 
     const sh = await this.client.send({
@@ -74,7 +74,7 @@ export class DHT {
     const message = await sh.read()
 
     if (message == null) {
-      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+      throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
     }
 
     const response = Response.decode(message)
@@ -82,11 +82,11 @@ export class DHT {
     await sh.close()
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(new Error(response.error?.msg ?? 'DHT get failed'), 'ERR_DHT_GET_FAILED')
+      throw new CodeError(response.error?.msg ?? 'DHT get failed', 'ERR_DHT_GET_FAILED')
     }
 
     if (response.dht == null || response.dht.value == null) {
-      throw errcode(new Error('Invalid DHT get response'), 'ERR_DHT_GET_FAILED')
+      throw new CodeError('Invalid DHT get response', 'ERR_DHT_GET_FAILED')
     }
 
     return response.dht.value
@@ -97,7 +97,7 @@ export class DHT {
    */
   async findPeer (peerId: PeerId): Promise<PeerInfo> {
     if (!isPeerId(peerId)) {
-      throw errcode(new Error('invalid peer id received'), 'ERR_INVALID_PEER_ID')
+      throw new CodeError('invalid peer id received', 'ERR_INVALID_PEER_ID')
     }
 
     const sh = await this.client.send({
@@ -111,7 +111,7 @@ export class DHT {
     const message = await sh.read()
 
     if (message == null) {
-      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+      throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
     }
 
     const response = Response.decode(message)
@@ -119,11 +119,11 @@ export class DHT {
     await sh.close()
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(new Error(response.error?.msg ?? 'DHT find peer failed'), 'ERR_DHT_FIND_PEER_FAILED')
+      throw new CodeError(response.error?.msg ?? 'DHT find peer failed', 'ERR_DHT_FIND_PEER_FAILED')
     }
 
     if (response.dht == null || response.dht.peer == null || response.dht.peer.addrs == null) {
-      throw errcode(new Error('Invalid response'), 'ERR_DHT_FIND_PEER_FAILED')
+      throw new CodeError('Invalid response', 'ERR_DHT_FIND_PEER_FAILED')
     }
 
     return {
@@ -138,7 +138,7 @@ export class DHT {
    */
   async provide (cid: CID) {
     if (cid == null || CID.asCID(cid) == null) {
-      throw errcode(new Error('invalid cid received'), 'ERR_INVALID_CID')
+      throw new CodeError('invalid cid received', 'ERR_INVALID_CID')
     }
 
     const sh = await this.client.send({
@@ -152,7 +152,7 @@ export class DHT {
     const message = await sh.read()
 
     if (message == null) {
-      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+      throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
     }
 
     const response = Response.decode(message)
@@ -160,7 +160,7 @@ export class DHT {
     await sh.close()
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(new Error(response.error?.msg ?? 'DHT provide failed'), 'ERR_DHT_PROVIDE_FAILED')
+      throw new CodeError(response.error?.msg ?? 'DHT provide failed', 'ERR_DHT_PROVIDE_FAILED')
     }
   }
 
@@ -169,7 +169,7 @@ export class DHT {
    */
   async * findProviders (cid: CID, count: number = 1): AsyncIterable<PeerInfo> {
     if (cid == null || CID.asCID(cid) == null) {
-      throw errcode(new Error('invalid cid received'), 'ERR_INVALID_CID')
+      throw new CodeError('invalid cid received', 'ERR_INVALID_CID')
     }
 
     const sh = await this.client.send({
@@ -184,7 +184,7 @@ export class DHT {
     let message = await sh.read()
 
     if (message == null) {
-      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+      throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
     }
 
     // stream begin message
@@ -192,14 +192,14 @@ export class DHT {
 
     if (response.type !== Response.Type.OK) {
       await sh.close()
-      throw errcode(new Error(response.error?.msg ?? 'DHT find providers failed'), 'ERR_DHT_FIND_PROVIDERS_FAILED')
+      throw new CodeError(response.error?.msg ?? 'DHT find providers failed', 'ERR_DHT_FIND_PROVIDERS_FAILED')
     }
 
     while (true) {
       message = await sh.read()
 
       if (message == null) {
-        throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+        throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
       }
 
       const response = DHTResponse.decode(message)
@@ -220,7 +220,7 @@ export class DHT {
       } else {
         // Unexpected message received
         await sh.close()
-        throw errcode(new Error('unexpected message received'), 'ERR_UNEXPECTED_MESSAGE_RECEIVED')
+        throw new CodeError('unexpected message received', 'ERR_UNEXPECTED_MESSAGE_RECEIVED')
       }
     }
   }
@@ -230,7 +230,7 @@ export class DHT {
    */
   async * getClosestPeers (key: Uint8Array): AsyncIterable<PeerInfo> {
     if (!(key instanceof Uint8Array)) {
-      throw errcode(new Error('invalid key received'), 'ERR_INVALID_KEY')
+      throw new CodeError('invalid key received', 'ERR_INVALID_KEY')
     }
 
     const sh = await this.client.send({
@@ -245,21 +245,21 @@ export class DHT {
     let message = await sh.read()
 
     if (message == null) {
-      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+      throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
     }
 
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
       await sh.close()
-      throw errcode(new Error(response.error?.msg ?? 'DHT find providers failed'), 'ERR_DHT_FIND_PROVIDERS_FAILED')
+      throw new CodeError(response.error?.msg ?? 'DHT find providers failed', 'ERR_DHT_FIND_PROVIDERS_FAILED')
     }
 
     while (true) {
       message = await sh.read()
 
       if (message == null) {
-        throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+        throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
       }
 
       const response = DHTResponse.decode(message)
@@ -282,7 +282,7 @@ export class DHT {
       } else {
         // Unexpected message received
         await sh.close()
-        throw errcode(new Error('unexpected message received'), 'ERR_UNEXPECTED_MESSAGE_RECEIVED')
+        throw new CodeError('unexpected message received', 'ERR_UNEXPECTED_MESSAGE_RECEIVED')
       }
     }
   }
@@ -292,7 +292,7 @@ export class DHT {
    */
   async getPublicKey (peerId: PeerId) {
     if (!isPeerId(peerId)) {
-      throw errcode(new Error('invalid peer id received'), 'ERR_INVALID_PEER_ID')
+      throw new CodeError('invalid peer id received', 'ERR_INVALID_PEER_ID')
     }
 
     const sh = await this.client.send({
@@ -306,7 +306,7 @@ export class DHT {
     const message = await sh.read()
 
     if (message == null) {
-      throw errcode(new Error('Empty response from remote'), 'ERR_EMPTY_RESPONSE')
+      throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
     }
 
     const response = Response.decode(message)
@@ -314,11 +314,11 @@ export class DHT {
     await sh.close()
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(new Error(response.error?.msg ?? 'DHT get public key failed'), 'ERR_DHT_GET_PUBLIC_KEY_FAILED')
+      throw new CodeError(response.error?.msg ?? 'DHT get public key failed', 'ERR_DHT_GET_PUBLIC_KEY_FAILED')
     }
 
     if (response.dht == null) {
-      throw errcode(new Error('Invalid response'), 'ERR_DHT_GET_PUBLIC_KEY_FAILED')
+      throw new CodeError('Invalid response', 'ERR_DHT_GET_PUBLIC_KEY_FAILED')
     }
 
     return response.dht.value
