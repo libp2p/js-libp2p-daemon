@@ -157,7 +157,7 @@
     "uint8arrays": "^4.0.2"
   },
   "devDependencies": {
-    "aegir": "^37.9.1",
+    "aegir": "^38.1.5",
     "sinon": "^14.0.0",
     "sinon-ts": "^1.0.0"
   }
