@@ -1,3 +1,10 @@
+## [@libp2p/daemon-client-v4.0.3](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v4.0.2...@libp2p/daemon-client-v4.0.3) (2023-02-22)
+
+
+### Dependencies
+
+* bump aegir from 37.12.1 to 38.1.6 ([#183](https://github.com/libp2p/js-libp2p-daemon/issues/183)) ([6725a0a](https://github.com/libp2p/js-libp2p-daemon/commit/6725a0aeba9acb56a7530dece6c65a0f3eadfec5))
+
 ## [@libp2p/daemon-client-v4.0.2](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v4.0.1...@libp2p/daemon-client-v4.0.2) (2023-02-22)
 
 
