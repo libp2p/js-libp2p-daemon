@@ -1,3 +1,15 @@
+## [@libp2p/daemon-v2.0.6](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-v2.0.5...@libp2p/daemon-v2.0.6) (2023-02-22)
+
+
+### Trivial Changes
+
+* remove lerna ([#171](https://github.com/libp2p/js-libp2p-daemon/issues/171)) ([367f912](https://github.com/libp2p/js-libp2p-daemon/commit/367f9122f2fe1c31c8de7a136cda18d024ff08d7))
+
+
+### Dependencies
+
+* **dev:** bump sinon from 14.0.2 to 15.0.1 ([#166](https://github.com/libp2p/js-libp2p-daemon/issues/166)) ([1702efb](https://github.com/libp2p/js-libp2p-daemon/commit/1702efb4248bea4cb9ec19c694c1caae1c0ff16d))
+
 ## [@libp2p/daemon-v2.0.5](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-v2.0.4...@libp2p/daemon-v2.0.5) (2023-01-07)
 
 
