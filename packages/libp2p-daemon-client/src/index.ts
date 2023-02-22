@@ -51,7 +51,7 @@ class Client implements DaemonClient {
    * Sends the request to the daemon and returns a stream. This
    * should only be used when sending daemon requests.
    */
-  async send (request: Request) {
+  async send (request: Request): Promise<StreamHandler> {
     const maConn = await this.connectDaemon()
 
     const streamHandler = new StreamHandler({ stream: maConn })
@@ -62,7 +62,7 @@ class Client implements DaemonClient {
   /**
    * Connect requests a connection to a known peer on a given set of addresses
    */
-  async connect (peerId: PeerId, addrs: Multiaddr[]) {
+  async connect (peerId: PeerId, addrs: Multiaddr[]): Promise<void> {
     if (!isPeerId(peerId)) {
       throw new CodeError('invalid peer id received', 'ERR_INVALID_PEER_ID')
     }

@@ -12,7 +12,7 @@ describe('server', () => {
   it('should start', async () => {
     const libp2p = stubInterface<Libp2p>()
 
-    const server = await createServer(ma, libp2p)
+    const server = createServer(ma, libp2p)
 
     await server.start()
 
@@ -24,7 +24,7 @@ describe('server', () => {
   it('should stop', async () => {
     const libp2p = stubInterface<Libp2p>()
 
-    const server = await createServer(ma, libp2p)
+    const server = createServer(ma, libp2p)
 
     await server.start()
     await server.stop()
@@ -35,7 +35,7 @@ describe('server', () => {
   it('should return multiaddrs', async () => {
     const libp2p = stubInterface<Libp2p>()
 
-    const server = await createServer(ma, libp2p)
+    const server = createServer(ma, libp2p)
 
     expect(() => server.getMultiaddr()).to.throw(/Not started/)
 

@@ -14,7 +14,7 @@ import all from 'it-all'
 
 const defaultMultiaddr = multiaddr('/ip4/0.0.0.0/tcp/12345')
 
-function match (cid: CID) {
+function match (cid: CID): sinon.SinonMatcher {
   return sinon.match((c: CID) => c.toString() === cid.toString(), 'cid')
 }
 

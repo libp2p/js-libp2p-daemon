@@ -42,7 +42,7 @@ export class StreamHandler {
     await this.close()
   }
 
-  write (msg: Uint8Array | Uint8ArrayList) {
+  write (msg: Uint8Array | Uint8ArrayList): void {
     log('write message')
     this.shake.write(
       lp.encode.single(msg).subarray()

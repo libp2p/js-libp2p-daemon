@@ -25,7 +25,7 @@ export class DHTOperations {
     this.dht = dht
   }
 
-  async * provide (cid: CID) {
+  async * provide (cid: CID): AsyncGenerator<Uint8Array, void, undefined> {
     try {
       await drain(this.dht.provide(cid))
       yield OkResponse()
@@ -35,7 +35,7 @@ export class DHTOperations {
     }
   }
 
-  async * getClosestPeers (key: Uint8Array) {
+  async * getClosestPeers (key: Uint8Array): AsyncGenerator<Uint8Array, void, undefined> {
     yield OkResponse({
       dht: {
         type: DHTResponse.Type.BEGIN
@@ -56,11 +56,11 @@ export class DHTOperations {
     })
   }
 
-  async * getPublicKey (peerId: PeerId) {
+  async * getPublicKey (peerId: PeerId): AsyncGenerator<Uint8Array, void, undefined> {
     yield ErrorResponse(new Error('FIX ME: not implemented'))
   }
 
-  async * getValue (key: Uint8Array) {
+  async * getValue (key: Uint8Array): AsyncGenerator<Uint8Array, void, undefined> {
     try {
       for await (const event of this.dht.get(key)) {
         if (event.name === 'VALUE') {
@@ -78,7 +78,7 @@ export class DHTOperations {
     }
   }
 
-  async * putValue (key: Uint8Array, value: Uint8Array) {
+  async * putValue (key: Uint8Array, value: Uint8Array): AsyncGenerator<Uint8Array, void, undefined> {
     try {
       await drain(this.dht.put(key, value))
 
@@ -89,7 +89,7 @@ export class DHTOperations {
     }
   }
 
-  async * findPeer (peerId: PeerId) {
+  async * findPeer (peerId: PeerId): AsyncGenerator<Uint8Array, void, undefined> {
     try {
       for await (const event of this.dht.findPeer(peerId)) {
         if (event.name === 'FINAL_PEER') {
@@ -112,7 +112,7 @@ export class DHTOperations {
     }
   }
 
-  async * findProviders (cid: CID, count: number) {
+  async * findProviders (cid: CID, count: number): AsyncGenerator<Uint8Array, void, undefined> {
     yield OkResponse({
       dht: {
         type: DHTResponse.Type.BEGIN
