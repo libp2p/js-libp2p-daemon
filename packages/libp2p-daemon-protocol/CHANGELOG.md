@@ -1,3 +1,15 @@
+## [@libp2p/daemon-protocol-v3.0.5](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-v3.0.4...@libp2p/daemon-protocol-v3.0.5) (2023-02-22)
+
+
+### Trivial Changes
+
+* remove lerna ([#171](https://github.com/libp2p/js-libp2p-daemon/issues/171)) ([367f912](https://github.com/libp2p/js-libp2p-daemon/commit/367f9122f2fe1c31c8de7a136cda18d024ff08d7))
+
+
+### Dependencies
+
+* **dev:** bump protons from 6.1.3 to 7.0.2 ([#179](https://github.com/libp2p/js-libp2p-daemon/issues/179)) ([07d5872](https://github.com/libp2p/js-libp2p-daemon/commit/07d5872e04f95e2e8957f083dae3721aa8dc307e))
+
 ## [@libp2p/daemon-protocol-v3.0.4](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-v3.0.3...@libp2p/daemon-protocol-v3.0.4) (2022-10-14)
 
 
