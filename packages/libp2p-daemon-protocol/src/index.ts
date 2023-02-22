@@ -2,10 +2,11 @@
 /* eslint-disable complexity */
 /* eslint-disable @typescript-eslint/no-namespace */
 /* eslint-disable @typescript-eslint/no-unnecessary-boolean-literal-compare */
+/* eslint-disable @typescript-eslint/no-empty-interface */
 
 import { enumeration, encodeMessage, decodeMessage, message } from 'protons-runtime'
-import type { Uint8ArrayList } from 'uint8arraylist'
 import type { Codec } from 'protons-runtime'
+import type { Uint8ArrayList } from 'uint8arraylist'
 
 export interface Request {
   type?: Request.Type
@@ -47,7 +48,7 @@ export namespace Request {
   }
 
   export namespace Type {
-    export const codec = () => {
+    export const codec = (): Codec<Type> => {
       return enumeration<Type>(__TypeValues)
     }
   }
@@ -68,58 +69,42 @@ export namespace Request {
 
         if (obj.connect != null) {
           w.uint32(18)
-          ConnectRequest.codec().encode(obj.connect, w, {
-            writeDefaults: false
-          })
+          ConnectRequest.codec().encode(obj.connect, w)
         }
 
         if (obj.streamOpen != null) {
           w.uint32(26)
-          StreamOpenRequest.codec().encode(obj.streamOpen, w, {
-            writeDefaults: false
-          })
+          StreamOpenRequest.codec().encode(obj.streamOpen, w)
         }
 
         if (obj.streamHandler != null) {
           w.uint32(34)
-          StreamHandlerRequest.codec().encode(obj.streamHandler, w, {
-            writeDefaults: false
-          })
+          StreamHandlerRequest.codec().encode(obj.streamHandler, w)
         }
 
         if (obj.dht != null) {
           w.uint32(42)
-          DHTRequest.codec().encode(obj.dht, w, {
-            writeDefaults: false
-          })
+          DHTRequest.codec().encode(obj.dht, w)
         }
 
         if (obj.connManager != null) {
           w.uint32(50)
-          ConnManagerRequest.codec().encode(obj.connManager, w, {
-            writeDefaults: false
-          })
+          ConnManagerRequest.codec().encode(obj.connManager, w)
         }
 
         if (obj.disconnect != null) {
           w.uint32(58)
-          DisconnectRequest.codec().encode(obj.disconnect, w, {
-            writeDefaults: false
-          })
+          DisconnectRequest.codec().encode(obj.disconnect, w)
         }
 
         if (obj.pubsub != null) {
           w.uint32(66)
-          PSRequest.codec().encode(obj.pubsub, w, {
-            writeDefaults: false
-          })
+          PSRequest.codec().encode(obj.pubsub, w)
         }
 
         if (obj.peerStore != null) {
           w.uint32(74)
-          PeerstoreRequest.codec().encode(obj.peerStore, w, {
-            writeDefaults: false
-          })
+          PeerstoreRequest.codec().encode(obj.peerStore, w)
         }
 
         if (opts.lengthDelimited !== false) {
@@ -174,7 +159,7 @@ export namespace Request {
     return _codec
   }
 
-  export const encode = (obj: Request): Uint8Array => {
+  export const encode = (obj: Partial<Request>): Uint8Array => {
     return encodeMessage(obj, Request.codec())
   }
 
@@ -206,7 +191,7 @@ export namespace Response {
   }
 
   export namespace Type {
-    export const codec = () => {
+    export const codec = (): Codec<Type> => {
       return enumeration<Type>(__TypeValues)
     }
   }
@@ -227,53 +212,39 @@ export namespace Response {
 
         if (obj.error != null) {
           w.uint32(18)
-          ErrorResponse.codec().encode(obj.error, w, {
-            writeDefaults: false
-          })
+          ErrorResponse.codec().encode(obj.error, w)
         }
 
         if (obj.streamInfo != null) {
           w.uint32(26)
-          StreamInfo.codec().encode(obj.streamInfo, w, {
-            writeDefaults: false
-          })
+          StreamInfo.codec().encode(obj.streamInfo, w)
         }
 
         if (obj.identify != null) {
           w.uint32(34)
-          IdentifyResponse.codec().encode(obj.identify, w, {
-            writeDefaults: false
-          })
+          IdentifyResponse.codec().encode(obj.identify, w)
         }
 
         if (obj.dht != null) {
           w.uint32(42)
-          DHTResponse.codec().encode(obj.dht, w, {
-            writeDefaults: false
-          })
+          DHTResponse.codec().encode(obj.dht, w)
         }
 
         if (obj.peers != null) {
           for (const value of obj.peers) {
             w.uint32(50)
-            PeerInfo.codec().encode(value, w, {
-              writeDefaults: true
-            })
+            PeerInfo.codec().encode(value, w)
           }
         }
 
         if (obj.pubsub != null) {
           w.uint32(58)
-          PSResponse.codec().encode(obj.pubsub, w, {
-            writeDefaults: false
-          })
+          PSResponse.codec().encode(obj.pubsub, w)
         }
 
         if (obj.peerStore != null) {
           w.uint32(66)
-          PeerstoreResponse.codec().encode(obj.peerStore, w, {
-            writeDefaults: false
-          })
+          PeerstoreResponse.codec().encode(obj.peerStore, w)
         }
 
         if (opts.lengthDelimited !== false) {
@@ -327,7 +298,7 @@ export namespace Response {
     return _codec
   }
 
-  export const encode = (obj: Response): Uint8Array => {
+  export const encode = (obj: Partial<Response>): Uint8Array => {
     return encodeMessage(obj, Response.codec())
   }
 
@@ -351,7 +322,7 @@ export namespace IdentifyResponse {
           w.fork()
         }
 
-        if (opts.writeDefaults === true || (obj.id != null && obj.id.byteLength > 0)) {
+        if ((obj.id != null && obj.id.byteLength > 0)) {
           w.uint32(10)
           w.bytes(obj.id)
         }
@@ -397,7 +368,7 @@ export namespace IdentifyResponse {
     return _codec
   }
 
-  export const encode = (obj: IdentifyResponse): Uint8Array => {
+  export const encode = (obj: Partial<IdentifyResponse>): Uint8Array => {
     return encodeMessage(obj, IdentifyResponse.codec())
   }
 
@@ -422,7 +393,7 @@ export namespace ConnectRequest {
           w.fork()
         }
 
-        if (opts.writeDefaults === true || (obj.peer != null && obj.peer.byteLength > 0)) {
+        if ((obj.peer != null && obj.peer.byteLength > 0)) {
           w.uint32(10)
           w.bytes(obj.peer)
         }
@@ -476,7 +447,7 @@ export namespace ConnectRequest {
     return _codec
   }
 
-  export const encode = (obj: ConnectRequest): Uint8Array => {
+  export const encode = (obj: Partial<ConnectRequest>): Uint8Array => {
     return encodeMessage(obj, ConnectRequest.codec())
   }
 
@@ -501,7 +472,7 @@ export namespace StreamOpenRequest {
           w.fork()
         }
 
-        if (opts.writeDefaults === true || (obj.peer != null && obj.peer.byteLength > 0)) {
+        if ((obj.peer != null && obj.peer.byteLength > 0)) {
           w.uint32(10)
           w.bytes(obj.peer)
         }
@@ -555,7 +526,7 @@ export namespace StreamOpenRequest {
     return _codec
   }
 
-  export const encode = (obj: StreamOpenRequest): Uint8Array => {
+  export const encode = (obj: Partial<StreamOpenRequest>): Uint8Array => {
     return encodeMessage(obj, StreamOpenRequest.codec())
   }
 
@@ -579,7 +550,7 @@ export namespace StreamHandlerRequest {
           w.fork()
         }
 
-        if (opts.writeDefaults === true || (obj.addr != null && obj.addr.byteLength > 0)) {
+        if ((obj.addr != null && obj.addr.byteLength > 0)) {
           w.uint32(10)
           w.bytes(obj.addr)
         }
@@ -625,7 +596,7 @@ export namespace StreamHandlerRequest {
     return _codec
   }
 
-  export const encode = (obj: StreamHandlerRequest): Uint8Array => {
+  export const encode = (obj: Partial<StreamHandlerRequest>): Uint8Array => {
     return encodeMessage(obj, StreamHandlerRequest.codec())
   }
 
@@ -648,7 +619,7 @@ export namespace ErrorResponse {
           w.fork()
         }
 
-        if (opts.writeDefaults === true || obj.msg !== '') {
+        if ((obj.msg != null && obj.msg !== '')) {
           w.uint32(10)
           w.string(obj.msg)
         }
@@ -683,7 +654,7 @@ export namespace ErrorResponse {
     return _codec
   }
 
-  export const encode = (obj: ErrorResponse): Uint8Array => {
+  export const encode = (obj: Partial<ErrorResponse>): Uint8Array => {
     return encodeMessage(obj, ErrorResponse.codec())
   }
 
@@ -708,17 +679,17 @@ export namespace StreamInfo {
           w.fork()
         }
 
-        if (opts.writeDefaults === true || (obj.peer != null && obj.peer.byteLength > 0)) {
+        if ((obj.peer != null && obj.peer.byteLength > 0)) {
           w.uint32(10)
           w.bytes(obj.peer)
         }
 
-        if (opts.writeDefaults === true || (obj.addr != null && obj.addr.byteLength > 0)) {
+        if ((obj.addr != null && obj.addr.byteLength > 0)) {
           w.uint32(18)
           w.bytes(obj.addr)
         }
 
-        if (opts.writeDefaults === true || obj.proto !== '') {
+        if ((obj.proto != null && obj.proto !== '')) {
           w.uint32(26)
           w.string(obj.proto)
         }
@@ -761,7 +732,7 @@ export namespace StreamInfo {
     return _codec
   }
 
-  export const encode = (obj: StreamInfo): Uint8Array => {
+  export const encode = (obj: Partial<StreamInfo>): Uint8Array => {
     return encodeMessage(obj, StreamInfo.codec())
   }
 
@@ -806,7 +777,7 @@ export namespace DHTRequest {
   }
 
   export namespace Type {
-    export const codec = () => {
+    export const codec = (): Codec<Type> => {
       return enumeration<Type>(__TypeValues)
     }
   }
@@ -901,7 +872,7 @@ export namespace DHTRequest {
     return _codec
   }
 
-  export const encode = (obj: DHTRequest): Uint8Array => {
+  export const encode = (obj: Partial<DHTRequest>): Uint8Array => {
     return encodeMessage(obj, DHTRequest.codec())
   }
 
@@ -930,7 +901,7 @@ export namespace DHTResponse {
   }
 
   export namespace Type {
-    export const codec = () => {
+    export const codec = (): Codec<Type> => {
       return enumeration<Type>(__TypeValues)
     }
   }
@@ -951,9 +922,7 @@ export namespace DHTResponse {
 
         if (obj.peer != null) {
           w.uint32(18)
-          PeerInfo.codec().encode(obj.peer, w, {
-            writeDefaults: false
-          })
+          PeerInfo.codec().encode(obj.peer, w)
         }
 
         if (obj.value != null) {
@@ -995,7 +964,7 @@ export namespace DHTResponse {
     return _codec
   }
 
-  export const encode = (obj: DHTResponse): Uint8Array => {
+  export const encode = (obj: Partial<DHTResponse>): Uint8Array => {
     return encodeMessage(obj, DHTResponse.codec())
   }
 
@@ -1019,7 +988,7 @@ export namespace PeerInfo {
           w.fork()
         }
 
-        if (opts.writeDefaults === true || (obj.id != null && obj.id.byteLength > 0)) {
+        if ((obj.id != null && obj.id.byteLength > 0)) {
           w.uint32(10)
           w.bytes(obj.id)
         }
@@ -1065,7 +1034,7 @@ export namespace PeerInfo {
     return _codec
   }
 
-  export const encode = (obj: PeerInfo): Uint8Array => {
+  export const encode = (obj: Partial<PeerInfo>): Uint8Array => {
     return encodeMessage(obj, PeerInfo.codec())
   }
 
@@ -1095,7 +1064,7 @@ export namespace ConnManagerRequest {
   }
 
   export namespace Type {
-    export const codec = () => {
+    export const codec = (): Codec<Type> => {
       return enumeration<Type>(__TypeValues)
     }
   }
@@ -1166,7 +1135,7 @@ export namespace ConnManagerRequest {
     return _codec
   }
 
-  export const encode = (obj: ConnManagerRequest): Uint8Array => {
+  export const encode = (obj: Partial<ConnManagerRequest>): Uint8Array => {
     return encodeMessage(obj, ConnManagerRequest.codec())
   }
 
@@ -1189,7 +1158,7 @@ export namespace DisconnectRequest {
           w.fork()
         }
 
-        if (opts.writeDefaults === true || (obj.peer != null && obj.peer.byteLength > 0)) {
+        if ((obj.peer != null && obj.peer.byteLength > 0)) {
           w.uint32(10)
           w.bytes(obj.peer)
         }
@@ -1224,7 +1193,7 @@ export namespace DisconnectRequest {
     return _codec
   }
 
-  export const encode = (obj: DisconnectRequest): Uint8Array => {
+  export const encode = (obj: Partial<DisconnectRequest>): Uint8Array => {
     return encodeMessage(obj, DisconnectRequest.codec())
   }
 
@@ -1255,7 +1224,7 @@ export namespace PSRequest {
   }
 
   export namespace Type {
-    export const codec = () => {
+    export const codec = (): Codec<Type> => {
       return enumeration<Type>(__TypeValues)
     }
   }
@@ -1318,7 +1287,7 @@ export namespace PSRequest {
     return _codec
   }
 
-  export const encode = (obj: PSRequest): Uint8Array => {
+  export const encode = (obj: Partial<PSRequest>): Uint8Array => {
     return encodeMessage(obj, PSRequest.codec())
   }
 
@@ -1423,7 +1392,7 @@ export namespace PSMessage {
     return _codec
   }
 
-  export const encode = (obj: PSMessage): Uint8Array => {
+  export const encode = (obj: Partial<PSMessage>): Uint8Array => {
     return encodeMessage(obj, PSMessage.codec())
   }
 
@@ -1495,7 +1464,7 @@ export namespace PSResponse {
     return _codec
   }
 
-  export const encode = (obj: PSResponse): Uint8Array => {
+  export const encode = (obj: Partial<PSResponse>): Uint8Array => {
     return encodeMessage(obj, PSResponse.codec())
   }
 
@@ -1524,7 +1493,7 @@ export namespace PeerstoreRequest {
   }
 
   export namespace Type {
-    export const codec = () => {
+    export const codec = (): Codec<Type> => {
       return enumeration<Type>(__TypeValues)
     }
   }
@@ -1591,7 +1560,7 @@ export namespace PeerstoreRequest {
     return _codec
   }
 
-  export const encode = (obj: PeerstoreRequest): Uint8Array => {
+  export const encode = (obj: Partial<PeerstoreRequest>): Uint8Array => {
     return encodeMessage(obj, PeerstoreRequest.codec())
   }
 
@@ -1617,9 +1586,7 @@ export namespace PeerstoreResponse {
 
         if (obj.peer != null) {
           w.uint32(10)
-          PeerInfo.codec().encode(obj.peer, w, {
-            writeDefaults: false
-          })
+          PeerInfo.codec().encode(obj.peer, w)
         }
 
         if (obj.protos != null) {
@@ -1662,7 +1629,7 @@ export namespace PeerstoreResponse {
     return _codec
   }
 
-  export const encode = (obj: PeerstoreResponse): Uint8Array => {
+  export const encode = (obj: Partial<PeerstoreResponse>): Uint8Array => {
     return encodeMessage(obj, PeerstoreResponse.codec())
   }
 
