@@ -1,3 +1,16 @@
+## [@libp2p/daemon-client-v4.0.2](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v4.0.1...@libp2p/daemon-client-v4.0.2) (2023-02-22)
+
+
+### Trivial Changes
+
+* remove lerna ([#171](https://github.com/libp2p/js-libp2p-daemon/issues/171)) ([367f912](https://github.com/libp2p/js-libp2p-daemon/commit/367f9122f2fe1c31c8de7a136cda18d024ff08d7))
+* replace err-code with CodeError ([#172](https://github.com/libp2p/js-libp2p-daemon/issues/172)) ([c330fd5](https://github.com/libp2p/js-libp2p-daemon/commit/c330fd5fabac7efb016d1f23e781ce88c38a3b37)), closes [#1269](https://github.com/libp2p/js-libp2p-daemon/issues/1269)
+
+
+### Dependencies
+
+* **dev:** bump sinon from 14.0.2 to 15.0.1 ([#166](https://github.com/libp2p/js-libp2p-daemon/issues/166)) ([1702efb](https://github.com/libp2p/js-libp2p-daemon/commit/1702efb4248bea4cb9ec19c694c1caae1c0ff16d))
+
 ## [@libp2p/daemon-client-v4.0.1](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v4.0.0...@libp2p/daemon-client-v4.0.1) (2023-01-07)
 
 
