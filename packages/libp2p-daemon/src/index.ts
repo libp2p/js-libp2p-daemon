@@ -14,7 +14,7 @@ const parser = new YargsPromise(yargs)
 
 const log = console.log
 
-export default async function main (processArgs: string[]) {
+export default async function main (processArgs: string[]): Promise<void> {
   parser.yargs
     .option('listen', {
       desc: 'daemon control listen multiaddr',

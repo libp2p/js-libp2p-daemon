@@ -24,7 +24,7 @@ export class PubSubOperations {
     this.pubsub = pubsub
   }
 
-  async * getTopics () {
+  async * getTopics (): AsyncGenerator<Uint8Array, void, undefined> {
     try {
       yield OkResponse({
         pubsub: {
@@ -38,12 +38,12 @@ export class PubSubOperations {
     }
   }
 
-  async * subscribe (topic: string) {
+  async * subscribe (topic: string): AsyncGenerator<Uint8Array, void, undefined> {
     try {
       const onMessage = pushable()
       this.pubsub.subscribe(topic)
 
-      await this.pubsub.addEventListener('message', (evt) => {
+      this.pubsub.addEventListener('message', (evt) => {
         const msg = evt.detail
 
         if (msg.topic !== topic) {
@@ -75,7 +75,7 @@ export class PubSubOperations {
     }
   }
 
-  async * publish (topic: string, data: Uint8Array) {
+  async * publish (topic: string, data: Uint8Array): AsyncGenerator<Uint8Array, void, undefined> {
     try {
       await this.pubsub.publish(topic, data)
       yield OkResponse()

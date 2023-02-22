@@ -136,7 +136,7 @@ export class DHT {
   /**
    * Announce to the network that the peer have data addressed by the provided CID
    */
-  async provide (cid: CID) {
+  async provide (cid: CID): Promise<void> {
     if (cid == null || CID.asCID(cid) == null) {
       throw new CodeError('invalid cid received', 'ERR_INVALID_CID')
     }
@@ -290,7 +290,7 @@ export class DHT {
   /**
    * Query the DHT routing table for a given peer's public key.
    */
-  async getPublicKey (peerId: PeerId) {
+  async getPublicKey (peerId: PeerId): Promise<Uint8Array | undefined> {
     if (!isPeerId(peerId)) {
       throw new CodeError('invalid peer id received', 'ERR_INVALID_PEER_ID')
     }

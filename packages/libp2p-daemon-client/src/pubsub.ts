@@ -51,7 +51,7 @@ export class Pubsub {
   /**
    * Publish data under a topic
    */
-  async publish (topic: string, data: Uint8Array) {
+  async publish (topic: string, data: Uint8Array): Promise<void> {
     if (typeof topic !== 'string') {
       throw new CodeError('invalid topic received', 'ERR_INVALID_TOPIC')
     }
@@ -87,7 +87,7 @@ export class Pubsub {
   /**
    * Request to subscribe a certain topic
    */
-  async * subscribe (topic: string) {
+  async * subscribe (topic: string): AsyncGenerator<PSMessage, void, undefined> {
     if (typeof topic !== 'string') {
       throw new CodeError('invalid topic received', 'ERR_INVALID_TOPIC')
     }

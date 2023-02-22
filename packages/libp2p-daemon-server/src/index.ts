@@ -200,14 +200,14 @@ export class Server implements Libp2pServer {
   /**
    * Listens for process exit to handle cleanup
    */
-  _listen () {
+  _listen (): void {
     // listen for graceful termination
     process.on('SIGTERM', this._onExit)
     process.on('SIGINT', this._onExit)
     process.on('SIGHUP', this._onExit)
   }
 
-  _onExit () {
+  _onExit (): void {
     void this.stop({ exit: true }).catch(err => {
       log.error(err)
     })
@@ -216,7 +216,7 @@ export class Server implements Libp2pServer {
   /**
    * Starts the daemon
    */
-  async start () {
+  async start (): Promise<void> {
     this._listen()
     await this.libp2p.start()
     await this.listener.listen(this.multiaddr)
@@ -235,7 +235,7 @@ export class Server implements Libp2pServer {
   /**
    * Stops the daemon
    */
-  async stop (options = { exit: false }) {
+  async stop (options = { exit: false }): Promise<void> {
     await this.libp2p.stop()
     await this.listener.close()
     if (options.exit) {
@@ -246,7 +246,7 @@ export class Server implements Libp2pServer {
     process.removeListener('SIGHUP', this._onExit)
   }
 
-  async * handlePeerStoreRequest (request: PeerstoreRequest) {
+  async * handlePeerStoreRequest (request: PeerstoreRequest): AsyncGenerator<Uint8Array, void, undefined> {
     try {
       switch (request.type) {
         case PeerstoreRequest.Type.GET_PROTOCOLS:
@@ -273,7 +273,7 @@ export class Server implements Libp2pServer {
   /**
    * Parses and responds to PSRequests
    */
-  async * handlePubsubRequest (request: PSRequest) {
+  async * handlePubsubRequest (request: PSRequest): AsyncGenerator<Uint8Array, void, undefined> {
     try {
       if (this.libp2p.pubsub == null || (this.pubsubOperations == null)) {
         throw new Error('PubSub not configured')
@@ -309,7 +309,7 @@ export class Server implements Libp2pServer {
   /**
    * Parses and responds to DHTRequests
    */
-  async * handleDHTRequest (request: DHTRequest) {
+  async * handleDHTRequest (request: DHTRequest): AsyncGenerator<Uint8Array, void, undefined> {
     try {
       if (this.libp2p.dht == null || (this.dhtOperations == null)) {
         throw new Error('DHT not configured')
@@ -377,7 +377,7 @@ export class Server implements Libp2pServer {
   /**
    * Handles requests for the given connection
    */
-  handleConnection (connection: Connection) {
+  handleConnection (connection: Connection): void {
     const daemon = this // eslint-disable-line @typescript-eslint/no-this-alias
     // @ts-expect-error connection may actually be a maconn?
     const streamHandler = new StreamHandler({ stream: connection, maxLength: LIMIT })
