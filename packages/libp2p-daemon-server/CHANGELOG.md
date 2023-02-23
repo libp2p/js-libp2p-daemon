@@ -1,3 +1,10 @@
+## [@libp2p/daemon-server-v4.1.0](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v4.0.3...@libp2p/daemon-server-v4.1.0) (2023-02-23)
+
+
+### Features
+
+* add get subscribers for pubsub topics ([#184](https://github.com/libp2p/js-libp2p-daemon/issues/184)) ([c8be43e](https://github.com/libp2p/js-libp2p-daemon/commit/c8be43e5acd6a74cfdd01857343af6f6d8210d5d))
+
 ## [@libp2p/daemon-server-v4.0.3](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v4.0.2...@libp2p/daemon-server-v4.0.3) (2023-02-22)
 
 
