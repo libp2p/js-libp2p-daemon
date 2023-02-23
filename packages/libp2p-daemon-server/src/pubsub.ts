@@ -84,4 +84,18 @@ export class PubSubOperations {
       yield ErrorResponse(err)
     }
   }
+
+  async * listPeers (topic: string): AsyncGenerator<Uint8Array, void, undefined> {
+    try {
+      yield OkResponse({
+        pubsub: {
+          topics: [topic],
+          peerIDs: this.pubsub.getSubscribers(topic).map(peer => peer.toBytes())
+        }
+      })
+    } catch (err: any) {
+      log.error(err)
+      yield ErrorResponse(err)
+    }
+  }
 }

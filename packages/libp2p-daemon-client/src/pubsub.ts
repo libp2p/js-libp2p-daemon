@@ -6,6 +6,8 @@ import {
   PSMessage
 } from '@libp2p/daemon-protocol'
 import type { DaemonClient } from './index.js'
+import type { PeerId } from '@libp2p/interface-peer-id'
+import { peerIdFromBytes } from '@libp2p/peer-id'
 
 export class Pubsub {
   private readonly client: DaemonClient
@@ -122,5 +124,39 @@ export class Pubsub {
 
       yield PSMessage.decode(message)
     }
+  }
+
+  async getSubscribers (topic: string): Promise<PeerId[]> {
+    if (typeof topic !== 'string') {
+      throw new CodeError('invalid topic received', 'ERR_INVALID_TOPIC')
+    }
+
+    const sh = await this.client.send({
+      type: Request.Type.PUBSUB,
+      pubsub: {
+        type: PSRequest.Type.LIST_PEERS,
+        topic
+      }
+    })
+
+    const message = await sh.read()
+
+    if (message == null) {
+      throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
+    }
+
+    const response = Response.decode(message)
+
+    await sh.close()
+
+    if (response.type !== Response.Type.OK) {
+      throw new CodeError(response.error?.msg ?? 'Pubsub get subscribers failed', 'ERR_PUBSUB_GET_SUBSCRIBERS_FAILED')
+    }
+
+    if (response.pubsub == null || response.pubsub.topics == null) {
+      throw new CodeError('Invalid response', 'ERR_PUBSUB_GET_SUBSCRIBERS_FAILED')
+    }
+
+    return response.pubsub.peerIDs.map(buf => peerIdFromBytes(buf))
   }
 }

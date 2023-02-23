@@ -8,6 +8,7 @@ import { createClient, DaemonClient } from '../src/index.js'
 import { multiaddr } from '@multiformats/multiaddr'
 import { StubbedInstance, stubInterface } from 'sinon-ts'
 import type { PubSub } from '@libp2p/interface-pubsub'
+import { peerIdFromString } from '@libp2p/peer-id'
 
 const defaultMultiaddr = multiaddr('/ip4/0.0.0.0/tcp/12345')
 
@@ -86,6 +87,35 @@ describe('daemon pubsub client', function () {
       pubsub.publish.throws(new Error('Urk!'))
 
       await expect(client.pubsub.publish(topic, data)).to.eventually.be.rejectedWith(/Urk!/)
+    })
+  })
+
+  describe('getSubscribers', () => {
+    it('should get empty list of topics when no subscriptions exist', async () => {
+      pubsub.getSubscribers.returns([])
+
+      const topic = 'test-topic'
+      const topics = await client.pubsub.getSubscribers(topic)
+
+      expect(topics).to.have.lengthOf(0)
+    })
+
+    it('should get a list with a peer when subscribed', async () => {
+      const topic = 'test-topic'
+      const peer = peerIdFromString('12D3KooWKnQbfH5t1XxJW5FBoMGNjmC9LTSbDdRJxtYj2bJV5XfP')
+      pubsub.getSubscribers.withArgs(topic).returns([peer])
+
+      const peers = await client.pubsub.getSubscribers(topic)
+
+      expect(peers).to.have.lengthOf(1)
+      expect(peers[0].toString()).to.equal(peer.toString())
+    })
+
+    it('should error if receive an error message', async () => {
+      const topic = 'test-topic'
+      pubsub.getSubscribers.throws(new Error('Urk!'))
+
+      await expect(client.pubsub.getSubscribers(topic)).to.eventually.be.rejectedWith(/Urk!/)
     })
   })
 })
