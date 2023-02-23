@@ -295,6 +295,7 @@ export interface PubSubClient {
   publish: (topic: string, data: Uint8Array) => Promise<void>
   subscribe: (topic: string) => AsyncIterable<PSMessage>
   getTopics: () => Promise<string[]>
+  getSubscribers: (topic: string) => Promise<PeerId[]>
 }
 
 export interface DaemonClient {

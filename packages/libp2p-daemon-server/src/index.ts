@@ -297,6 +297,13 @@ export class Server implements Libp2pServer {
 
           yield * this.pubsubOperations.publish(request.topic, request.data)
           return
+        case PSRequest.Type.LIST_PEERS:
+          if (request.topic == null) {
+            throw new Error('Invalid request')
+          }
+
+          yield * this.pubsubOperations.listPeers(request.topic)
+          return
         default:
           throw new Error('ERR_INVALID_REQUEST_TYPE')
       }
