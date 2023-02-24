@@ -1,3 +1,14 @@
+## [@libp2p/daemon-client-v5.0.0](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v4.1.0...@libp2p/daemon-client-v5.0.0) (2023-02-24)
+
+
+### ⚠ BREAKING CHANGES
+
+* update pubsub subscribe method to return subscription (#186)
+
+### Bug Fixes
+
+* update pubsub subscribe method to return subscription ([#186](https://github.com/libp2p/js-libp2p-daemon/issues/186)) ([88e4bf5](https://github.com/libp2p/js-libp2p-daemon/commit/88e4bf54ee5189e808cee451f08467c7db302b8d))
+
 ## [@libp2p/daemon-client-v4.1.0](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v4.0.3...@libp2p/daemon-client-v4.1.0) (2023-02-23)
 
 
