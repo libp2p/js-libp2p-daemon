@@ -54,6 +54,9 @@ class Client implements DaemonClient {
   async send (request: Request): Promise<StreamHandler> {
     const maConn = await this.connectDaemon()
 
+    const subtype = request.pubsub?.type ?? request.dht?.type ?? request.peerStore?.type ?? ''
+    log('send', request.type, subtype)
+
     const streamHandler = new StreamHandler({ stream: maConn })
     streamHandler.write(Request.encode(request))
     return streamHandler
@@ -291,9 +294,14 @@ export interface DHTClient {
   getClosestPeers: (key: Uint8Array) => AsyncIterable<PeerInfo>
 }
 
+export interface Subscription {
+  messages: () => AsyncIterable<PSMessage>
+  cancel: () => Promise<void>
+}
+
 export interface PubSubClient {
   publish: (topic: string, data: Uint8Array) => Promise<void>
-  subscribe: (topic: string) => AsyncIterable<PSMessage>
+  subscribe: (topic: string) => Promise<Subscription>
   getTopics: () => Promise<string[]>
   getSubscribers: (topic: string) => Promise<PeerId[]>
 }

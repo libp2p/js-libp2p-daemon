@@ -5,7 +5,7 @@ import {
   PSRequest,
   PSMessage
 } from '@libp2p/daemon-protocol'
-import type { DaemonClient } from './index.js'
+import type { DaemonClient, Subscription } from './index.js'
 import type { PeerId } from '@libp2p/interface-peer-id'
 import { peerIdFromBytes } from '@libp2p/peer-id'
 
@@ -89,7 +89,7 @@ export class Pubsub {
   /**
    * Request to subscribe a certain topic
    */
-  async * subscribe (topic: string): AsyncGenerator<PSMessage, void, undefined> {
+  async subscribe (topic: string): Promise<Subscription> {
     if (typeof topic !== 'string') {
       throw new CodeError('invalid topic received', 'ERR_INVALID_TOPIC')
     }
@@ -114,16 +114,27 @@ export class Pubsub {
       throw new CodeError(response.error?.msg ?? 'Pubsub publish failed', 'ERR_PUBSUB_PUBLISH_FAILED')
     }
 
-    // stream messages
-    while (true) {
-      message = await sh.read()
+    let subscribed = true
 
-      if (message == null) {
-        throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
+    const subscription: Subscription = {
+      async * messages () {
+        while (subscribed) { // eslint-disable-line no-unmodified-loop-condition
+          message = await sh.read()
+
+          if (message == null) {
+            throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
+          }
+
+          yield PSMessage.decode(message)
+        }
+      },
+      async cancel () {
+        subscribed = false
+        await sh.close()
       }
-
-      yield PSMessage.decode(message)
     }
+
+    return subscription
   }
 
   async getSubscribers (topic: string): Promise<PeerId[]> {
