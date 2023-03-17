@@ -1,3 +1,10 @@
+## [@libp2p/daemon-v2.0.8](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-v2.0.7...@libp2p/daemon-v2.0.8) (2023-03-17)
+
+
+### Dependencies
+
+* bump @multiformats/multiaddr from 11.6.1 to 12.0.0 ([#189](https://github.com/libp2p/js-libp2p-daemon/issues/189)) ([aaf7e2e](https://github.com/libp2p/js-libp2p-daemon/commit/aaf7e2e37423cae78cd16d8e16e06db40fdcd1e3))
+
 ## [@libp2p/daemon-v2.0.7](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-v2.0.6...@libp2p/daemon-v2.0.7) (2023-02-22)
 
 
