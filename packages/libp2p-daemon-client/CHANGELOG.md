@@ -1,3 +1,10 @@
+## [@libp2p/daemon-client-v5.0.2](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v5.0.1...@libp2p/daemon-client-v5.0.2) (2023-04-03)
+
+
+### Dependencies
+
+* update all it-* deps to the latest versions ([#193](https://github.com/libp2p/js-libp2p-daemon/issues/193)) ([cb0aa85](https://github.com/libp2p/js-libp2p-daemon/commit/cb0aa85bbbad651db088594622a9438a127d2a10))
+
 ## [@libp2p/daemon-client-v5.0.1](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v5.0.0...@libp2p/daemon-client-v5.0.1) (2023-03-17)
 
 
