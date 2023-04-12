@@ -1,3 +1,10 @@
+## [@libp2p/daemon-server-v4.1.4](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v4.1.3...@libp2p/daemon-server-v4.1.4) (2023-04-12)
+
+
+### Dependencies
+
+* bump @libp2p/interface-connection from 3.1.1 to 4.0.0 ([#195](https://github.com/libp2p/js-libp2p-daemon/issues/195)) ([798ecc5](https://github.com/libp2p/js-libp2p-daemon/commit/798ecc594bc64c8e34aad13e1b9884011f0b1f29))
+
 ## [@libp2p/daemon-server-v4.1.3](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v4.1.2...@libp2p/daemon-server-v4.1.3) (2023-04-03)
 
 
