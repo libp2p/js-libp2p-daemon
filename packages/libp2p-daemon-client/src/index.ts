@@ -9,7 +9,7 @@ import { Pubsub } from './pubsub.js'
 import { isPeerId, PeerId } from '@libp2p/interface-peer-id'
 import { passThroughUpgrader } from '@libp2p/daemon-protocol/upgrader'
 import { peerIdFromBytes } from '@libp2p/peer-id'
-import type { Duplex } from 'it-stream-types'
+import type { Duplex, Source } from 'it-stream-types'
 import type { CID } from 'multiformats/cid'
 import type { PeerInfo } from '@libp2p/interface-peer-info'
 import type { MultiaddrConnection } from '@libp2p/interface-connection'
@@ -168,7 +168,7 @@ class Client implements DaemonClient {
   /**
    * Initiate an outbound stream to a peer on one of a set of protocols.
    */
-  async openStream (peerId: PeerId, protocol: string): Promise<Duplex<Uint8ArrayList, Uint8Array>> {
+  async openStream (peerId: PeerId, protocol: string): Promise<Duplex<AsyncGenerator<Uint8Array | Uint8ArrayList>, Source<Uint8Array>, Promise<void>>> {
     if (!isPeerId(peerId)) {
       throw new CodeError('invalid peer id received', 'ERR_INVALID_PEER_ID')
     }
@@ -282,7 +282,7 @@ export interface IdentifyResult {
 }
 
 export interface StreamHandlerFunction {
-  (stream: Duplex<Uint8ArrayList, Uint8Array>): Promise<void>
+  (stream: Duplex<AsyncGenerator<Uint8Array | Uint8ArrayList>, Source<Uint8Array>, Promise<void>>): Promise<void>
 }
 
 export interface DHTClient {
@@ -314,7 +314,7 @@ export interface DaemonClient {
   pubsub: PubSubClient
 
   send: (request: Request) => Promise<StreamHandler>
-  openStream: (peerId: PeerId, protocol: string) => Promise<Duplex<Uint8ArrayList, Uint8Array>>
+  openStream: (peerId: PeerId, protocol: string) => Promise<Duplex<AsyncGenerator<Uint8Array | Uint8ArrayList>, Source<Uint8Array>, Promise<void>>>
   registerStreamHandler: (protocol: string, handler: StreamHandlerFunction) => Promise<void>
 }
 
