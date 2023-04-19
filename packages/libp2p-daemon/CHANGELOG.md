@@ -1,3 +1,10 @@
+## [@libp2p/daemon-v2.0.9](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-v2.0.8...@libp2p/daemon-v2.0.9) (2023-04-19)
+
+
+### Dependencies
+
+* update sibling dependencies ([db50405](https://github.com/libp2p/js-libp2p-daemon/commit/db50405ddec3a68ad265c3d3233595187bc4895d))
+
 ## [@libp2p/daemon-v2.0.8](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-v2.0.7...@libp2p/daemon-v2.0.8) (2023-03-17)
 
 
