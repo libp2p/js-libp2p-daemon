@@ -1,3 +1,15 @@
+## [@libp2p/daemon-server-v5.0.0](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v4.1.4...@libp2p/daemon-server-v5.0.0) (2023-04-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* the type of the source/sink properties have changed
+
+### Dependencies
+
+* update it-stream-types to 2.x.x ([#196](https://github.com/libp2p/js-libp2p-daemon/issues/196)) ([a09f6d5](https://github.com/libp2p/js-libp2p-daemon/commit/a09f6d58942033b08b579735aaa1537b3a324776))
+* update sibling dependencies ([e0ec5ec](https://github.com/libp2p/js-libp2p-daemon/commit/e0ec5ecf5bfd7f801274d37d51c3dcce652de2ba))
+
 ## [@libp2p/daemon-server-v4.1.4](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v4.1.3...@libp2p/daemon-server-v4.1.4) (2023-04-12)
 
 
