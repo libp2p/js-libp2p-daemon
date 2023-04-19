@@ -8,14 +8,15 @@ import type { Uint8ArrayList } from 'uint8arraylist'
 const log = logger('libp2p:daemon-protocol:stream-handler')
 
 export interface StreamHandlerOptions {
-  stream: Duplex<Uint8Array>
+  stream: Duplex<AsyncIterable<Uint8Array>, Source<Uint8Array>, Promise<void>>
   maxLength?: number
 }
 
 export class StreamHandler {
-  private readonly stream: Duplex<Uint8Array>
+  private readonly stream: Duplex<AsyncIterable<Uint8Array>, Source<Uint8Array>, Promise<void>>
   private readonly shake: Handshake<Uint8Array>
   public decoder: Source<Uint8ArrayList>
+
   /**
    * Create a stream handler for connection
    */
@@ -52,7 +53,7 @@ export class StreamHandler {
   /**
    * Return the handshake rest stream and invalidate handler
    */
-  rest (): Duplex<Uint8ArrayList, Uint8Array> {
+  rest (): Duplex<AsyncGenerator<Uint8ArrayList | Uint8Array>, Source<Uint8Array>, Promise<void>> {
     this.shake.rest()
     return this.shake.stream
   }
