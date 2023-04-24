@@ -1,3 +1,10 @@
+## [@libp2p/daemon-client-v6.0.1](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v6.0.0...@libp2p/daemon-client-v6.0.1) (2023-04-24)
+
+
+### Dependencies
+
+* **dev:** bump @libp2p/interface-mocks from 10.0.3 to 11.0.0 ([#199](https://github.com/libp2p/js-libp2p-daemon/issues/199)) ([76f7b6f](https://github.com/libp2p/js-libp2p-daemon/commit/76f7b6fdd1af129ac278c5d2313d466db3e28a78))
+
 ## [@libp2p/daemon-client-v6.0.0](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v5.0.3...@libp2p/daemon-client-v6.0.0) (2023-04-19)
 
 
