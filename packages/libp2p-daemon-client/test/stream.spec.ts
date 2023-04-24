@@ -8,7 +8,7 @@ import { multiaddr } from '@multiformats/multiaddr'
 import { StubbedInstance, stubInterface } from 'sinon-ts'
 import { peerIdFromString } from '@libp2p/peer-id'
 import { mockRegistrar, connectionPair } from '@libp2p/interface-mocks'
-import type { PeerStore, AddressBook } from '@libp2p/interface-peer-store'
+import type { PeerStore } from '@libp2p/interface-peer-store'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import all from 'it-all'
@@ -26,7 +26,6 @@ describe('daemon stream client', function () {
   beforeEach(async function () {
     libp2p = stubInterface<Libp2p>()
     libp2p.peerStore = stubInterface<PeerStore>()
-    libp2p.peerStore.addressBook = stubInterface<AddressBook>()
 
     server = createServer(defaultMultiaddr, libp2p)
 

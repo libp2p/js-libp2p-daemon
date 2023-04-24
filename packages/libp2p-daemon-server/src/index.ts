@@ -104,7 +104,9 @@ export class Server implements Libp2pServer {
     const addrs = request.connect.addrs.map((a) => multiaddr(a))
     const peerId = peerIdFromBytes(peer)
 
-    await this.libp2p.peerStore.addressBook.set(peerId, addrs)
+    await this.libp2p.peerStore.merge(peerId, {
+      multiaddrs: addrs
+    })
     return await this.libp2p.dial(peerId)
   }
 
