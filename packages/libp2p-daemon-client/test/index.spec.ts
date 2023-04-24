@@ -9,7 +9,7 @@ import { StubbedInstance, stubInterface } from 'sinon-ts'
 import { isPeerId } from '@libp2p/interface-peer-id'
 import { peerIdFromString } from '@libp2p/peer-id'
 import { mockConnection, mockDuplex, mockMultiaddrConnection } from '@libp2p/interface-mocks'
-import type { PeerStore, AddressBook } from '@libp2p/interface-peer-store'
+import type { PeerStore } from '@libp2p/interface-peer-store'
 
 const defaultMultiaddr = multiaddr('/ip4/0.0.0.0/tcp/0')
 
@@ -23,7 +23,6 @@ describe('daemon client', function () {
   beforeEach(async function () {
     libp2p = stubInterface<Libp2p>()
     libp2p.peerStore = stubInterface<PeerStore>()
-    libp2p.peerStore.addressBook = stubInterface<AddressBook>()
 
     server = createServer(defaultMultiaddr, libp2p)
 
