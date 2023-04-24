@@ -1,3 +1,10 @@
+## [@libp2p/daemon-client-v6.0.2](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v6.0.1...@libp2p/daemon-client-v6.0.2) (2023-04-24)
+
+
+### Dependencies
+
+* bump @libp2p/interface-peer-store from 1.2.9 to 2.0.0 ([#201](https://github.com/libp2p/js-libp2p-daemon/issues/201)) ([9b146a8](https://github.com/libp2p/js-libp2p-daemon/commit/9b146a8c38c30a13401be6da5259cd9da6bdc25c))
+
 ## [@libp2p/daemon-client-v6.0.1](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v6.0.0...@libp2p/daemon-client-v6.0.1) (2023-04-24)
 
 
