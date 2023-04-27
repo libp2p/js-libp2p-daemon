@@ -17,17 +17,14 @@ import {
 } from '@libp2p/daemon-protocol'
 import type { Listener, Transport } from '@libp2p/interface-transport'
 import type { Connection, MultiaddrConnection, Stream } from '@libp2p/interface-connection'
-import type { PeerId } from '@libp2p/interface-peer-id'
-import type { AbortOptions } from '@libp2p/interfaces'
-import type { StreamHandler as StreamCallback } from '@libp2p/interface-registrar'
-import type { DualDHT } from '@libp2p/interface-dht'
+import type { DHT } from '@libp2p/interface-dht'
 import type { PubSub } from '@libp2p/interface-pubsub'
-import type { PeerStore } from '@libp2p/interface-peer-store'
 import { ErrorResponse, OkResponse } from './responses.js'
 import { DHTOperations } from './dht.js'
 import { peerIdFromBytes } from '@libp2p/peer-id'
 import { PubSubOperations } from './pubsub.js'
 import { logger } from '@libp2p/logger'
+import type { Libp2p } from '@libp2p/interface-libp2p'
 
 const LIMIT = 1 << 22 // 4MB
 const log = logger('libp2p:daemon-server')
@@ -37,24 +34,9 @@ export interface OpenStream {
   connection: Stream
 }
 
-export interface Libp2p {
-  peerId: PeerId
-  peerStore: PeerStore
-  pubsub?: PubSub
-  dht?: DualDHT
-
-  getConnections: (peerId?: PeerId) => Connection[]
-  getPeers: () => PeerId[]
-  dial: (peer: PeerId | Multiaddr, options?: AbortOptions) => Promise<Connection>
-  handle: (protocol: string | string[], handler: StreamCallback) => Promise<void>
-  start: () => void | Promise<void>
-  stop: () => void | Promise<void>
-  getMultiaddrs: () => Multiaddr[]
-}
-
 export interface DaemonInit {
   multiaddr: Multiaddr
-  libp2pNode: any
+  libp2pNode: Libp2p<{ dht: DHT, pubsub: PubSub }>
 }
 
 export interface Libp2pServer {
@@ -65,7 +47,7 @@ export interface Libp2pServer {
 
 export class Server implements Libp2pServer {
   private readonly multiaddr: Multiaddr
-  private readonly libp2p: Libp2p
+  private readonly libp2p: Libp2p<{ dht: DHT, pubsub: PubSub }>
   private readonly tcp: Transport
   private readonly listener: Listener
   private readonly dhtOperations?: DHTOperations
@@ -83,12 +65,12 @@ export class Server implements Libp2pServer {
     })
     this._onExit = this._onExit.bind(this)
 
-    if (libp2pNode.dht != null) {
-      this.dhtOperations = new DHTOperations({ dht: libp2pNode.dht })
+    if (libp2pNode.services.dht != null) {
+      this.dhtOperations = new DHTOperations({ dht: libp2pNode.services.dht })
     }
 
-    if (libp2pNode.pubsub != null) {
-      this.pubsubOperations = new PubSubOperations({ pubsub: libp2pNode.pubsub })
+    if (libp2pNode.services.pubsub != null) {
+      this.pubsubOperations = new PubSubOperations({ pubsub: libp2pNode.services.pubsub })
     }
   }
 
@@ -277,7 +259,7 @@ export class Server implements Libp2pServer {
    */
   async * handlePubsubRequest (request: PSRequest): AsyncGenerator<Uint8Array, void, undefined> {
     try {
-      if (this.libp2p.pubsub == null || (this.pubsubOperations == null)) {
+      if (this.libp2p.services.pubsub == null || (this.pubsubOperations == null)) {
         throw new Error('PubSub not configured')
       }
 
@@ -320,7 +302,7 @@ export class Server implements Libp2pServer {
    */
   async * handleDHTRequest (request: DHTRequest): AsyncGenerator<Uint8Array, void, undefined> {
     try {
-      if (this.libp2p.dht == null || (this.dhtOperations == null)) {
+      if (this.libp2p.services.dht == null || (this.dhtOperations == null)) {
         throw new Error('DHT not configured')
       }
 
@@ -539,7 +521,7 @@ export class Server implements Libp2pServer {
 /**
  * Creates a daemon from the provided Daemon Options
  */
-export const createServer = (multiaddr: Multiaddr, libp2pNode: Libp2p): Libp2pServer => {
+export const createServer = (multiaddr: Multiaddr, libp2pNode: Libp2p<{ dht: DHT, pubsub: PubSub }>): Libp2pServer => {
   const daemon = new Server({
     multiaddr,
     libp2pNode

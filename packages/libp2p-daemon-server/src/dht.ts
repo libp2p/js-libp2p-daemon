@@ -5,7 +5,7 @@ import {
 } from '@libp2p/daemon-protocol'
 import { ErrorResponse, OkResponse } from './responses.js'
 import type { PeerId } from '@libp2p/interface-peer-id'
-import type { DualDHT } from '@libp2p/interface-dht'
+import type { DHT } from '@libp2p/interface-dht'
 import type { CID } from 'multiformats/cid'
 import drain from 'it-drain'
 import { logger } from '@libp2p/logger'
@@ -13,11 +13,11 @@ import { logger } from '@libp2p/logger'
 const log = logger('libp2p:daemon-server:dht')
 
 export interface DHTOperationsInit {
-  dht: DualDHT
+  dht: DHT
 }
 
 export class DHTOperations {
-  private readonly dht: DualDHT
+  private readonly dht: DHT
 
   constructor (init: DHTOperationsInit) {
     const { dht } = init
