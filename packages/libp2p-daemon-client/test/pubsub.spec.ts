@@ -3,27 +3,29 @@
 import { expect } from 'aegir/chai'
 import sinon from 'sinon'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
-import { createServer, Libp2p, Libp2pServer } from '@libp2p/daemon-server'
+import { createServer, Libp2pServer } from '@libp2p/daemon-server'
 import { createClient, DaemonClient } from '../src/index.js'
 import { multiaddr } from '@multiformats/multiaddr'
 import { StubbedInstance, stubInterface } from 'sinon-ts'
 import type { PubSub } from '@libp2p/interface-pubsub'
 import { peerIdFromString } from '@libp2p/peer-id'
+import type { Libp2p } from '@libp2p/interface-libp2p'
+import type { DHT } from '@libp2p/interface-dht'
 
 const defaultMultiaddr = multiaddr('/ip4/0.0.0.0/tcp/12345')
 
 describe('daemon pubsub client', function () {
   this.timeout(30e3)
 
-  let libp2p: StubbedInstance<Libp2p>
+  let libp2p: StubbedInstance<Libp2p<{ dht: DHT, pubsub: PubSub }>>
   let server: Libp2pServer
   let client: DaemonClient
   let pubsub: StubbedInstance<PubSub>
 
   beforeEach(async function () {
     pubsub = stubInterface<PubSub>()
-    libp2p = stubInterface<Libp2p>()
-    libp2p.pubsub = pubsub
+    libp2p = stubInterface<Libp2p<{ dht: DHT, pubsub: PubSub }>>()
+    libp2p.services.pubsub = pubsub
 
     server = createServer(defaultMultiaddr, libp2p)
 

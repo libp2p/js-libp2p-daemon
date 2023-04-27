@@ -3,14 +3,16 @@
 import { expect } from 'aegir/chai'
 import sinon from 'sinon'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
-import { createServer, Libp2p, Libp2pServer } from '@libp2p/daemon-server'
+import { createServer, Libp2pServer } from '@libp2p/daemon-server'
 import { createClient, DaemonClient } from '../src/index.js'
 import { multiaddr } from '@multiformats/multiaddr'
 import { StubbedInstance, stubInterface } from 'sinon-ts'
-import { DualDHT, ValueEvent, FinalPeerEvent, PeerResponseEvent, MessageType, EventTypes } from '@libp2p/interface-dht'
+import { DualDHT, ValueEvent, FinalPeerEvent, PeerResponseEvent, MessageType, EventTypes, DHT } from '@libp2p/interface-dht'
 import { peerIdFromString } from '@libp2p/peer-id'
 import { CID } from 'multiformats/cid'
 import all from 'it-all'
+import type { Libp2p } from '@libp2p/interface-libp2p'
+import type { PubSub } from '@libp2p/interface-pubsub'
 
 const defaultMultiaddr = multiaddr('/ip4/0.0.0.0/tcp/12345')
 
@@ -21,15 +23,15 @@ function match (cid: CID): sinon.SinonMatcher {
 describe('daemon dht client', function () {
   this.timeout(30e3)
 
-  let libp2p: StubbedInstance<Libp2p>
+  let libp2p: StubbedInstance<Libp2p<{ dht: DHT, pubsub: PubSub }>>
   let server: Libp2pServer
   let client: DaemonClient
   let dht: StubbedInstance<DualDHT>
 
   beforeEach(async function () {
     dht = stubInterface<DualDHT>()
-    libp2p = stubInterface<Libp2p>()
-    libp2p.dht = dht
+    libp2p = stubInterface<Libp2p<{ dht: DHT, pubsub: PubSub }>>()
+    libp2p.services.dht = dht
 
     server = createServer(defaultMultiaddr, libp2p)
 
