@@ -1,13 +1,13 @@
 #! /usr/bin/env node
 /* eslint no-console: ["error", { allow: ["log", "warn", "error"] }] */
 
-import type { Multiaddr } from '@multiformats/multiaddr'
 import { multiaddr } from '@multiformats/multiaddr'
+import esMain from 'es-main'
 import yargs from 'yargs'
 // @ts-expect-error no types
 import YargsPromise from 'yargs-promise'
 import type { Libp2pServer } from '@libp2p/daemon-server'
-import esMain from 'es-main'
+import type { Multiaddr } from '@multiformats/multiaddr'
 
 const args = process.argv.slice(2)
 const parser = new YargsPromise(yargs)

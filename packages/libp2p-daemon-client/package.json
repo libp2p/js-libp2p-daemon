@@ -155,6 +155,7 @@
     "@libp2p/interface-mocks": "^11.0.0",
     "@libp2p/interface-peer-store": "^2.0.0",
     "@libp2p/interface-pubsub": "^4.0.0",
+    "@types/sinon": "^10.0.14",
     "aegir": "^39.0.1",
     "it-all": "^3.0.1",
     "it-pipe": "^3.0.0",

@@ -1,16 +1,16 @@
 /* eslint-env mocha */
 
+import { createServer, type Libp2pServer } from '@libp2p/daemon-server'
+import { peerIdFromString } from '@libp2p/peer-id'
+import { multiaddr } from '@multiformats/multiaddr'
 import { expect } from 'aegir/chai'
 import sinon from 'sinon'
+import { type StubbedInstance, stubInterface } from 'sinon-ts'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
-import { createServer, Libp2pServer } from '@libp2p/daemon-server'
-import { createClient, DaemonClient } from '../src/index.js'
-import { multiaddr } from '@multiformats/multiaddr'
-import { StubbedInstance, stubInterface } from 'sinon-ts'
-import type { PubSub } from '@libp2p/interface-pubsub'
-import { peerIdFromString } from '@libp2p/peer-id'
-import type { Libp2p } from '@libp2p/interface-libp2p'
+import { createClient, type DaemonClient } from '../src/index.js'
 import type { DHT } from '@libp2p/interface-dht'
+import type { Libp2p } from '@libp2p/interface-libp2p'
+import type { PubSub } from '@libp2p/interface-pubsub'
 
 const defaultMultiaddr = multiaddr('/ip4/0.0.0.0/tcp/12345')
 

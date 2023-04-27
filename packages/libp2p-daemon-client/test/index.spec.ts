@@ -1,17 +1,17 @@
 /* eslint-env mocha */
 
-import { expect } from 'aegir/chai'
-import sinon from 'sinon'
-import { createServer, Libp2pServer } from '@libp2p/daemon-server'
-import { createClient, DaemonClient } from '../src/index.js'
-import { multiaddr } from '@multiformats/multiaddr'
-import { StubbedInstance, stubInterface } from 'sinon-ts'
+import { createServer, type Libp2pServer } from '@libp2p/daemon-server'
+import { mockConnection, mockDuplex, mockMultiaddrConnection } from '@libp2p/interface-mocks'
 import { isPeerId } from '@libp2p/interface-peer-id'
 import { peerIdFromString } from '@libp2p/peer-id'
-import { mockConnection, mockDuplex, mockMultiaddrConnection } from '@libp2p/interface-mocks'
-import type { PeerStore } from '@libp2p/interface-peer-store'
-import type { Libp2p } from '@libp2p/interface-libp2p'
+import { multiaddr } from '@multiformats/multiaddr'
+import { expect } from 'aegir/chai'
+import sinon from 'sinon'
+import { type StubbedInstance, stubInterface } from 'sinon-ts'
+import { createClient, type DaemonClient } from '../src/index.js'
 import type { DHT } from '@libp2p/interface-dht'
+import type { Libp2p } from '@libp2p/interface-libp2p'
+import type { PeerStore } from '@libp2p/interface-peer-store'
 import type { PubSub } from '@libp2p/interface-pubsub'
 
 const defaultMultiaddr = multiaddr('/ip4/0.0.0.0/tcp/0')

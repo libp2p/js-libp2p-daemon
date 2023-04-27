@@ -3,12 +3,12 @@
 import {
   DHTResponse
 } from '@libp2p/daemon-protocol'
-import { ErrorResponse, OkResponse } from './responses.js'
-import type { PeerId } from '@libp2p/interface-peer-id'
-import type { DHT } from '@libp2p/interface-dht'
-import type { CID } from 'multiformats/cid'
-import drain from 'it-drain'
 import { logger } from '@libp2p/logger'
+import drain from 'it-drain'
+import { ErrorResponse, OkResponse } from './responses.js'
+import type { DHT } from '@libp2p/interface-dht'
+import type { PeerId } from '@libp2p/interface-peer-id'
+import type { CID } from 'multiformats/cid'
 
 const log = logger('libp2p:daemon-server:dht')
 
