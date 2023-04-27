@@ -141,6 +141,7 @@
     "@libp2p/daemon-protocol": "^4.0.0",
     "@libp2p/interface-connection": "^5.0.1",
     "@libp2p/interface-dht": "^2.0.0",
+    "@libp2p/interface-libp2p": "^3.0.0",
     "@libp2p/interface-peer-id": "^2.0.0",
     "@libp2p/interface-peer-store": "^2.0.0",
     "@libp2p/interface-pubsub": "^4.0.0",
