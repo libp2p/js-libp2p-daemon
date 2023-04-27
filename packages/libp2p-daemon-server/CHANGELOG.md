@@ -1,3 +1,10 @@
+## [@libp2p/daemon-server-v5.0.2](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v5.0.1...@libp2p/daemon-server-v5.0.2) (2023-04-27)
+
+
+### Bug Fixes
+
+* use interface-libp2p to ensure the correct services are set ([#203](https://github.com/libp2p/js-libp2p-daemon/issues/203)) ([8602a70](https://github.com/libp2p/js-libp2p-daemon/commit/8602a704e45cfa768ad55974d025b2d4be6f42a9))
+
 ## [@libp2p/daemon-server-v5.0.1](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v5.0.0...@libp2p/daemon-server-v5.0.1) (2023-04-24)
 
 
