@@ -1,16 +1,16 @@
-import { CID } from 'multiformats/cid'
-import { multiaddr } from '@multiformats/multiaddr'
-import { CodeError } from '@libp2p/interfaces/errors'
 import {
   Request,
   Response,
   DHTRequest,
   DHTResponse
 } from '@libp2p/daemon-protocol'
-import type { DaemonClient } from './index.js'
-import { isPeerId, PeerId } from '@libp2p/interface-peer-id'
-import type { PeerInfo } from '@libp2p/interface-peer-info'
+import { isPeerId, type PeerId } from '@libp2p/interface-peer-id'
+import { CodeError } from '@libp2p/interfaces/errors'
 import { peerIdFromBytes } from '@libp2p/peer-id'
+import { multiaddr } from '@multiformats/multiaddr'
+import { CID } from 'multiformats/cid'
+import type { DaemonClient } from './index.js'
+import type { PeerInfo } from '@libp2p/interface-peer-info'
 
 export class DHT {
   private readonly client: DaemonClient

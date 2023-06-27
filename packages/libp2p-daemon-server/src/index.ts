@@ -1,13 +1,5 @@
 /* eslint max-depth: ["error", 6] */
 
-import { tcp } from '@libp2p/tcp'
-import { multiaddr, protocols } from '@multiformats/multiaddr'
-import type { Multiaddr } from '@multiformats/multiaddr'
-import { CID } from 'multiformats/cid'
-import * as lp from 'it-length-prefixed'
-import { pipe } from 'it-pipe'
-import { StreamHandler } from '@libp2p/daemon-protocol/stream-handler'
-import { passThroughUpgrader } from '@libp2p/daemon-protocol/upgrader'
 import {
   Request,
   DHTRequest,
@@ -15,16 +7,24 @@ import {
   PSRequest,
   StreamInfo
 } from '@libp2p/daemon-protocol'
-import type { Listener, Transport } from '@libp2p/interface-transport'
+import { StreamHandler } from '@libp2p/daemon-protocol/stream-handler'
+import { passThroughUpgrader } from '@libp2p/daemon-protocol/upgrader'
+import { logger } from '@libp2p/logger'
+import { peerIdFromBytes } from '@libp2p/peer-id'
+import { tcp } from '@libp2p/tcp'
+import { multiaddr, protocols } from '@multiformats/multiaddr'
+import * as lp from 'it-length-prefixed'
+import { pipe } from 'it-pipe'
+import { CID } from 'multiformats/cid'
+import { DHTOperations } from './dht.js'
+import { PubSubOperations } from './pubsub.js'
+import { ErrorResponse, OkResponse } from './responses.js'
 import type { Connection, MultiaddrConnection, Stream } from '@libp2p/interface-connection'
 import type { DHT } from '@libp2p/interface-dht'
-import type { PubSub } from '@libp2p/interface-pubsub'
-import { ErrorResponse, OkResponse } from './responses.js'
-import { DHTOperations } from './dht.js'
-import { peerIdFromBytes } from '@libp2p/peer-id'
-import { PubSubOperations } from './pubsub.js'
-import { logger } from '@libp2p/logger'
 import type { Libp2p } from '@libp2p/interface-libp2p'
+import type { PubSub } from '@libp2p/interface-pubsub'
+import type { Listener, Transport } from '@libp2p/interface-transport'
+import type { Multiaddr } from '@multiformats/multiaddr'
 
 const LIMIT = 1 << 22 // 4MB
 const log = logger('libp2p:daemon-server')
@@ -89,7 +89,7 @@ export class Server implements Libp2pServer {
     await this.libp2p.peerStore.merge(peerId, {
       multiaddrs: addrs
     })
-    return await this.libp2p.dial(peerId)
+    return this.libp2p.dial(peerId)
   }
 
   /**

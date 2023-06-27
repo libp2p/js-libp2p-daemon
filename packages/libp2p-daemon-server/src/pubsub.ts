@@ -3,11 +3,11 @@
 import {
   PSMessage
 } from '@libp2p/daemon-protocol'
+import { logger } from '@libp2p/logger'
+import { pushable } from 'it-pushable'
+import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { ErrorResponse, OkResponse } from './responses.js'
 import type { PubSub } from '@libp2p/interface-pubsub'
-import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
-import { pushable } from 'it-pushable'
-import { logger } from '@libp2p/logger'
 
 const log = logger('libp2p:daemon-server:pubsub')
 

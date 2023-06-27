@@ -1,21 +1,21 @@
-import { CodeError } from '@libp2p/interfaces/errors'
-import { tcp } from '@libp2p/tcp'
-import { PSMessage, Request, Response, StreamInfo } from '@libp2p/daemon-protocol'
+import { type PSMessage, Request, Response, StreamInfo } from '@libp2p/daemon-protocol'
 import { StreamHandler } from '@libp2p/daemon-protocol/stream-handler'
-import type { Multiaddr } from '@multiformats/multiaddr'
+import { passThroughUpgrader } from '@libp2p/daemon-protocol/upgrader'
+import { isPeerId, type PeerId } from '@libp2p/interface-peer-id'
+import { CodeError } from '@libp2p/interfaces/errors'
+import { logger } from '@libp2p/logger'
+import { peerIdFromBytes } from '@libp2p/peer-id'
+import { tcp } from '@libp2p/tcp'
 import { multiaddr, isMultiaddr } from '@multiformats/multiaddr'
 import { DHT } from './dht.js'
 import { Pubsub } from './pubsub.js'
-import { isPeerId, PeerId } from '@libp2p/interface-peer-id'
-import { passThroughUpgrader } from '@libp2p/daemon-protocol/upgrader'
-import { peerIdFromBytes } from '@libp2p/peer-id'
+import type { MultiaddrConnection } from '@libp2p/interface-connection'
+import type { PeerInfo } from '@libp2p/interface-peer-info'
+import type { Transport } from '@libp2p/interface-transport'
+import type { Multiaddr } from '@multiformats/multiaddr'
 import type { Duplex, Source } from 'it-stream-types'
 import type { CID } from 'multiformats/cid'
-import type { PeerInfo } from '@libp2p/interface-peer-info'
-import type { MultiaddrConnection } from '@libp2p/interface-connection'
 import type { Uint8ArrayList } from 'uint8arraylist'
-import { logger } from '@libp2p/logger'
-import type { Transport } from '@libp2p/interface-transport'
 
 const log = logger('libp2p:daemon-client')
 
@@ -42,7 +42,7 @@ class Client implements DaemonClient {
   async connectDaemon (): Promise<MultiaddrConnection> {
     // @ts-expect-error because we use a passthrough upgrader,
     // this is actually a MultiaddrConnection and not a Connection
-    return await this.tcp.dial(this.multiaddr, {
+    return this.tcp.dial(this.multiaddr, {
       upgrader: passThroughUpgrader
     })
   }

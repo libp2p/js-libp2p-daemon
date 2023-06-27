@@ -1,8 +1,8 @@
-import * as lp from 'it-length-prefixed'
-import { handshake } from 'it-handshake'
 import { logger } from '@libp2p/logger'
-import type { Duplex, Source } from 'it-stream-types'
+import { handshake } from 'it-handshake'
+import * as lp from 'it-length-prefixed'
 import type { Handshake } from 'it-handshake'
+import type { Duplex, Source } from 'it-stream-types'
 import type { Uint8ArrayList } from 'uint8arraylist'
 
 const log = logger('libp2p:daemon-protocol:stream-handler')

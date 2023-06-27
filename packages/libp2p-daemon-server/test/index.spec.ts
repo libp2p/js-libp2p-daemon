@@ -3,10 +3,10 @@
 
 import { multiaddr } from '@multiformats/multiaddr'
 import { expect } from 'aegir/chai'
-import { createServer } from '../src/index.js'
 import { stubInterface } from 'sinon-ts'
-import type { Libp2p } from '@libp2p/interface-libp2p'
+import { createServer } from '../src/index.js'
 import type { DHT } from '@libp2p/interface-dht'
+import type { Libp2p } from '@libp2p/interface-libp2p'
 import type { PubSub } from '@libp2p/interface-pubsub'
 
 const ma = multiaddr('/ip4/0.0.0.0/tcp/0')

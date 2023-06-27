@@ -1,21 +1,21 @@
 /* eslint-env mocha */
 
-import { expect } from 'aegir/chai'
-import sinon from 'sinon'
-import { createServer, Libp2pServer } from '@libp2p/daemon-server'
-import { createClient, DaemonClient } from '../src/index.js'
-import { multiaddr } from '@multiformats/multiaddr'
-import { StubbedInstance, stubInterface } from 'sinon-ts'
-import { peerIdFromString } from '@libp2p/peer-id'
+import { createServer, type Libp2pServer } from '@libp2p/daemon-server'
 import { mockRegistrar, connectionPair } from '@libp2p/interface-mocks'
-import type { PeerStore } from '@libp2p/interface-peer-store'
-import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
-import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
+import { peerIdFromString } from '@libp2p/peer-id'
+import { multiaddr } from '@multiformats/multiaddr'
+import { expect } from 'aegir/chai'
 import all from 'it-all'
 import { pipe } from 'it-pipe'
+import sinon from 'sinon'
+import { type StubbedInstance, stubInterface } from 'sinon-ts'
+import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
+import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
+import { createClient, type DaemonClient } from '../src/index.js'
 import type { DHT } from '@libp2p/interface-dht'
-import type { PubSub } from '@libp2p/interface-pubsub'
 import type { Libp2p } from '@libp2p/interface-libp2p'
+import type { PeerStore } from '@libp2p/interface-peer-store'
+import type { PubSub } from '@libp2p/interface-pubsub'
 
 const defaultMultiaddr = multiaddr('/ip4/0.0.0.0/tcp/0')
 
@@ -82,7 +82,7 @@ describe('daemon stream client', function () {
     const data = await pipe(
       [uint8ArrayFromString('hello world')],
       stream,
-      async (source) => await all(source)
+      async (source) => all(source)
     )
 
     expect(data).to.have.lengthOf(1)
