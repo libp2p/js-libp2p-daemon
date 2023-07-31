@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 
 import { createServer, type Libp2pServer } from '@libp2p/daemon-server'
-import { type DualDHT, type ValueEvent, type FinalPeerEvent, type PeerResponseEvent, MessageType, EventTypes, type DHT } from '@libp2p/interface-dht'
+import { type DualKadDHT, type ValueEvent, type FinalPeerEvent, type PeerResponseEvent, MessageType, EventTypes, type KadDHT } from '@libp2p/kad-dht'
 import { peerIdFromString } from '@libp2p/peer-id'
 import { multiaddr } from '@multiformats/multiaddr'
 import { expect } from 'aegir/chai'
@@ -11,8 +11,8 @@ import sinon from 'sinon'
 import { type StubbedInstance, stubInterface } from 'sinon-ts'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { createClient, type DaemonClient } from '../src/index.js'
-import type { Libp2p } from '@libp2p/interface-libp2p'
-import type { PubSub } from '@libp2p/interface-pubsub'
+import type { GossipSub } from '@chainsafe/libp2p-gossipsub'
+import type { Libp2p } from '@libp2p/interface'
 
 const defaultMultiaddr = multiaddr('/ip4/0.0.0.0/tcp/12345')
 
@@ -23,14 +23,14 @@ function match (cid: CID): sinon.SinonMatcher {
 describe('daemon dht client', function () {
   this.timeout(30e3)
 
-  let libp2p: StubbedInstance<Libp2p<{ dht: DHT, pubsub: PubSub }>>
+  let libp2p: StubbedInstance<Libp2p<{ dht: KadDHT, pubsub: GossipSub }>>
   let server: Libp2pServer
   let client: DaemonClient
-  let dht: StubbedInstance<DualDHT>
+  let dht: StubbedInstance<DualKadDHT>
 
   beforeEach(async function () {
-    dht = stubInterface<DualDHT>()
-    libp2p = stubInterface<Libp2p<{ dht: DHT, pubsub: PubSub }>>()
+    dht = stubInterface<DualKadDHT>()
+    libp2p = stubInterface<Libp2p<{ dht: KadDHT, pubsub: GossipSub }>>()
     libp2p.services.dht = dht
 
     server = createServer(defaultMultiaddr, libp2p)

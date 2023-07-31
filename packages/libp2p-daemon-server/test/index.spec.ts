@@ -5,15 +5,15 @@ import { multiaddr } from '@multiformats/multiaddr'
 import { expect } from 'aegir/chai'
 import { stubInterface } from 'sinon-ts'
 import { createServer } from '../src/index.js'
-import type { DHT } from '@libp2p/interface-dht'
-import type { Libp2p } from '@libp2p/interface-libp2p'
-import type { PubSub } from '@libp2p/interface-pubsub'
+import type { GossipSub } from '@chainsafe/libp2p-gossipsub'
+import type { Libp2p } from '@libp2p/interface'
+import type { KadDHT } from '@libp2p/kad-dht'
 
 const ma = multiaddr('/ip4/0.0.0.0/tcp/0')
 
 describe('server', () => {
   it('should start', async () => {
-    const libp2p = stubInterface<Libp2p<{ dht: DHT, pubsub: PubSub }>>()
+    const libp2p = stubInterface<Libp2p<{ dht: KadDHT, pubsub: GossipSub }>>()
 
     const server = createServer(ma, libp2p)
 
@@ -25,7 +25,7 @@ describe('server', () => {
   })
 
   it('should stop', async () => {
-    const libp2p = stubInterface<Libp2p<{ dht: DHT, pubsub: PubSub }>>()
+    const libp2p = stubInterface<Libp2p<{ dht: KadDHT, pubsub: GossipSub }>>()
 
     const server = createServer(ma, libp2p)
 
@@ -36,7 +36,7 @@ describe('server', () => {
   })
 
   it('should return multiaddrs', async () => {
-    const libp2p = stubInterface<Libp2p<{ dht: DHT, pubsub: PubSub }>>()
+    const libp2p = stubInterface<Libp2p<{ dht: KadDHT, pubsub: GossipSub }>>()
 
     const server = createServer(ma, libp2p)
 

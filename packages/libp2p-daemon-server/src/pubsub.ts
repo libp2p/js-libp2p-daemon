@@ -7,16 +7,16 @@ import { logger } from '@libp2p/logger'
 import { pushable } from 'it-pushable'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { ErrorResponse, OkResponse } from './responses.js'
-import type { PubSub } from '@libp2p/interface-pubsub'
+import type { GossipSub } from '@chainsafe/libp2p-gossipsub'
 
 const log = logger('libp2p:daemon-server:pubsub')
 
 export interface PubSubOperationsInit {
-  pubsub: PubSub
+  pubsub: GossipSub
 }
 
 export class PubSubOperations {
-  private readonly pubsub: PubSub
+  private readonly pubsub: GossipSub
 
   constructor (init: PubSubOperationsInit) {
     const { pubsub } = init
