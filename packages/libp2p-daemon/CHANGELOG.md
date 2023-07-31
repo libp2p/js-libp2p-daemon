@@ -1,3 +1,20 @@
+## [@libp2p/daemon-v3.0.0](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-v2.0.9...@libp2p/daemon-v3.0.0) (2023-07-31)
+
+
+### ⚠ BREAKING CHANGES
+
+* stream close methods are now asyc, requires libp2p@0.46.x or later
+
+### Features
+
+* close streams gracefully ([#213](https://github.com/libp2p/js-libp2p-daemon/issues/213)) ([92eebfa](https://github.com/libp2p/js-libp2p-daemon/commit/92eebfa12ba1fb42ae6c9e164fb0d69647e62074))
+
+
+### Dependencies
+
+* bump aegir from 38.1.8 to 39.0.1 ([#202](https://github.com/libp2p/js-libp2p-daemon/issues/202)) ([3bf4027](https://github.com/libp2p/js-libp2p-daemon/commit/3bf402752a92c3ebb96435eaa7923ce22ef76ea0))
+* update sibling dependencies ([fdfca91](https://github.com/libp2p/js-libp2p-daemon/commit/fdfca91afb258620c282296055e385b410018a6a))
+
 ## [@libp2p/daemon-v2.0.9](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-v2.0.8...@libp2p/daemon-v2.0.9) (2023-04-19)
 
 
