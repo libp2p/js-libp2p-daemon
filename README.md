@@ -10,6 +10,7 @@
 ## Table of contents <!-- omit in toc -->
 
 - [Structure](#structure)
+- [API Docs](#api-docs)
 - [License](#license)
 - [Contribution](#contribution)
 
@@ -19,6 +20,10 @@
 - [`/packages/libp2p-daemon-client`](./packages/libp2p-daemon-client) libp2p-daemon client implementation
 - [`/packages/libp2p-daemon-protocol`](./packages/libp2p-daemon-protocol) Communication protocol between libp2p daemons and clients
 - [`/packages/libp2p-daemon-server`](./packages/libp2p-daemon-server) API server for libp2p-daemon instances
+
+## API Docs
+
+- <https://libp2p.github.io/js-libp2p-daemon>
 
 ## License
 
