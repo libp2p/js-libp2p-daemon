@@ -143,7 +143,7 @@
     "uint8arraylist": "^2.4.3"
   },
   "devDependencies": {
-    "@libp2p/daemon-server": "^5.0.0",
+    "@libp2p/daemon-server": "^6.0.0",
     "@libp2p/interface-compliance-tests": "^4.0.0",
     "aegir": "^40.0.1",
     "it-all": "^3.0.1",
