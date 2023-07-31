@@ -8,23 +8,23 @@ import sinon from 'sinon'
 import { type StubbedInstance, stubInterface } from 'sinon-ts'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { createClient, type DaemonClient } from '../src/index.js'
-import type { DHT } from '@libp2p/interface-dht'
-import type { Libp2p } from '@libp2p/interface-libp2p'
-import type { PubSub } from '@libp2p/interface-pubsub'
+import type { GossipSub } from '@chainsafe/libp2p-gossipsub'
+import type { Libp2p } from '@libp2p/interface'
+import type { KadDHT } from '@libp2p/kad-dht'
 
 const defaultMultiaddr = multiaddr('/ip4/0.0.0.0/tcp/12345')
 
 describe('daemon pubsub client', function () {
   this.timeout(30e3)
 
-  let libp2p: StubbedInstance<Libp2p<{ dht: DHT, pubsub: PubSub }>>
+  let libp2p: StubbedInstance<Libp2p<{ dht: KadDHT, pubsub: GossipSub }>>
   let server: Libp2pServer
   let client: DaemonClient
-  let pubsub: StubbedInstance<PubSub>
+  let pubsub: StubbedInstance<GossipSub>
 
   beforeEach(async function () {
-    pubsub = stubInterface<PubSub>()
-    libp2p = stubInterface<Libp2p<{ dht: DHT, pubsub: PubSub }>>()
+    pubsub = stubInterface<GossipSub>()
+    libp2p = stubInterface<Libp2p<{ dht: KadDHT, pubsub: GossipSub }>>()
     libp2p.services.pubsub = pubsub
 
     server = createServer(defaultMultiaddr, libp2p)

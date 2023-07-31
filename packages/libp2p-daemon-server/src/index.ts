@@ -19,11 +19,11 @@ import { CID } from 'multiformats/cid'
 import { DHTOperations } from './dht.js'
 import { PubSubOperations } from './pubsub.js'
 import { ErrorResponse, OkResponse } from './responses.js'
-import type { Connection, MultiaddrConnection, Stream } from '@libp2p/interface-connection'
-import type { DHT } from '@libp2p/interface-dht'
-import type { Libp2p } from '@libp2p/interface-libp2p'
-import type { PubSub } from '@libp2p/interface-pubsub'
-import type { Listener, Transport } from '@libp2p/interface-transport'
+import type { GossipSub } from '@chainsafe/libp2p-gossipsub'
+import type { Libp2p } from '@libp2p/interface'
+import type { Connection, MultiaddrConnection, Stream } from '@libp2p/interface/connection'
+import type { Listener, Transport } from '@libp2p/interface/transport'
+import type { KadDHT } from '@libp2p/kad-dht'
 import type { Multiaddr } from '@multiformats/multiaddr'
 
 const LIMIT = 1 << 22 // 4MB
@@ -36,7 +36,7 @@ export interface OpenStream {
 
 export interface DaemonInit {
   multiaddr: Multiaddr
-  libp2pNode: Libp2p<{ dht: DHT, pubsub: PubSub }>
+  libp2pNode: Libp2p<{ dht: KadDHT, pubsub: GossipSub }>
 }
 
 export interface Libp2pServer {
@@ -47,7 +47,7 @@ export interface Libp2pServer {
 
 export class Server implements Libp2pServer {
   private readonly multiaddr: Multiaddr
-  private readonly libp2p: Libp2p<{ dht: DHT, pubsub: PubSub }>
+  private readonly libp2p: Libp2p<{ dht: KadDHT, pubsub: GossipSub }>
   private readonly tcp: Transport
   private readonly listener: Listener
   private readonly dhtOperations?: DHTOperations
@@ -103,13 +103,15 @@ export class Server implements Libp2pServer {
     const { peer, proto } = request.streamOpen
     const peerId = peerIdFromBytes(peer)
     const connection = await this.libp2p.dial(peerId)
-    const stream = await connection.newStream(proto)
+    const stream = await connection.newStream(proto, {
+      runOnTransientConnection: true
+    })
 
     return {
       streamInfo: {
         peer: peerId.toBytes(),
         addr: connection.remoteAddr.bytes,
-        proto: stream.stat.protocol ?? ''
+        proto: stream.protocol ?? ''
       },
       connection: stream
     }
@@ -142,7 +144,7 @@ export class Server implements Libp2pServer {
           const message = StreamInfo.encode({
             peer: connection.remotePeer.toBytes(),
             addr: connection.remoteAddr.bytes,
-            proto: stream.stat.protocol ?? ''
+            proto: stream.protocol ?? ''
           })
           const encodedMessage = lp.encode.single(message)
 
@@ -178,6 +180,8 @@ export class Server implements Libp2pServer {
               })
           }
         })
+    }, {
+      runOnTransientConnection: true
     })
   }
 
@@ -521,7 +525,7 @@ export class Server implements Libp2pServer {
 /**
  * Creates a daemon from the provided Daemon Options
  */
-export const createServer = (multiaddr: Multiaddr, libp2pNode: Libp2p<{ dht: DHT, pubsub: PubSub }>): Libp2pServer => {
+export const createServer = (multiaddr: Multiaddr, libp2pNode: Libp2p<{ dht: KadDHT, pubsub: GossipSub }>): Libp2pServer => {
   const daemon = new Server({
     multiaddr,
     libp2pNode

@@ -1,30 +1,30 @@
 /* eslint-env mocha */
 
 import { createServer, type Libp2pServer } from '@libp2p/daemon-server'
-import { mockConnection, mockDuplex, mockMultiaddrConnection } from '@libp2p/interface-mocks'
-import { isPeerId } from '@libp2p/interface-peer-id'
+import { isPeerId } from '@libp2p/interface/peer-id'
+import { mockConnection, mockDuplex, mockMultiaddrConnection } from '@libp2p/interface-compliance-tests/mocks'
 import { peerIdFromString } from '@libp2p/peer-id'
 import { multiaddr } from '@multiformats/multiaddr'
 import { expect } from 'aegir/chai'
 import sinon from 'sinon'
 import { type StubbedInstance, stubInterface } from 'sinon-ts'
 import { createClient, type DaemonClient } from '../src/index.js'
-import type { DHT } from '@libp2p/interface-dht'
-import type { Libp2p } from '@libp2p/interface-libp2p'
-import type { PeerStore } from '@libp2p/interface-peer-store'
-import type { PubSub } from '@libp2p/interface-pubsub'
+import type { GossipSub } from '@chainsafe/libp2p-gossipsub'
+import type { Libp2p } from '@libp2p/interface'
+import type { PeerStore } from '@libp2p/interface/peer-store'
+import type { KadDHT } from '@libp2p/kad-dht'
 
 const defaultMultiaddr = multiaddr('/ip4/0.0.0.0/tcp/0')
 
 describe('daemon client', function () {
   this.timeout(30e3)
 
-  let libp2p: StubbedInstance<Libp2p<{ dht: DHT, pubsub: PubSub }>>
+  let libp2p: StubbedInstance<Libp2p<{ dht: KadDHT, pubsub: GossipSub }>>
   let server: Libp2pServer
   let client: DaemonClient
 
   beforeEach(async function () {
-    libp2p = stubInterface<Libp2p<{ dht: DHT, pubsub: PubSub }>>()
+    libp2p = stubInterface<Libp2p<{ dht: KadDHT, pubsub: GossipSub }>>()
     libp2p.peerStore = stubInterface<PeerStore>()
 
     server = createServer(defaultMultiaddr, libp2p)
