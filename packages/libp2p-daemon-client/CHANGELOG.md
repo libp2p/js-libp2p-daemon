@@ -1,3 +1,10 @@
+## [@libp2p/daemon-client-v7.0.1](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v7.0.0...@libp2p/daemon-client-v7.0.1) (2023-08-04)
+
+
+### Dependencies
+
+* bump @chainsafe/libp2p-gossipsub from 9.1.0 to 10.0.0 ([#214](https://github.com/libp2p/js-libp2p-daemon/issues/214)) ([0308811](https://github.com/libp2p/js-libp2p-daemon/commit/0308811a2ea29d20de3f6a43db32720f21fb9b3f))
+
 ## [@libp2p/daemon-client-v7.0.0](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v6.0.3...@libp2p/daemon-client-v7.0.0) (2023-07-31)
 
 
