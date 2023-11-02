@@ -152,6 +152,6 @@
   },
   "devDependencies": {
     "aegir": "^41.1.6",
-    "sinon-ts": "^1.0.0"
+    "sinon-ts": "^2.0.0"
   }
 }
