@@ -86,9 +86,12 @@ export class Server implements Libp2pServer {
     const addrs = request.connect.addrs.map((a) => multiaddr(a))
     const peerId = peerIdFromBytes(peer)
 
+    log('connect - adding multiaddrs %a to peer %p', addrs, peerId)
     await this.libp2p.peerStore.merge(peerId, {
       multiaddrs: addrs
     })
+
+    log('connect - dial %p', peerId)
     return this.libp2p.dial(peerId)
   }
 
@@ -102,7 +105,11 @@ export class Server implements Libp2pServer {
 
     const { peer, proto } = request.streamOpen
     const peerId = peerIdFromBytes(peer)
+
+    log('openStream - dial %p', peerId)
     const connection = await this.libp2p.dial(peerId)
+
+    log('openStream - open stream for protocol %s', proto)
     const stream = await connection.newStream(proto, {
       runOnTransientConnection: true
     })
@@ -131,6 +138,7 @@ export class Server implements Libp2pServer {
     const addr = multiaddr(request.streamHandler.addr)
     let conn: MultiaddrConnection
 
+    log('registerStreamHandler - handle %s', protocols)
     await this.libp2p.handle(protocols, ({ connection, stream }) => {
       Promise.resolve()
         .then(async () => {
