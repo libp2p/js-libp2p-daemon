@@ -1,3 +1,10 @@
+## [@libp2p/daemon-protocol-v5.0.1](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-v5.0.0...@libp2p/daemon-protocol-v5.0.1) (2023-11-02)
+
+
+### Dependencies
+
+* bump aegir from 40.0.13 to 41.1.6 ([#232](https://github.com/libp2p/js-libp2p-daemon/issues/232)) ([653c74b](https://github.com/libp2p/js-libp2p-daemon/commit/653c74b6272fd6d11d686bf7bb44b49b6757b633))
+
 ## [@libp2p/daemon-protocol-v5.0.0](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-v4.0.1...@libp2p/daemon-protocol-v5.0.0) (2023-07-31)
 
 
