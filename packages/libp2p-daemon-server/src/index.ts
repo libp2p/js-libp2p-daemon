@@ -40,9 +40,9 @@ export interface DaemonInit {
 }
 
 export interface Libp2pServer {
-  start: () => Promise<void>
-  stop: () => Promise<void>
-  getMultiaddr: () => Multiaddr
+  start(): Promise<void>
+  stop(): Promise<void>
+  getMultiaddr(): Multiaddr
 }
 
 export class Server implements Libp2pServer {

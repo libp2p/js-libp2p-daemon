@@ -286,36 +286,36 @@ export interface StreamHandlerFunction {
 }
 
 export interface DHTClient {
-  put: (key: Uint8Array, value: Uint8Array) => Promise<void>
-  get: (key: Uint8Array) => Promise<Uint8Array>
-  provide: (cid: CID) => Promise<void>
-  findProviders: (cid: CID, count?: number) => AsyncIterable<PeerInfo>
-  findPeer: (peerId: PeerId) => Promise<PeerInfo>
-  getClosestPeers: (key: Uint8Array) => AsyncIterable<PeerInfo>
+  put(key: Uint8Array, value: Uint8Array): Promise<void>
+  get(key: Uint8Array): Promise<Uint8Array>
+  provide(cid: CID): Promise<void>
+  findProviders(cid: CID, count?: number): AsyncIterable<PeerInfo>
+  findPeer(peerId: PeerId): Promise<PeerInfo>
+  getClosestPeers(key: Uint8Array): AsyncIterable<PeerInfo>
 }
 
 export interface Subscription {
-  messages: () => AsyncIterable<PSMessage>
-  cancel: () => Promise<void>
+  messages(): AsyncIterable<PSMessage>
+  cancel(): Promise<void>
 }
 
 export interface PubSubClient {
-  publish: (topic: string, data: Uint8Array) => Promise<void>
-  subscribe: (topic: string) => Promise<Subscription>
-  getTopics: () => Promise<string[]>
-  getSubscribers: (topic: string) => Promise<PeerId[]>
+  publish(topic: string, data: Uint8Array): Promise<void>
+  subscribe(topic: string): Promise<Subscription>
+  getTopics(): Promise<string[]>
+  getSubscribers(topic: string): Promise<PeerId[]>
 }
 
 export interface DaemonClient {
-  identify: () => Promise<IdentifyResult>
-  listPeers: () => Promise<PeerId[]>
-  connect: (peerId: PeerId, addrs: Multiaddr[]) => Promise<void>
+  identify(): Promise<IdentifyResult>
+  listPeers(): Promise<PeerId[]>
+  connect(peerId: PeerId, addrs: Multiaddr[]): Promise<void>
   dht: DHTClient
   pubsub: PubSubClient
 
-  send: (request: Request) => Promise<StreamHandler>
-  openStream: (peerId: PeerId, protocol: string) => Promise<Duplex<AsyncGenerator<Uint8Array | Uint8ArrayList>, Source<Uint8Array>, Promise<void>>>
-  registerStreamHandler: (protocol: string, handler: StreamHandlerFunction) => Promise<void>
+  send(request: Request): Promise<StreamHandler>
+  openStream(peerId: PeerId, protocol: string): Promise<Duplex<AsyncGenerator<Uint8Array | Uint8ArrayList>, Source<Uint8Array>, Promise<void>>>
+  registerStreamHandler(protocol: string, handler: StreamHandlerFunction): Promise<void>
 }
 
 export function createClient (multiaddr: Multiaddr): DaemonClient {
