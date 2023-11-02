@@ -1,3 +1,11 @@
+## [@libp2p/daemon-v3.0.1](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-v3.0.0...@libp2p/daemon-v3.0.1) (2023-11-02)
+
+
+### Dependencies
+
+* bump aegir from 40.0.13 to 41.1.6 ([#232](https://github.com/libp2p/js-libp2p-daemon/issues/232)) ([653c74b](https://github.com/libp2p/js-libp2p-daemon/commit/653c74b6272fd6d11d686bf7bb44b49b6757b633))
+* **dev:** bump sinon from 15.2.0 to 17.0.1 ([#231](https://github.com/libp2p/js-libp2p-daemon/issues/231)) ([591b464](https://github.com/libp2p/js-libp2p-daemon/commit/591b464c3517948049dc169157333e774ca21f3c))
+
 ## [@libp2p/daemon-v3.0.0](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-v2.0.9...@libp2p/daemon-v3.0.0) (2023-07-31)
 
 
