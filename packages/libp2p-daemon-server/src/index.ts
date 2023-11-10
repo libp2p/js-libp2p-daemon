@@ -9,7 +9,7 @@ import {
 } from '@libp2p/daemon-protocol'
 import { StreamHandler } from '@libp2p/daemon-protocol/stream-handler'
 import { passThroughUpgrader } from '@libp2p/daemon-protocol/upgrader'
-import { logger } from '@libp2p/logger'
+import { defaultLogger, logger } from '@libp2p/logger'
 import { peerIdFromBytes } from '@libp2p/peer-id'
 import { tcp } from '@libp2p/tcp'
 import { multiaddr, protocols } from '@multiformats/multiaddr'
@@ -58,7 +58,10 @@ export class Server implements Libp2pServer {
 
     this.multiaddr = multiaddr
     this.libp2p = libp2pNode
-    this.tcp = tcp()()
+    this.tcp = tcp()({
+      // @ts-expect-error this field will be present post v1
+      logger: defaultLogger()
+    })
     this.listener = this.tcp.createListener({
       handler: this.handleConnection.bind(this),
       upgrader: passThroughUpgrader

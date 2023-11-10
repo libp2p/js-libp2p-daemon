@@ -3,7 +3,7 @@ import { StreamHandler } from '@libp2p/daemon-protocol/stream-handler'
 import { passThroughUpgrader } from '@libp2p/daemon-protocol/upgrader'
 import { CodeError } from '@libp2p/interface/errors'
 import { isPeerId, type PeerId } from '@libp2p/interface/peer-id'
-import { logger } from '@libp2p/logger'
+import { defaultLogger, logger } from '@libp2p/logger'
 import { peerIdFromBytes } from '@libp2p/peer-id'
 import { tcp } from '@libp2p/tcp'
 import { multiaddr, isMultiaddr } from '@multiformats/multiaddr'
@@ -27,7 +27,10 @@ class Client implements DaemonClient {
 
   constructor (addr: Multiaddr) {
     this.multiaddr = addr
-    this.tcp = tcp()()
+    this.tcp = tcp()({
+      // @ts-expect-error this field will be present post v1
+      logger: defaultLogger()
+    })
     this.dht = new DHT(this)
     this.pubsub = new Pubsub(this)
   }
