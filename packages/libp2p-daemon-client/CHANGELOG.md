@@ -1,3 +1,10 @@
+## [@libp2p/daemon-client-v7.0.3](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v7.0.2...@libp2p/daemon-client-v7.0.3) (2023-11-10)
+
+
+### Bug Fixes
+
+* add logger field ([#234](https://github.com/libp2p/js-libp2p-daemon/issues/234)) ([6f4728c](https://github.com/libp2p/js-libp2p-daemon/commit/6f4728c447859db17aaee613060b67271922fc2a))
+
 ## [@libp2p/daemon-client-v7.0.2](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v7.0.1...@libp2p/daemon-client-v7.0.2) (2023-11-02)
 
 
