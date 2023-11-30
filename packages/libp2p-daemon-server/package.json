@@ -139,7 +139,7 @@
     "@libp2p/daemon-protocol": "^5.0.0",
     "@libp2p/interface": "^0.1.0",
     "@libp2p/kad-dht": "^10.0.0",
-    "@libp2p/logger": "^3.0.0",
+    "@libp2p/logger": "^4.0.0",
     "@libp2p/peer-id": "^3.0.0",
     "@libp2p/tcp": "^8.0.0",
     "@multiformats/multiaddr": "^12.1.3",
