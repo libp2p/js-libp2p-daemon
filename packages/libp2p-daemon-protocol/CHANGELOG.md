@@ -1,3 +1,10 @@
+## [@libp2p/daemon-protocol-v6.0.1](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-v6.0.0...@libp2p/daemon-protocol-v6.0.1) (2023-11-30)
+
+
+### Bug Fixes
+
+* read stream data using lp stream ([#242](https://github.com/libp2p/js-libp2p-daemon/issues/242)) ([ee746f6](https://github.com/libp2p/js-libp2p-daemon/commit/ee746f6164b32536a80b9f376b46ef90d7653dcd))
+
 ## [@libp2p/daemon-protocol-v6.0.0](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-v5.0.1...@libp2p/daemon-protocol-v6.0.0) (2023-11-30)
 
 
