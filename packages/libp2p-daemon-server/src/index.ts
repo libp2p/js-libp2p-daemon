@@ -20,9 +20,7 @@ import { DHTOperations } from './dht.js'
 import { PubSubOperations } from './pubsub.js'
 import { ErrorResponse, OkResponse } from './responses.js'
 import type { GossipSub } from '@chainsafe/libp2p-gossipsub'
-import type { Libp2p } from '@libp2p/interface'
-import type { Connection, MultiaddrConnection, Stream } from '@libp2p/interface/connection'
-import type { Listener, Transport } from '@libp2p/interface/transport'
+import type { Libp2p, Connection, MultiaddrConnection, Stream, Listener, Transport } from '@libp2p/interface'
 import type { KadDHT } from '@libp2p/kad-dht'
 import type { Multiaddr } from '@multiformats/multiaddr'
 
@@ -59,7 +57,6 @@ export class Server implements Libp2pServer {
     this.multiaddr = multiaddr
     this.libp2p = libp2pNode
     this.tcp = tcp()({
-      // @ts-expect-error this field will be present post v1
       logger: defaultLogger()
     })
     this.listener = this.tcp.createListener({

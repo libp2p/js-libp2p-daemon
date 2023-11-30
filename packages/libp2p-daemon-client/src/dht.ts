@@ -4,13 +4,12 @@ import {
   DHTRequest,
   DHTResponse
 } from '@libp2p/daemon-protocol'
-import { CodeError } from '@libp2p/interface/errors'
-import { isPeerId, type PeerId } from '@libp2p/interface/peer-id'
+import { CodeError } from '@libp2p/interface'
+import { isPeerId, type PeerId, type PeerInfo } from '@libp2p/interface'
 import { peerIdFromBytes } from '@libp2p/peer-id'
 import { multiaddr } from '@multiformats/multiaddr'
 import { CID } from 'multiformats/cid'
 import type { DaemonClient } from './index.js'
-import type { PeerInfo } from '@libp2p/interface/peer-info'
 
 export class DHT {
   private readonly client: DaemonClient

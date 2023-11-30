@@ -4,10 +4,10 @@ import {
   PSRequest,
   PSMessage
 } from '@libp2p/daemon-protocol'
-import { CodeError } from '@libp2p/interface/errors'
+import { CodeError } from '@libp2p/interface'
 import { peerIdFromBytes } from '@libp2p/peer-id'
 import type { DaemonClient, Subscription } from './index.js'
-import type { PeerId } from '@libp2p/interface/peer-id'
+import type { PeerId } from '@libp2p/interface'
 
 export class Pubsub {
   private readonly client: DaemonClient

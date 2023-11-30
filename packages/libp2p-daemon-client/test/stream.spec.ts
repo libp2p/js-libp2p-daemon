@@ -13,8 +13,7 @@ import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import { createClient, type DaemonClient } from '../src/index.js'
 import type { GossipSub } from '@chainsafe/libp2p-gossipsub'
-import type { Libp2p } from '@libp2p/interface'
-import type { PeerStore } from '@libp2p/interface/peer-store'
+import type { Libp2p, PeerStore } from '@libp2p/interface'
 import type { KadDHT } from '@libp2p/kad-dht'
 
 const defaultMultiaddr = multiaddr('/ip4/0.0.0.0/tcp/0')
