@@ -2,19 +2,21 @@
 
 import {
   Request,
+  Response,
   DHTRequest,
   PeerstoreRequest,
   PSRequest,
   StreamInfo
 } from '@libp2p/daemon-protocol'
-import { StreamHandler } from '@libp2p/daemon-protocol/stream-handler'
 import { passThroughUpgrader } from '@libp2p/daemon-protocol/upgrader'
 import { defaultLogger, logger } from '@libp2p/logger'
 import { peerIdFromBytes } from '@libp2p/peer-id'
 import { tcp } from '@libp2p/tcp'
 import { multiaddr, protocols } from '@multiformats/multiaddr'
 import * as lp from 'it-length-prefixed'
+import { lpStream } from 'it-length-prefixed-stream'
 import { pipe } from 'it-pipe'
+import { pbStream } from 'it-protobuf-stream'
 import { CID } from 'multiformats/cid'
 import { DHTOperations } from './dht.js'
 import { PubSubOperations } from './pubsub.js'
@@ -60,6 +62,7 @@ export class Server implements Libp2pServer {
       logger: defaultLogger()
     })
     this.listener = this.tcp.createListener({
+      // @ts-expect-error connection may actually be a maconn?
       handler: this.handleConnection.bind(this),
       upgrader: passThroughUpgrader
     })
@@ -380,153 +383,160 @@ export class Server implements Libp2pServer {
   /**
    * Handles requests for the given connection
    */
-  handleConnection (connection: Connection): void {
-    const daemon = this // eslint-disable-line @typescript-eslint/no-this-alias
-    // @ts-expect-error connection may actually be a maconn?
-    const streamHandler = new StreamHandler({ stream: connection, maxLength: LIMIT })
+  handleConnection (maConn: MultiaddrConnection): void {
+    void Promise.resolve().then(async () => {
+      const daemon = this // eslint-disable-line @typescript-eslint/no-this-alias
 
-    void pipe(
-      streamHandler.decoder,
-      source => (async function * () {
-        let request: Request
+      const pb = pbStream(maConn, {
+        maxDataLength: LIMIT
+      })
 
-        for await (const buf of source) {
-          try {
-            request = Request.decode(buf)
+      const request = await pb.read(Request)
+      log('read', request)
 
-            switch (request.type) {
-              // Connect to another peer
-              case Request.Type.CONNECT: {
-                try {
-                  await daemon.connect(request)
-                } catch (err: any) {
-                  yield ErrorResponse(err)
-                  break
-                }
-                yield OkResponse()
-                break
-              }
-              // Get the daemon peer id and addresses
-              case Request.Type.IDENTIFY: {
-                yield OkResponse({
-                  identify: {
-                    id: daemon.libp2p.peerId.toBytes(),
-                    addrs: daemon.libp2p.getMultiaddrs().map(ma => ma.decapsulateCode(protocols('p2p').code)).map(m => m.bytes)
-                  }
-                })
-                break
-              }
-              // Get a list of our current peers
-              case Request.Type.LIST_PEERS: {
-                const peers = []
-                const seen = new Set<string>()
+      try {
+        switch (request.type) {
+          // Connect to another peer
+          case Request.Type.CONNECT: {
+            await daemon.connect(request)
+            await pb.write({
+              type: Response.Type.OK
+            }, Response)
 
-                for (const connection of daemon.libp2p.getConnections()) {
-                  const peerId = connection.remotePeer.toString()
-
-                  if (seen.has(peerId)) {
-                    continue
-                  }
-
-                  seen.add(peerId)
-
-                  peers.push({
-                    id: connection.remotePeer.toBytes(),
-                    addrs: [connection.remoteAddr.bytes]
-                  })
-                }
-
-                yield OkResponse({ peers })
-                break
-              }
-              case Request.Type.STREAM_OPEN: {
-                let response
-                try {
-                  response = await daemon.openStream(request)
-                } catch (err: any) {
-                  yield ErrorResponse(err)
-                  break
-                }
-
-                // write the response
-                yield OkResponse({
-                  streamInfo: response.streamInfo
-                })
-
-                const stream = streamHandler.rest()
-                // then pipe the connection to the client
-                await pipe(
-                  stream,
-                  response.connection,
-                  async function * (source) {
-                    for await (const list of source) {
-                      yield * list
-                    }
-                  },
-                  stream
-                )
-                // Exit the iterator, no more requests can come through
-                return
-              }
-              case Request.Type.STREAM_HANDLER: {
-                try {
-                  await daemon.registerStreamHandler(request)
-                } catch (err: any) {
-                  yield ErrorResponse(err)
-                  break
-                }
-
-                // write the response
-                yield OkResponse()
-                break
-              }
-              case Request.Type.PEERSTORE: {
-                if (request.peerStore == null) {
-                  yield ErrorResponse(new Error('ERR_INVALID_REQUEST'))
-                  break
-                }
-
-                yield * daemon.handlePeerStoreRequest(request.peerStore)
-                break
-              }
-              case Request.Type.PUBSUB: {
-                if (request.pubsub == null) {
-                  yield ErrorResponse(new Error('ERR_INVALID_REQUEST'))
-                  break
-                }
-
-                yield * daemon.handlePubsubRequest(request.pubsub)
-                break
-              }
-              case Request.Type.DHT: {
-                if (request.dht == null) {
-                  yield ErrorResponse(new Error('ERR_INVALID_REQUEST'))
-                  break
-                }
-
-                yield * daemon.handleDHTRequest(request.dht)
-                break
-              }
-              // Not yet supported or doesn't exist
-              default:
-                yield ErrorResponse(new Error('ERR_INVALID_REQUEST_TYPE'))
-                break
-            }
-          } catch (err: any) {
-            log.error(err)
-            yield ErrorResponse(err)
-            continue
+            break
           }
+          // Get the daemon peer id and addresses
+          case Request.Type.IDENTIFY: {
+            await pb.write({
+              type: Response.Type.OK,
+              identify: {
+                id: daemon.libp2p.peerId.toBytes(),
+                addrs: daemon.libp2p.getMultiaddrs().map(ma => ma.decapsulateCode(protocols('p2p').code)).map(m => m.bytes)
+              }
+            }, Response)
+
+            break
+          }
+          // Get a list of our current peers
+          case Request.Type.LIST_PEERS: {
+            const peers = []
+            const seen = new Set<string>()
+
+            for (const connection of daemon.libp2p.getConnections()) {
+              const peerId = connection.remotePeer.toString()
+
+              if (seen.has(peerId)) {
+                continue
+              }
+
+              seen.add(peerId)
+
+              peers.push({
+                id: connection.remotePeer.toBytes(),
+                addrs: [connection.remoteAddr.bytes]
+              })
+            }
+
+            await pb.write({
+              type: Response.Type.OK,
+              peers
+            }, Response)
+
+            break
+          }
+          case Request.Type.STREAM_OPEN: {
+            const response = await daemon.openStream(request)
+
+            // write the response
+            await pb.write({
+              type: Response.Type.OK,
+              streamInfo: response.streamInfo
+            }, Response)
+
+            const stream = pb.unwrap()
+
+            // then pipe the connection to the client
+            await pipe(
+              stream,
+              response.connection,
+              stream
+            )
+
+            // Exit the iterator, no more requests can come through
+            break
+          }
+          case Request.Type.STREAM_HANDLER: {
+            await daemon.registerStreamHandler(request)
+
+            // write the response
+            await pb.write({
+              type: Response.Type.OK
+            }, Response)
+
+            break
+          }
+          case Request.Type.PEERSTORE: {
+            if (request.peerStore == null) {
+              throw new Error('ERR_INVALID_REQUEST')
+            }
+
+            const stream = pb.unwrap()
+            const lp = lpStream(stream)
+
+            for await (const buf of daemon.handlePeerStoreRequest(request.peerStore)) {
+              await lp.write(buf)
+            }
+
+            break
+          }
+          case Request.Type.PUBSUB: {
+            if (request.pubsub == null) {
+              throw new Error('ERR_INVALID_REQUEST')
+            }
+
+            const stream = pb.unwrap()
+            const lp = lpStream(stream)
+
+            for await (const buf of daemon.handlePubsubRequest(request.pubsub)) {
+              await lp.write(buf)
+            }
+
+            break
+          }
+          case Request.Type.DHT: {
+            if (request.dht == null) {
+              throw new Error('ERR_INVALID_REQUEST')
+            }
+
+            const stream = pb.unwrap()
+            const lp = lpStream(stream)
+
+            for await (const buf of daemon.handleDHTRequest(request.dht)) {
+              await lp.write(buf)
+            }
+
+            break
+          }
+          // Not yet supported or doesn't exist
+          default:
+            throw new Error('ERR_INVALID_REQUEST_TYPE')
         }
-      })(),
-      async function (source) {
-        for await (const result of source) {
-          streamHandler.write(result)
-        }
+      } catch (err: any) {
+        log.error(err)
+        await pb.write({
+          type: Response.Type.ERROR,
+          error: {
+            msg: err.message
+          },
+          peers: []
+        }, Response)
+      } finally {
+        await pb.unwrap().close()
       }
-    ).catch(err => {
-      log(err)
     })
+      .catch(err => {
+        log.error('error handling incoming connection', err)
+      })
   }
 }
 

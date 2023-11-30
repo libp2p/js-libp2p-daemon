@@ -1,21 +1,18 @@
 import { logger } from '@libp2p/logger'
-import { handshake } from 'it-handshake'
-import * as lp from 'it-length-prefixed'
-import type { Handshake } from 'it-handshake'
-import type { Duplex, Source } from 'it-stream-types'
+import { lpStream, type LengthPrefixedStream } from 'it-length-prefixed-stream'
+import type { MultiaddrConnection } from '@libp2p/interface'
 import type { Uint8ArrayList } from 'uint8arraylist'
 
 const log = logger('libp2p:daemon-protocol:stream-handler')
 
 export interface StreamHandlerOptions {
-  stream: Duplex<AsyncIterable<Uint8Array>, Source<Uint8Array>, Promise<void>>
+  stream: MultiaddrConnection
   maxLength?: number
 }
 
 export class StreamHandler {
-  private readonly stream: Duplex<AsyncIterable<Uint8Array>, Source<Uint8Array>, Promise<void>>
-  private readonly shake: Handshake<Uint8Array>
-  public decoder: Source<Uint8ArrayList>
+  private readonly stream: MultiaddrConnection
+  private readonly lp: LengthPrefixedStream<MultiaddrConnection>
 
   /**
    * Create a stream handler for connection
@@ -24,8 +21,7 @@ export class StreamHandler {
     const { stream, maxLength } = opts
 
     this.stream = stream
-    this.shake = handshake(this.stream)
-    this.decoder = lp.decode.fromReader(this.shake.reader, { maxDataLength: maxLength ?? 4096 })
+    this.lp = lpStream(this.stream, { maxDataLength: maxLength ?? 4096 })
   }
 
   /**
@@ -43,19 +39,16 @@ export class StreamHandler {
     await this.close()
   }
 
-  write (msg: Uint8Array | Uint8ArrayList): void {
+  async write (msg: Uint8Array | Uint8ArrayList): Promise<void> {
     log('write message')
-    this.shake.write(
-      lp.encode.single(msg).subarray()
-    )
+    await this.lp.write(msg)
   }
 
   /**
    * Return the handshake rest stream and invalidate handler
    */
-  rest (): Duplex<AsyncGenerator<Uint8ArrayList | Uint8Array>, Source<Uint8Array>, Promise<void>> {
-    this.shake.rest()
-    return this.shake.stream
+  rest (): MultiaddrConnection {
+    return this.lp.unwrap()
   }
 
   /**
@@ -63,6 +56,6 @@ export class StreamHandler {
    */
   async close (): Promise<void> {
     log('closing the stream')
-    await this.rest().sink([])
+    await this.rest().close()
   }
 }

@@ -6,10 +6,13 @@ import {
 } from '@libp2p/daemon-protocol'
 import { CodeError } from '@libp2p/interface'
 import { isPeerId, type PeerId, type PeerInfo } from '@libp2p/interface'
+import { logger } from '@libp2p/logger'
 import { peerIdFromBytes } from '@libp2p/peer-id'
 import { multiaddr } from '@multiformats/multiaddr'
 import { CID } from 'multiformats/cid'
 import type { DaemonClient } from './index.js'
+
+const log = logger('libp2p:daemon-client:dht')
 
 export class DHT {
   private readonly client: DaemonClient
@@ -39,15 +42,11 @@ export class DHT {
       }
     })
 
-    const message = await sh.read()
+    const response = await sh.read(Response)
 
-    if (message == null) {
-      throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
-    }
+    log('read', response)
 
-    const response = Response.decode(message)
-
-    await sh.close()
+    await sh.unwrap().close()
 
     if (response.type !== Response.Type.OK) {
       throw new CodeError(response.error?.msg ?? 'DHT put failed', 'ERR_DHT_PUT_FAILED')
@@ -70,15 +69,9 @@ export class DHT {
       }
     })
 
-    const message = await sh.read()
+    const response = await sh.read(Response)
 
-    if (message == null) {
-      throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
-    }
-
-    const response = Response.decode(message)
-
-    await sh.close()
+    await sh.unwrap().close()
 
     if (response.type !== Response.Type.OK) {
       throw new CodeError(response.error?.msg ?? 'DHT get failed', 'ERR_DHT_GET_FAILED')
@@ -107,15 +100,9 @@ export class DHT {
       }
     })
 
-    const message = await sh.read()
+    const response = await sh.read(Response)
 
-    if (message == null) {
-      throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
-    }
-
-    const response = Response.decode(message)
-
-    await sh.close()
+    await sh.unwrap().close()
 
     if (response.type !== Response.Type.OK) {
       throw new CodeError(response.error?.msg ?? 'DHT find peer failed', 'ERR_DHT_FIND_PEER_FAILED')
@@ -127,8 +114,7 @@ export class DHT {
 
     return {
       id: peerIdFromBytes(response.dht.peer.id),
-      multiaddrs: response.dht.peer.addrs.map((a) => multiaddr(a)),
-      protocols: []
+      multiaddrs: response.dht.peer.addrs.map((a) => multiaddr(a))
     }
   }
 
@@ -148,15 +134,9 @@ export class DHT {
       }
     })
 
-    const message = await sh.read()
+    const response = await sh.read(Response)
 
-    if (message == null) {
-      throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
-    }
-
-    const response = Response.decode(message)
-
-    await sh.close()
+    await sh.unwrap().close()
 
     if (response.type !== Response.Type.OK) {
       throw new CodeError(response.error?.msg ?? 'DHT provide failed', 'ERR_DHT_PROVIDE_FAILED')
@@ -180,45 +160,32 @@ export class DHT {
       }
     })
 
-    let message = await sh.read()
-
-    if (message == null) {
-      throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
-    }
-
     // stream begin message
-    const response = Response.decode(message)
+    const response = await sh.read(Response)
 
     if (response.type !== Response.Type.OK) {
-      await sh.close()
+      await sh.unwrap().close()
       throw new CodeError(response.error?.msg ?? 'DHT find providers failed', 'ERR_DHT_FIND_PROVIDERS_FAILED')
     }
 
     while (true) {
-      message = await sh.read()
-
-      if (message == null) {
-        throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
-      }
-
-      const response = DHTResponse.decode(message)
+      const dhtResponse = await sh.read(DHTResponse)
 
       // Stream end
-      if (response.type === DHTResponse.Type.END) {
-        await sh.close()
+      if (dhtResponse.type === DHTResponse.Type.END) {
+        await sh.unwrap().close()
         return
       }
 
       // Stream values
-      if (response.type === DHTResponse.Type.VALUE && response.peer != null && response.peer?.addrs != null) {
+      if (dhtResponse.type === DHTResponse.Type.VALUE && dhtResponse.peer != null && dhtResponse.peer?.addrs != null) {
         yield {
-          id: peerIdFromBytes(response.peer.id),
-          multiaddrs: response.peer.addrs.map((a) => multiaddr(a)),
-          protocols: []
+          id: peerIdFromBytes(dhtResponse.peer.id),
+          multiaddrs: dhtResponse.peer.addrs.map((a) => multiaddr(a))
         }
       } else {
         // Unexpected message received
-        await sh.close()
+        await sh.unwrap().close()
         throw new CodeError('unexpected message received', 'ERR_UNEXPECTED_MESSAGE_RECEIVED')
       }
     }
@@ -241,46 +208,33 @@ export class DHT {
     })
 
     // stream begin message
-    let message = await sh.read()
-
-    if (message == null) {
-      throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
-    }
-
-    const response = Response.decode(message)
+    const response = await sh.read(Response)
 
     if (response.type !== Response.Type.OK) {
-      await sh.close()
+      await sh.unwrap().close()
       throw new CodeError(response.error?.msg ?? 'DHT find providers failed', 'ERR_DHT_FIND_PROVIDERS_FAILED')
     }
 
     while (true) {
-      message = await sh.read()
-
-      if (message == null) {
-        throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
-      }
-
-      const response = DHTResponse.decode(message)
+      const dhtResponse = await sh.read(DHTResponse)
 
       // Stream end
-      if (response.type === DHTResponse.Type.END) {
-        await sh.close()
+      if (dhtResponse.type === DHTResponse.Type.END) {
+        await sh.unwrap().close()
         return
       }
 
       // Stream values
-      if (response.type === DHTResponse.Type.VALUE && response.value != null) {
-        const peerId = peerIdFromBytes(response.value)
+      if (dhtResponse.type === DHTResponse.Type.VALUE && dhtResponse.value != null) {
+        const peerId = peerIdFromBytes(dhtResponse.value)
 
         yield {
           id: peerId,
-          multiaddrs: [],
-          protocols: []
+          multiaddrs: []
         }
       } else {
         // Unexpected message received
-        await sh.close()
+        await sh.unwrap().close()
         throw new CodeError('unexpected message received', 'ERR_UNEXPECTED_MESSAGE_RECEIVED')
       }
     }
@@ -302,15 +256,9 @@ export class DHT {
       }
     })
 
-    const message = await sh.read()
+    const response = await sh.read(Response)
 
-    if (message == null) {
-      throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
-    }
-
-    const response = Response.decode(message)
-
-    await sh.close()
+    await sh.unwrap().close()
 
     if (response.type !== Response.Type.OK) {
       throw new CodeError(response.error?.msg ?? 'DHT get public key failed', 'ERR_DHT_GET_PUBLIC_KEY_FAILED')

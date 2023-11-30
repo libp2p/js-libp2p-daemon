@@ -79,7 +79,9 @@ describe('daemon stream client', function () {
     const stream = await client.openStream(peerB, protocol)
 
     const data = await pipe(
-      [uint8ArrayFromString('hello world')],
+      async function * () {
+        yield uint8ArrayFromString('hello world')
+      },
       stream,
       async (source) => all(source)
     )

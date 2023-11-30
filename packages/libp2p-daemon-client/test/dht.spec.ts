@@ -11,12 +11,13 @@ import sinon from 'sinon'
 import { type StubbedInstance, stubInterface } from 'sinon-ts'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { createClient, type DaemonClient } from '../src/index.js'
+import { matchBytes } from './fixtures/match-bytes.js'
 import type { GossipSub } from '@chainsafe/libp2p-gossipsub'
 import type { Libp2p } from '@libp2p/interface'
 
 const defaultMultiaddr = multiaddr('/ip4/0.0.0.0/tcp/12345')
 
-function match (cid: CID): sinon.SinonMatcher {
+function matchCid (cid: CID): sinon.SinonMatcher {
   return sinon.match((c: CID) => c.toString() === cid.toString(), 'cid')
 }
 
@@ -57,7 +58,7 @@ describe('daemon dht client', function () {
 
       await client.dht.put(key, value)
 
-      expect(dht.put.calledWith(key, value)).to.be.true()
+      expect(dht.put.calledWith(matchBytes(key), matchBytes(value))).to.be.true()
     })
 
     it('should error if receive an error message', async () => {
@@ -74,7 +75,7 @@ describe('daemon dht client', function () {
       const key = uint8ArrayFromString('/key')
       const value = uint8ArrayFromString('oh hello there')
 
-      dht.get.withArgs(key).returns(async function * () {
+      dht.get.withArgs(matchBytes(key)).returns(async function * () {
         const event: ValueEvent = {
           name: 'VALUE',
           type: EventTypes.VALUE,
@@ -111,8 +112,7 @@ describe('daemon dht client', function () {
           type: EventTypes.FINAL_PEER,
           peer: {
             id,
-            multiaddrs: [],
-            protocols: []
+            multiaddrs: []
           },
           from: peerIdFromString('12D3KooWJKCJW8Y26pRFNv78TCMGLNTfyN8oKaFswMRYXTzSbSsa')
         }
@@ -144,7 +144,7 @@ describe('daemon dht client', function () {
 
       await client.dht.provide(cid)
 
-      expect(dht.provide.calledWith(match(cid))).to.be.true()
+      expect(dht.provide.calledWith(matchCid(cid))).to.be.true()
     })
 
     it('should error if receive an error message', async () => {
@@ -163,14 +163,13 @@ describe('daemon dht client', function () {
       const cid = CID.parse('QmVzw6MPsF96TyXBSRs1ptLoVMWRv5FCYJZZGJSVB2Hp38')
       const id = peerIdFromString('12D3KooWJKCJW8Y26pRFNv78TCMGLNTfyN8oKaFswMRYXTzSbSsa')
 
-      dht.findProviders.withArgs(match(cid)).returns(async function * () {
+      dht.findProviders.withArgs(matchCid(cid)).returns(async function * () {
         const event: PeerResponseEvent = {
           name: 'PEER_RESPONSE',
           type: EventTypes.PEER_RESPONSE,
           providers: [{
             id,
-            multiaddrs: [],
-            protocols: []
+            multiaddrs: []
           }],
           closer: [],
           from: id,
@@ -211,8 +210,7 @@ describe('daemon dht client', function () {
           providers: [],
           closer: [{
             id,
-            multiaddrs: [],
-            protocols: []
+            multiaddrs: []
           }],
           from: id,
           messageName: 'GET_PROVIDERS',
