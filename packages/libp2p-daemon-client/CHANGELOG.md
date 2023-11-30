@@ -1,3 +1,20 @@
+## [@libp2p/daemon-client-v8.0.0](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v7.0.3...@libp2p/daemon-client-v8.0.0) (2023-11-30)
+
+
+### ⚠ BREAKING CHANGES
+
+* updates js-libp2p to v1
+
+### Trivial Changes
+
+* update sibling dependencies ([3e711d1](https://github.com/libp2p/js-libp2p-daemon/commit/3e711d137983192db220d549c768cb4d82cf7f73))
+* update sibling dependencies ([865cb8a](https://github.com/libp2p/js-libp2p-daemon/commit/865cb8a7bf165092f90455dcc895ffa7e97df432))
+
+
+### Dependencies
+
+* update libp2p to v1 ([#235](https://github.com/libp2p/js-libp2p-daemon/issues/235)) ([6f2917b](https://github.com/libp2p/js-libp2p-daemon/commit/6f2917b714756e3632ff6c522668f7c2166d4389))
+
 ## [@libp2p/daemon-client-v7.0.3](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-v7.0.2...@libp2p/daemon-client-v7.0.3) (2023-11-10)
 
 
