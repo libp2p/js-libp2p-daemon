@@ -27,16 +27,12 @@ export class StreamHandler {
   /**
    * Read and decode message
    */
-  async read (): Promise<Uint8Array | undefined> {
-    // @ts-expect-error decoder is really a generator
-    const msg = await this.decoder.next()
-    if (msg.value != null) {
-      return msg.value.subarray()
+  async read (): Promise<Uint8ArrayList | undefined> {
+    try {
+      return await this.lp.read()
+    } catch (err) {
+      log.error('read received no value', err)
     }
-
-    log('read received no value, closing stream')
-    // End the stream, we didn't get data
-    await this.close()
   }
 
   async write (msg: Uint8Array | Uint8ArrayList): Promise<void> {
