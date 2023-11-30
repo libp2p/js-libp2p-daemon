@@ -4,13 +4,17 @@
   "description": "Communication protocol between libp2p daemons and clients",
   "author": "",
   "license": "Apache-2.0 OR MIT",
-  "homepage": "https://github.com/libp2p/js-libp2p-daemon/tree/master/packages/libp2p-daemon-protocol#readme",
+  "homepage": "https://github.com/libp2p/js-libp2p-daemon/tree/main/packages/libp2p-daemon-protocol#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/libp2p/js-libp2p-daemon.git"
   },
   "bugs": {
     "url": "https://github.com/libp2p/js-libp2p-daemon/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   },
   "type": "module",
   "types": "./dist/src/index.d.ts",
@@ -63,7 +67,7 @@
   },
   "release": {
     "branches": [
-      "master"
+      "main"
     ],
     "plugins": [
       [
@@ -151,12 +155,13 @@
     "lint": "aegir lint",
     "generate": "protons ./src/index.proto",
     "build": "aegir build",
-    "release": "aegir release"
+    "release": "aegir release",
+    "dep-check": "aegir dep-check"
   },
   "dependencies": {
-    "@libp2p/interface": "^0.1.0",
-    "@libp2p/logger": "^3.0.0",
-    "it-handshake": "^4.1.3",
+    "@libp2p/interface": "^1.0.0",
+    "@libp2p/logger": "^4.0.0",
+    "it-length-prefixed-stream": "^1.1.4",
     "protons-runtime": "^5.0.0",
     "uint8arraylist": "^2.4.3"
   },

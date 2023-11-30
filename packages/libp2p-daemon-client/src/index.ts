@@ -1,21 +1,17 @@
 import { type PSMessage, Request, Response, StreamInfo } from '@libp2p/daemon-protocol'
 import { StreamHandler } from '@libp2p/daemon-protocol/stream-handler'
 import { passThroughUpgrader } from '@libp2p/daemon-protocol/upgrader'
-import { CodeError } from '@libp2p/interface/errors'
-import { isPeerId, type PeerId } from '@libp2p/interface/peer-id'
+import { CodeError, isPeerId } from '@libp2p/interface'
 import { defaultLogger, logger } from '@libp2p/logger'
 import { peerIdFromBytes } from '@libp2p/peer-id'
 import { tcp } from '@libp2p/tcp'
 import { multiaddr, isMultiaddr } from '@multiformats/multiaddr'
+import { pbStream, type ProtobufStream } from 'it-protobuf-stream'
 import { DHT } from './dht.js'
 import { Pubsub } from './pubsub.js'
-import type { MultiaddrConnection } from '@libp2p/interface/connection'
-import type { PeerInfo } from '@libp2p/interface/peer-info'
-import type { Transport } from '@libp2p/interface/transport'
+import type { Stream, PeerId, MultiaddrConnection, PeerInfo, Transport } from '@libp2p/interface'
 import type { Multiaddr } from '@multiformats/multiaddr'
-import type { Duplex, Source } from 'it-stream-types'
 import type { CID } from 'multiformats/cid'
-import type { Uint8ArrayList } from 'uint8arraylist'
 
 const log = logger('libp2p:daemon-client')
 
@@ -28,7 +24,6 @@ class Client implements DaemonClient {
   constructor (addr: Multiaddr) {
     this.multiaddr = addr
     this.tcp = tcp()({
-      // @ts-expect-error this field will be present post v1
       logger: defaultLogger()
     })
     this.dht = new DHT(this)
@@ -54,15 +49,16 @@ class Client implements DaemonClient {
    * Sends the request to the daemon and returns a stream. This
    * should only be used when sending daemon requests.
    */
-  async send (request: Request): Promise<StreamHandler> {
+  async send (request: Request): Promise<ProtobufStream<MultiaddrConnection>> {
     const maConn = await this.connectDaemon()
 
     const subtype = request.pubsub?.type ?? request.dht?.type ?? request.peerStore?.type ?? ''
     log('send', request.type, subtype)
 
-    const streamHandler = new StreamHandler({ stream: maConn })
-    streamHandler.write(Request.encode(request))
-    return streamHandler
+    const pb = pbStream(maConn)
+    await pb.write(request, Request)
+
+    return pb
   }
 
   /**
@@ -91,18 +87,14 @@ class Client implements DaemonClient {
       }
     })
 
-    const message = await sh.read()
-    if (message == null) {
-      throw new CodeError('unspecified', 'ERR_CONNECT_FAILED')
-    }
+    const response = await sh.read(Response)
 
-    const response = Response.decode(message)
     if (response.type !== Response.Type.OK) {
       const errResponse = response.error ?? { msg: 'unspecified' }
       throw new CodeError(errResponse.msg ?? 'unspecified', 'ERR_CONNECT_FAILED')
     }
 
-    await sh.close()
+    await sh.unwrap().close()
   }
 
   /**
@@ -119,13 +111,7 @@ class Client implements DaemonClient {
       type: Request.Type.IDENTIFY
     })
 
-    const message = await sh.read()
-
-    if (message == null) {
-      throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
-    }
-
-    const response = Response.decode(message)
+    const response = await sh.read(Response)
 
     if (response.type !== Response.Type.OK) {
       throw new CodeError(response.error?.msg ?? 'Identify failed', 'ERR_IDENTIFY_FAILED')
@@ -138,7 +124,7 @@ class Client implements DaemonClient {
     const peerId = peerIdFromBytes(response.identify?.id)
     const addrs = response.identify.addrs.map((a) => multiaddr(a))
 
-    await sh.close()
+    await sh.unwrap().close()
 
     return ({ peerId, addrs })
   }
@@ -151,19 +137,13 @@ class Client implements DaemonClient {
       type: Request.Type.LIST_PEERS
     })
 
-    const message = await sh.read()
-
-    if (message == null) {
-      throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
-    }
-
-    const response = Response.decode(message)
+    const response = await sh.read(Response)
 
     if (response.type !== Response.Type.OK) {
       throw new CodeError(response.error?.msg ?? 'List peers failed', 'ERR_LIST_PEERS_FAILED')
     }
 
-    await sh.close()
+    await sh.unwrap().close()
 
     return response.peers.map((peer) => peerIdFromBytes(peer.id))
   }
@@ -171,7 +151,7 @@ class Client implements DaemonClient {
   /**
    * Initiate an outbound stream to a peer on one of a set of protocols.
    */
-  async openStream (peerId: PeerId, protocol: string): Promise<Duplex<AsyncGenerator<Uint8Array | Uint8ArrayList>, Source<Uint8Array>, Promise<void>>> {
+  async openStream (peerId: PeerId, protocol: string): Promise<MultiaddrConnection> {
     if (!isPeerId(peerId)) {
       throw new CodeError('invalid peer id received', 'ERR_INVALID_PEER_ID')
     }
@@ -188,20 +168,14 @@ class Client implements DaemonClient {
       }
     })
 
-    const message = await sh.read()
-
-    if (message == null) {
-      throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
-    }
-
-    const response = Response.decode(message)
+    const response = await sh.read(Response)
 
     if (response.type !== Response.Type.OK) {
-      await sh.close()
+      await sh.unwrap().close()
       throw new CodeError(response.error?.msg ?? 'Open stream failed', 'ERR_OPEN_STREAM_FAILED')
     }
 
-    return sh.rest()
+    return sh.unwrap()
   }
 
   /**
@@ -215,11 +189,11 @@ class Client implements DaemonClient {
     // open a tcp port, pipe any data from it to the handler function
     const listener = this.tcp.createListener({
       upgrader: passThroughUpgrader,
-      handler: (connection) => {
+      // @ts-expect-error because we are using a passthrough upgrader, this is a MultiaddrConnection
+      handler: (connection: MultiaddrConnection) => {
         Promise.resolve()
           .then(async () => {
             const sh = new StreamHandler({
-              // @ts-expect-error because we are using a passthrough upgrader, this is a MultiaddrConnection
               stream: connection
             })
             const message = await sh.read()
@@ -234,6 +208,7 @@ class Client implements DaemonClient {
               throw new CodeError('Incorrect protocol', 'ERR_OPEN_STREAM_FAILED')
             }
 
+            // @ts-expect-error because we are using a passthrough upgrader, this is a MultiaddrConnection
             await handler(sh.rest())
           })
           .finally(() => {
@@ -263,15 +238,9 @@ class Client implements DaemonClient {
       }
     })
 
-    const message = await sh.read()
+    const response = await sh.read(Response)
 
-    if (message == null) {
-      throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
-    }
-
-    const response = Response.decode(message)
-
-    await sh.close()
+    await sh.unwrap().close()
 
     if (response.type !== Response.Type.OK) {
       throw new CodeError(response.error?.msg ?? 'Register stream handler failed', 'ERR_REGISTER_STREAM_HANDLER_FAILED')
@@ -285,7 +254,7 @@ export interface IdentifyResult {
 }
 
 export interface StreamHandlerFunction {
-  (stream: Duplex<AsyncGenerator<Uint8Array | Uint8ArrayList>, Source<Uint8Array>, Promise<void>>): Promise<void>
+  (stream: Stream): Promise<void>
 }
 
 export interface DHTClient {
@@ -316,8 +285,8 @@ export interface DaemonClient {
   dht: DHTClient
   pubsub: PubSubClient
 
-  send(request: Request): Promise<StreamHandler>
-  openStream(peerId: PeerId, protocol: string): Promise<Duplex<AsyncGenerator<Uint8Array | Uint8ArrayList>, Source<Uint8Array>, Promise<void>>>
+  send(request: Request): Promise<ProtobufStream<MultiaddrConnection>>
+  openStream(peerId: PeerId, protocol: string): Promise<MultiaddrConnection>
   registerStreamHandler(protocol: string, handler: StreamHandlerFunction): Promise<void>
 }
 

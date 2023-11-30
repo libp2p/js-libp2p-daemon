@@ -3,13 +3,17 @@
   "version": "6.0.3",
   "description": "API server for libp2p-daemon instances",
   "license": "Apache-2.0 OR MIT",
-  "homepage": "https://github.com/libp2p/js-libp2p-daemon/tree/master/packages/libp2p-daemon-server#readme",
+  "homepage": "https://github.com/libp2p/js-libp2p-daemon/tree/main/packages/libp2p-daemon-server#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/libp2p/js-libp2p-daemon.git"
   },
   "bugs": {
     "url": "https://github.com/libp2p/js-libp2p-daemon/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   },
   "keywords": [
     "libp2p"
@@ -41,7 +45,7 @@
   },
   "release": {
     "branches": [
-      "master"
+      "main"
     ],
     "plugins": [
       [
@@ -137,15 +141,17 @@
   "dependencies": {
     "@chainsafe/libp2p-gossipsub": "^10.0.0",
     "@libp2p/daemon-protocol": "^5.0.0",
-    "@libp2p/interface": "^0.1.0",
-    "@libp2p/kad-dht": "^10.0.0",
-    "@libp2p/logger": "^3.0.0",
-    "@libp2p/peer-id": "^3.0.0",
-    "@libp2p/tcp": "^8.0.0",
+    "@libp2p/interface": "^1.0.0",
+    "@libp2p/kad-dht": "^11.0.0",
+    "@libp2p/logger": "^4.0.0",
+    "@libp2p/peer-id": "^4.0.0",
+    "@libp2p/tcp": "^9.0.0",
     "@multiformats/multiaddr": "^12.1.3",
     "it-drain": "^3.0.2",
     "it-length-prefixed": "^9.0.1",
+    "it-length-prefixed-stream": "^1.1.4",
     "it-pipe": "^3.0.1",
+    "it-protobuf-stream": "^1.1.1",
     "it-pushable": "^3.2.0",
     "multiformats": "^12.0.1",
     "uint8arrays": "^4.0.4"

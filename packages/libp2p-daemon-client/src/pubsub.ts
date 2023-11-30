@@ -4,10 +4,10 @@ import {
   PSRequest,
   PSMessage
 } from '@libp2p/daemon-protocol'
-import { CodeError } from '@libp2p/interface/errors'
+import { CodeError } from '@libp2p/interface'
 import { peerIdFromBytes } from '@libp2p/peer-id'
 import type { DaemonClient, Subscription } from './index.js'
-import type { PeerId } from '@libp2p/interface/peer-id'
+import type { PeerId } from '@libp2p/interface'
 
 export class Pubsub {
   private readonly client: DaemonClient
@@ -29,15 +29,9 @@ export class Pubsub {
       }
     })
 
-    const message = await sh.read()
+    const response = await sh.read(Response)
 
-    if (message == null) {
-      throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
-    }
-
-    const response = Response.decode(message)
-
-    await sh.close()
+    await sh.unwrap().close()
 
     if (response.type !== Response.Type.OK) {
       throw new CodeError(response.error?.msg ?? 'Pubsub get topics failed', 'ERR_PUBSUB_GET_TOPICS_FAILED')
@@ -71,15 +65,9 @@ export class Pubsub {
       }
     })
 
-    const message = await sh.read()
+    const response = await sh.read(Response)
 
-    if (message == null) {
-      throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
-    }
-
-    const response = Response.decode(message)
-
-    await sh.close()
+    await sh.unwrap().close()
 
     if (response.type !== Response.Type.OK) {
       throw new CodeError(response.error?.msg ?? 'Pubsub publish failed', 'ERR_PUBSUB_PUBLISH_FAILED')
@@ -102,13 +90,7 @@ export class Pubsub {
       }
     })
 
-    let message = await sh.read()
-
-    if (message == null) {
-      throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
-    }
-
-    const response = Response.decode(message)
+    const response = await sh.read(Response)
 
     if (response.type !== Response.Type.OK) {
       throw new CodeError(response.error?.msg ?? 'Pubsub publish failed', 'ERR_PUBSUB_PUBLISH_FAILED')
@@ -119,18 +101,12 @@ export class Pubsub {
     const subscription: Subscription = {
       async * messages () {
         while (subscribed) { // eslint-disable-line no-unmodified-loop-condition
-          message = await sh.read()
-
-          if (message == null) {
-            throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
-          }
-
-          yield PSMessage.decode(message)
+          yield await sh.read(PSMessage)
         }
       },
       async cancel () {
         subscribed = false
-        await sh.close()
+        await sh.unwrap().close()
       }
     }
 
@@ -150,15 +126,9 @@ export class Pubsub {
       }
     })
 
-    const message = await sh.read()
+    const response = await sh.read(Response)
 
-    if (message == null) {
-      throw new CodeError('Empty response from remote', 'ERR_EMPTY_RESPONSE')
-    }
-
-    const response = Response.decode(message)
-
-    await sh.close()
+    await sh.unwrap().close()
 
     if (response.type !== Response.Type.OK) {
       throw new CodeError(response.error?.msg ?? 'Pubsub get subscribers failed', 'ERR_PUBSUB_GET_SUBSCRIBERS_FAILED')

@@ -3,13 +3,17 @@
   "version": "3.0.1",
   "description": "libp2p-daemon JavaScript implementation",
   "license": "Apache-2.0 OR MIT",
-  "homepage": "https://github.com/libp2p/js-libp2p-daemon/tree/master/packages/libp2p-daemon#readme",
+  "homepage": "https://github.com/libp2p/js-libp2p-daemon/tree/main/packages/libp2p-daemon#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/libp2p/js-libp2p-daemon.git"
   },
   "bugs": {
     "url": "https://github.com/libp2p/js-libp2p-daemon/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   },
   "keywords": [
     "libp2p"
@@ -40,7 +44,7 @@
   },
   "release": {
     "branches": [
-      "master"
+      "main"
     ],
     "plugins": [
       [

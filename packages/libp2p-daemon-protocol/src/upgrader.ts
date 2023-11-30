@@ -1,4 +1,4 @@
-import type { Upgrader } from '@libp2p/interface/transport'
+import type { Upgrader } from '@libp2p/interface'
 
 export const passThroughUpgrader: Upgrader = {
   // @ts-expect-error should return a connection

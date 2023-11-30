@@ -6,7 +6,7 @@ import {
 import { logger } from '@libp2p/logger'
 import drain from 'it-drain'
 import { ErrorResponse, OkResponse } from './responses.js'
-import type { PeerId } from '@libp2p/interface/peer-id'
+import type { PeerId } from '@libp2p/interface'
 import type { KadDHT } from '@libp2p/kad-dht'
 import type { CID } from 'multiformats/cid'
 
