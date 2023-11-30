@@ -1,3 +1,14 @@
+## [@libp2p/daemon-protocol-v6.0.0](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-v5.0.1...@libp2p/daemon-protocol-v6.0.0) (2023-11-30)
+
+
+### ⚠ BREAKING CHANGES
+
+* updates js-libp2p to v1
+
+### Dependencies
+
+* update libp2p to v1 ([#235](https://github.com/libp2p/js-libp2p-daemon/issues/235)) ([6f2917b](https://github.com/libp2p/js-libp2p-daemon/commit/6f2917b714756e3632ff6c522668f7c2166d4389))
+
 ## [@libp2p/daemon-protocol-v5.0.1](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-v5.0.0...@libp2p/daemon-protocol-v5.0.1) (2023-11-02)
 
 
