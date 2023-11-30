@@ -31,7 +31,7 @@ export class StreamHandler {
     try {
       return await this.lp.read()
     } catch (err) {
-      log('read received no value, closing stream', err)
+      log.error('read received no value', err)
     }
   }
 
