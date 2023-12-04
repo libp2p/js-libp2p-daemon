@@ -139,7 +139,7 @@
     "release": "aegir release"
   },
   "dependencies": {
-    "@chainsafe/libp2p-gossipsub": "^10.0.0",
+    "@chainsafe/libp2p-gossipsub": "^11.0.0",
     "@libp2p/daemon-protocol": "^6.0.0",
     "@libp2p/interface": "^1.0.0",
     "@libp2p/kad-dht": "^11.0.0",
