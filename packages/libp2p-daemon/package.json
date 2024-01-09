@@ -144,7 +144,7 @@
     "yargs-promise": "^1.1.0"
   },
   "devDependencies": {
-    "aegir": "^41.1.6",
+    "aegir": "^42.1.0",
     "sinon": "^17.0.1"
   }
 }
