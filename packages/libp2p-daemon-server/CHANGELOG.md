@@ -1,3 +1,11 @@
+## @libp2p/daemon-server [7.0.4](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-7.0.3...@libp2p/daemon-server-7.0.4) (2024-02-07)
+
+
+### Dependencies
+
+* bump @libp2p/kad-dht from 11.0.8 to 12.0.5 ([#261](https://github.com/libp2p/js-libp2p-daemon/issues/261)) ([1cbaa23](https://github.com/libp2p/js-libp2p-daemon/commit/1cbaa23c0071e8d599fcef0859de41ac04f2606d))
+* bump uint8arrays from 4.0.10 to 5.0.1 ([#263](https://github.com/libp2p/js-libp2p-daemon/issues/263)) ([b5eb311](https://github.com/libp2p/js-libp2p-daemon/commit/b5eb3114be41176f47fd49164322285aaa8549c1))
+
 ## @libp2p/daemon-server [7.0.3](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v7.0.2...@libp2p/daemon-server-7.0.3) (2024-02-07)
 
 
