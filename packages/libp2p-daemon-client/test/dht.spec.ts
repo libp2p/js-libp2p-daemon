@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 
 import { createServer, type Libp2pServer } from '@libp2p/daemon-server'
-import { type DualKadDHT, type ValueEvent, type FinalPeerEvent, type PeerResponseEvent, MessageType, EventTypes, type KadDHT } from '@libp2p/kad-dht'
+import { type ValueEvent, type FinalPeerEvent, type PeerResponseEvent, MessageType, EventTypes, type KadDHT } from '@libp2p/kad-dht'
 import { peerIdFromString } from '@libp2p/peer-id'
 import { multiaddr } from '@multiformats/multiaddr'
 import { expect } from 'aegir/chai'
@@ -27,10 +27,10 @@ describe('daemon dht client', function () {
   let libp2p: StubbedInstance<Libp2p<{ dht: KadDHT, pubsub: GossipSub }>>
   let server: Libp2pServer
   let client: DaemonClient
-  let dht: StubbedInstance<DualKadDHT>
+  let dht: StubbedInstance<KadDHT>
 
   beforeEach(async function () {
-    dht = stubInterface<DualKadDHT>()
+    dht = stubInterface<KadDHT>()
     libp2p = stubInterface<Libp2p<{ dht: KadDHT, pubsub: GossipSub }>>()
     libp2p.services.dht = dht
 
