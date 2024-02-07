@@ -1,6 +1,6 @@
 {
   "name": "@libp2p/daemon-server",
-  "version": "7.0.1",
+  "version": "7.0.2",
   "description": "API server for libp2p-daemon instances",
   "license": "Apache-2.0 OR MIT",
   "homepage": "https://github.com/libp2p/js-libp2p-daemon/tree/main/packages/libp2p-daemon-server#readme",

@@ -1,3 +1,11 @@
+## [@libp2p/daemon-server-v7.0.2](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v7.0.1...@libp2p/daemon-server-v7.0.2) (2024-02-07)
+
+
+### Dependencies
+
+* bump multiformats from 12.1.3 to 13.0.1 ([#253](https://github.com/libp2p/js-libp2p-daemon/issues/253)) ([aebd43a](https://github.com/libp2p/js-libp2p-daemon/commit/aebd43ac1e7abae209ce4cc198989c8161a1b022))
+* bump uint8arrays from 4.0.10 to 5.0.1 ([#248](https://github.com/libp2p/js-libp2p-daemon/issues/248)) ([290bb2a](https://github.com/libp2p/js-libp2p-daemon/commit/290bb2ac7c3bf1cdb5174b60010888fbd91a2f17))
+
 ## [@libp2p/daemon-server-v7.0.1](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v7.0.0...@libp2p/daemon-server-v7.0.1) (2023-12-04)
 
 
