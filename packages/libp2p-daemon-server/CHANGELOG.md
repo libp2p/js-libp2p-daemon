@@ -1,3 +1,16 @@
+## @libp2p/daemon-server [7.0.3](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v7.0.2...@libp2p/daemon-server-7.0.3) (2024-02-07)
+
+
+### Dependencies
+
+* bump aegir from 41.3.5 to 42.2.3 ([#262](https://github.com/libp2p/js-libp2p-daemon/issues/262)) ([2bb9733](https://github.com/libp2p/js-libp2p-daemon/commit/2bb97338d76e4cc48490326083fb13bd9ae60a74))
+
+
+
+### Dependencies
+
+* **@libp2p/daemon-protocol:** upgraded to 6.0.2
+
 ## [@libp2p/daemon-server-v7.0.2](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-v7.0.1...@libp2p/daemon-server-v7.0.2) (2024-02-07)
 
 
