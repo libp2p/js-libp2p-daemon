@@ -64,7 +64,7 @@
     "it-protobuf-stream": "^1.1.2",
     "it-pushable": "^3.2.3",
     "multiformats": "^13.0.1",
-    "uint8arrays": "^4.0.10"
+    "uint8arrays": "^5.0.1"
   },
   "devDependencies": {
     "aegir": "^42.2.3",
