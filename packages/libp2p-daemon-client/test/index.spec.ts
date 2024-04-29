@@ -47,12 +47,18 @@ describe('daemon client', function () {
       libp2p.getMultiaddrs.returns([
         multiaddr('/ip4/0.0.0.0/tcp/1234/p2p/12D3KooWJKCJW8Y26pRFNv78TCMGLNTfyN8oKaFswMRYXTzSbSsa')
       ])
+      libp2p.getProtocols.returns([
+        '/foo/bar'
+      ])
 
       const identify = await client.identify()
 
       expect(identify).to.exist()
       expect(identify.peerId).to.exist()
       expect(identify.addrs).to.exist()
+      expect(identify.protocols).to.deep.equal([
+        '/foo/bar'
+      ])
       expect(isPeerId(identify.peerId))
     })
 
