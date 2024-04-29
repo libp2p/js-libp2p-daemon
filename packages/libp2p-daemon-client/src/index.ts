@@ -126,7 +126,11 @@ class Client implements DaemonClient {
 
     await sh.unwrap().close()
 
-    return ({ peerId, addrs })
+    return {
+      peerId,
+      addrs,
+      protocols: response.identify.protocols ?? []
+    }
   }
 
   /**
@@ -251,6 +255,7 @@ class Client implements DaemonClient {
 export interface IdentifyResult {
   peerId: PeerId
   addrs: Multiaddr[]
+  protocols: string[]
 }
 
 export interface StreamHandlerFunction {

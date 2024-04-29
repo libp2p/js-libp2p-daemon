@@ -411,7 +411,8 @@ export class Server implements Libp2pServer {
               type: Response.Type.OK,
               identify: {
                 id: daemon.libp2p.peerId.toBytes(),
-                addrs: daemon.libp2p.getMultiaddrs().map(ma => ma.decapsulateCode(protocols('p2p').code)).map(m => m.bytes)
+                addrs: daemon.libp2p.getMultiaddrs().map(ma => ma.decapsulateCode(protocols('p2p').code)).map(m => m.bytes),
+                protocols: daemon.libp2p.getProtocols()
               }
             }, Response)
 
