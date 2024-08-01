@@ -1,3 +1,16 @@
+## @libp2p/daemon-client [8.0.6](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-8.0.5...@libp2p/daemon-client-8.0.6) (2024-08-01)
+
+
+### Dependencies
+
+* **dev:** bump sinon from 17.0.2 to 18.0.0 ([#267](https://github.com/libp2p/js-libp2p-daemon/issues/267)) ([e9fb07a](https://github.com/libp2p/js-libp2p-daemon/commit/e9fb07a3b3350a6dcd8f4ff64fb63eba456dccaf))
+
+
+
+### Dependencies
+
+* **@libp2p/daemon-server:** upgraded to 7.0.6
+
 ## @libp2p/daemon-client [8.0.5](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-8.0.4...@libp2p/daemon-client-8.0.5) (2024-04-29)
 
 
