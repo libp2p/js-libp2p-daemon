@@ -1,3 +1,10 @@
+## @libp2p/daemon-server [7.0.6](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-7.0.5...@libp2p/daemon-server-7.0.6) (2024-08-01)
+
+
+### Bug Fixes
+
+* use "limited" instead of "transient" ([#272](https://github.com/libp2p/js-libp2p-daemon/issues/272)) ([d43c177](https://github.com/libp2p/js-libp2p-daemon/commit/d43c177a355bd02c719c7644519ebef54a81386f))
+
 ## @libp2p/daemon-server [7.0.5](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-7.0.4...@libp2p/daemon-server-7.0.5) (2024-04-29)
 
 
