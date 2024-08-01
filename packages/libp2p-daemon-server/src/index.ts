@@ -81,7 +81,7 @@ export class Server implements Libp2pServer {
    * Connects the daemons libp2p node to the peer provided
    */
   async connect (request: Request): Promise<Connection> {
-    if (request.connect == null || request.connect.addrs == null) {
+    if (request.connect?.addrs == null) {
       throw new Error('Invalid request')
     }
 
@@ -102,7 +102,7 @@ export class Server implements Libp2pServer {
    * Opens a stream on one of the given protocols to the given peer
    */
   async openStream (request: Request): Promise<OpenStream> {
-    if (request.streamOpen == null || request.streamOpen.proto == null) {
+    if (request.streamOpen?.proto == null) {
       throw new Error('Invalid request')
     }
 
@@ -135,7 +135,7 @@ export class Server implements Libp2pServer {
    * is registered at the path, it will be overridden.
    */
   async registerStreamHandler (request: Request): Promise<void> {
-    if (request.streamHandler == null || request.streamHandler.proto == null) {
+    if (request.streamHandler?.proto == null) {
       throw new Error('Invalid request')
     }
 

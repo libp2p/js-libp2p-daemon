@@ -117,7 +117,7 @@ class Client implements DaemonClient {
       throw new CodeError(response.error?.msg ?? 'Identify failed', 'ERR_IDENTIFY_FAILED')
     }
 
-    if (response.identify == null || response.identify.addrs == null) {
+    if (response.identify?.addrs == null) {
       throw new CodeError('Invalid response', 'ERR_IDENTIFY_FAILED')
     }
 
@@ -210,6 +210,9 @@ class Client implements DaemonClient {
 
             // @ts-expect-error because we are using a passthrough upgrader, this is a MultiaddrConnection
             await handler(sh.rest())
+          })
+          .catch(err => {
+            connection.abort(err)
           })
           .finally(() => {
             connection.close()
