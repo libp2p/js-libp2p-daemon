@@ -37,7 +37,7 @@ export class Pubsub {
       throw new CodeError(response.error?.msg ?? 'Pubsub get topics failed', 'ERR_PUBSUB_GET_TOPICS_FAILED')
     }
 
-    if (response.pubsub == null || response.pubsub.topics == null) {
+    if (response.pubsub?.topics == null) {
       throw new CodeError('Invalid response', 'ERR_PUBSUB_GET_TOPICS_FAILED')
     }
 
@@ -134,7 +134,7 @@ export class Pubsub {
       throw new CodeError(response.error?.msg ?? 'Pubsub get subscribers failed', 'ERR_PUBSUB_GET_SUBSCRIBERS_FAILED')
     }
 
-    if (response.pubsub == null || response.pubsub.topics == null) {
+    if (response.pubsub?.topics == null) {
       throw new CodeError('Invalid response', 'ERR_PUBSUB_GET_SUBSCRIBERS_FAILED')
     }
 

@@ -77,7 +77,7 @@ export class DHT {
       throw new CodeError(response.error?.msg ?? 'DHT get failed', 'ERR_DHT_GET_FAILED')
     }
 
-    if (response.dht == null || response.dht.value == null) {
+    if (response.dht?.value == null) {
       throw new CodeError('Invalid DHT get response', 'ERR_DHT_GET_FAILED')
     }
 
@@ -108,7 +108,7 @@ export class DHT {
       throw new CodeError(response.error?.msg ?? 'DHT find peer failed', 'ERR_DHT_FIND_PEER_FAILED')
     }
 
-    if (response.dht == null || response.dht.peer == null || response.dht.peer.addrs == null) {
+    if (response.dht?.peer?.addrs == null) {
       throw new CodeError('Invalid response', 'ERR_DHT_FIND_PEER_FAILED')
     }
 
@@ -178,7 +178,7 @@ export class DHT {
       }
 
       // Stream values
-      if (dhtResponse.type === DHTResponse.Type.VALUE && dhtResponse.peer != null && dhtResponse.peer?.addrs != null) {
+      if (dhtResponse.type === DHTResponse.Type.VALUE && dhtResponse.peer?.addrs != null) {
         yield {
           id: peerIdFromBytes(dhtResponse.peer.id),
           multiaddrs: dhtResponse.peer.addrs.map((a) => multiaddr(a))
