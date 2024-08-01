@@ -114,7 +114,9 @@ export class Server implements Libp2pServer {
 
     log('openStream - open stream for protocol %s', proto)
     const stream = await connection.newStream(proto, {
-      runOnTransientConnection: true
+      runOnTransientConnection: true,
+      // @ts-expect-error this has not been released yet
+      runOnLimitedConnection: true
     })
 
     return {
@@ -192,7 +194,9 @@ export class Server implements Libp2pServer {
           }
         })
     }, {
-      runOnTransientConnection: true
+      runOnTransientConnection: true,
+      // @ts-expect-error this has not been released yet
+      runOnLimitedConnection: true
     })
   }
 
