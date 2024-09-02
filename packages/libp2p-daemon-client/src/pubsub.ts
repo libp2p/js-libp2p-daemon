@@ -5,7 +5,8 @@ import {
   PSMessage
 } from '@libp2p/daemon-protocol'
 import { CodeError } from '@libp2p/interface'
-import { peerIdFromBytes } from '@libp2p/peer-id'
+import { peerIdFromMultihash } from '@libp2p/peer-id'
+import * as Digest from 'multiformats/hashes/digest'
 import type { DaemonClient, Subscription } from './index.js'
 import type { PeerId } from '@libp2p/interface'
 
@@ -138,6 +139,6 @@ export class Pubsub {
       throw new CodeError('Invalid response', 'ERR_PUBSUB_GET_SUBSCRIBERS_FAILED')
     }
 
-    return response.pubsub.peerIDs.map(buf => peerIdFromBytes(buf))
+    return response.pubsub.peerIDs.map(buf => peerIdFromMultihash(Digest.decode(buf)))
   }
 }

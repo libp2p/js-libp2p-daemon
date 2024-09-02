@@ -7,9 +7,10 @@ import {
 import { CodeError } from '@libp2p/interface'
 import { isPeerId, type PeerId, type PeerInfo } from '@libp2p/interface'
 import { logger } from '@libp2p/logger'
-import { peerIdFromBytes } from '@libp2p/peer-id'
+import { peerIdFromMultihash } from '@libp2p/peer-id'
 import { multiaddr } from '@multiformats/multiaddr'
 import { CID } from 'multiformats/cid'
+import * as Digest from 'multiformats/hashes/digest'
 import type { DaemonClient } from './index.js'
 
 const log = logger('libp2p:daemon-client:dht')
@@ -96,7 +97,7 @@ export class DHT {
       type: Request.Type.DHT,
       dht: {
         type: DHTRequest.Type.FIND_PEER,
-        peer: peerId.toBytes()
+        peer: peerId.toMultihash().bytes
       }
     })
 
@@ -113,7 +114,7 @@ export class DHT {
     }
 
     return {
-      id: peerIdFromBytes(response.dht.peer.id),
+      id: peerIdFromMultihash(Digest.decode(response.dht.peer.id)),
       multiaddrs: response.dht.peer.addrs.map((a) => multiaddr(a))
     }
   }
@@ -180,7 +181,7 @@ export class DHT {
       // Stream values
       if (dhtResponse.type === DHTResponse.Type.VALUE && dhtResponse.peer?.addrs != null) {
         yield {
-          id: peerIdFromBytes(dhtResponse.peer.id),
+          id: peerIdFromMultihash(Digest.decode(dhtResponse.peer.id)),
           multiaddrs: dhtResponse.peer.addrs.map((a) => multiaddr(a))
         }
       } else {
@@ -226,7 +227,7 @@ export class DHT {
 
       // Stream values
       if (dhtResponse.type === DHTResponse.Type.VALUE && dhtResponse.value != null) {
-        const peerId = peerIdFromBytes(dhtResponse.value)
+        const peerId = peerIdFromMultihash(Digest.decode(dhtResponse.value))
 
         yield {
           id: peerId,
@@ -252,7 +253,7 @@ export class DHT {
       type: Request.Type.DHT,
       dht: {
         type: DHTRequest.Type.GET_PUBLIC_KEY,
-        peer: peerId.toBytes()
+        peer: peerId.toMultihash().bytes
       }
     })
 

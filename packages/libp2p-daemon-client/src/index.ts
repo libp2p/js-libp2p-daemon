@@ -3,10 +3,11 @@ import { StreamHandler } from '@libp2p/daemon-protocol/stream-handler'
 import { passThroughUpgrader } from '@libp2p/daemon-protocol/upgrader'
 import { CodeError, isPeerId } from '@libp2p/interface'
 import { defaultLogger, logger } from '@libp2p/logger'
-import { peerIdFromBytes } from '@libp2p/peer-id'
+import { peerIdFromMultihash } from '@libp2p/peer-id'
 import { tcp } from '@libp2p/tcp'
 import { multiaddr, isMultiaddr } from '@multiformats/multiaddr'
 import { pbStream, type ProtobufStream } from 'it-protobuf-stream'
+import * as Digest from 'multiformats/hashes/digest'
 import { DHT } from './dht.js'
 import { Pubsub } from './pubsub.js'
 import type { Stream, PeerId, MultiaddrConnection, PeerInfo, Transport } from '@libp2p/interface'
@@ -82,7 +83,7 @@ class Client implements DaemonClient {
     const sh = await this.send({
       type: Request.Type.CONNECT,
       connect: {
-        peer: peerId.toBytes(),
+        peer: peerId.toMultihash().bytes,
         addrs: addrs.map((a) => a.bytes)
       }
     })
@@ -121,7 +122,7 @@ class Client implements DaemonClient {
       throw new CodeError('Invalid response', 'ERR_IDENTIFY_FAILED')
     }
 
-    const peerId = peerIdFromBytes(response.identify?.id)
+    const peerId = peerIdFromMultihash(Digest.decode(response.identify?.id))
     const addrs = response.identify.addrs.map((a) => multiaddr(a))
 
     await sh.unwrap().close()
@@ -145,7 +146,7 @@ class Client implements DaemonClient {
 
     await sh.unwrap().close()
 
-    return response.peers.map((peer) => peerIdFromBytes(peer.id))
+    return response.peers.map((peer) => peerIdFromMultihash(Digest.decode(peer.id)))
   }
 
   /**
@@ -163,7 +164,7 @@ class Client implements DaemonClient {
     const sh = await this.send({
       type: Request.Type.STREAM_OPEN,
       streamOpen: {
-        peer: peerId.toBytes(),
+        peer: peerId.toMultihash().bytes,
         proto: [protocol]
       }
     })

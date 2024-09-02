@@ -46,7 +46,7 @@ export class DHTOperations {
       if (event.name === 'PEER_RESPONSE') {
         yield * event.closer.map(peer => DHTResponse.encode({
           type: DHTResponse.Type.VALUE,
-          value: peer.id.toBytes()
+          value: peer.id.toMultihash().bytes
         }))
       }
     }
@@ -97,7 +97,7 @@ export class DHTOperations {
             dht: {
               type: DHTResponse.Type.VALUE,
               peer: {
-                id: event.peer.id.toBytes(),
+                id: event.peer.id.toMultihash().bytes,
                 addrs: event.peer.multiaddrs.map(m => m.bytes)
               }
             }
@@ -131,7 +131,7 @@ export class DHTOperations {
             yield DHTResponse.encode({
               type: DHTResponse.Type.VALUE,
               peer: {
-                id: provider.id.toBytes(),
+                id: provider.id.toMultihash().bytes,
                 addrs: (provider.multiaddrs ?? []).map(m => m.bytes)
               }
             })
