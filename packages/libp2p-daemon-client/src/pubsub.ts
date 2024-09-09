@@ -4,10 +4,10 @@ import {
   PSRequest,
   PSMessage
 } from '@libp2p/daemon-protocol'
-import { CodeError } from '@libp2p/interface'
+import { InvalidParametersError } from '@libp2p/interface'
 import { peerIdFromMultihash } from '@libp2p/peer-id'
 import * as Digest from 'multiformats/hashes/digest'
-import type { DaemonClient, Subscription } from './index.js'
+import { OperationFailedError, type DaemonClient, type Subscription } from './index.js'
 import type { PeerId } from '@libp2p/interface'
 
 export class Pubsub {
@@ -35,11 +35,11 @@ export class Pubsub {
     await sh.unwrap().close()
 
     if (response.type !== Response.Type.OK) {
-      throw new CodeError(response.error?.msg ?? 'Pubsub get topics failed', 'ERR_PUBSUB_GET_TOPICS_FAILED')
+      throw new OperationFailedError(response.error?.msg ?? 'Pubsub get topics failed')
     }
 
     if (response.pubsub?.topics == null) {
-      throw new CodeError('Invalid response', 'ERR_PUBSUB_GET_TOPICS_FAILED')
+      throw new OperationFailedError('Invalid response')
     }
 
     return response.pubsub.topics
@@ -50,11 +50,11 @@ export class Pubsub {
    */
   async publish (topic: string, data: Uint8Array): Promise<void> {
     if (typeof topic !== 'string') {
-      throw new CodeError('invalid topic received', 'ERR_INVALID_TOPIC')
+      throw new InvalidParametersError('invalid topic received')
     }
 
     if (!(data instanceof Uint8Array)) {
-      throw new CodeError('data received is not a Uint8Array', 'ERR_INVALID_DATA')
+      throw new InvalidParametersError('data received is not a Uint8Array')
     }
 
     const sh = await this.client.send({
@@ -71,7 +71,7 @@ export class Pubsub {
     await sh.unwrap().close()
 
     if (response.type !== Response.Type.OK) {
-      throw new CodeError(response.error?.msg ?? 'Pubsub publish failed', 'ERR_PUBSUB_PUBLISH_FAILED')
+      throw new OperationFailedError(response.error?.msg ?? 'Pubsub publish failed')
     }
   }
 
@@ -80,7 +80,7 @@ export class Pubsub {
    */
   async subscribe (topic: string): Promise<Subscription> {
     if (typeof topic !== 'string') {
-      throw new CodeError('invalid topic received', 'ERR_INVALID_TOPIC')
+      throw new InvalidParametersError('invalid topic received')
     }
 
     const sh = await this.client.send({
@@ -94,7 +94,7 @@ export class Pubsub {
     const response = await sh.read(Response)
 
     if (response.type !== Response.Type.OK) {
-      throw new CodeError(response.error?.msg ?? 'Pubsub publish failed', 'ERR_PUBSUB_PUBLISH_FAILED')
+      throw new OperationFailedError(response.error?.msg ?? 'Pubsub publish failed')
     }
 
     let subscribed = true
@@ -116,7 +116,7 @@ export class Pubsub {
 
   async getSubscribers (topic: string): Promise<PeerId[]> {
     if (typeof topic !== 'string') {
-      throw new CodeError('invalid topic received', 'ERR_INVALID_TOPIC')
+      throw new InvalidParametersError('invalid topic received')
     }
 
     const sh = await this.client.send({
@@ -132,11 +132,11 @@ export class Pubsub {
     await sh.unwrap().close()
 
     if (response.type !== Response.Type.OK) {
-      throw new CodeError(response.error?.msg ?? 'Pubsub get subscribers failed', 'ERR_PUBSUB_GET_SUBSCRIBERS_FAILED')
+      throw new OperationFailedError(response.error?.msg ?? 'Pubsub get subscribers failed')
     }
 
     if (response.pubsub?.topics == null) {
-      throw new CodeError('Invalid response', 'ERR_PUBSUB_GET_SUBSCRIBERS_FAILED')
+      throw new OperationFailedError('Invalid response')
     }
 
     return response.pubsub.peerIDs.map(buf => peerIdFromMultihash(Digest.decode(buf)))

@@ -1,7 +1,7 @@
 import { type PSMessage, Request, Response, StreamInfo } from '@libp2p/daemon-protocol'
 import { StreamHandler } from '@libp2p/daemon-protocol/stream-handler'
 import { passThroughUpgrader } from '@libp2p/daemon-protocol/upgrader'
-import { CodeError, isPeerId } from '@libp2p/interface'
+import { InvalidParametersError, isPeerId } from '@libp2p/interface'
 import { defaultLogger, logger } from '@libp2p/logger'
 import { peerIdFromMultihash } from '@libp2p/peer-id'
 import { tcp } from '@libp2p/tcp'
@@ -15,6 +15,13 @@ import type { Multiaddr } from '@multiformats/multiaddr'
 import type { CID } from 'multiformats/cid'
 
 const log = logger('libp2p:daemon-client')
+
+export class OperationFailedError extends Error {
+  constructor (message = 'Operation failed') {
+    super(message)
+    this.name = 'OperationFailedError'
+  }
+}
 
 class Client implements DaemonClient {
   private readonly multiaddr: Multiaddr
@@ -67,16 +74,16 @@ class Client implements DaemonClient {
    */
   async connect (peerId: PeerId, addrs: Multiaddr[]): Promise<void> {
     if (!isPeerId(peerId)) {
-      throw new CodeError('invalid peer id received', 'ERR_INVALID_PEER_ID')
+      throw new InvalidParametersError('invalid peer id received')
     }
 
     if (!Array.isArray(addrs)) {
-      throw new CodeError('addrs received are not in an array', 'ERR_INVALID_ADDRS_TYPE')
+      throw new InvalidParametersError('addrs received are not in an array')
     }
 
     addrs.forEach((addr) => {
       if (!isMultiaddr(addr)) {
-        throw new CodeError('received an address that is not a multiaddr', 'ERR_NO_MULTIADDR_RECEIVED')
+        throw new InvalidParametersError('received an address that is not a multiaddr')
       }
     })
 
@@ -92,7 +99,7 @@ class Client implements DaemonClient {
 
     if (response.type !== Response.Type.OK) {
       const errResponse = response.error ?? { msg: 'unspecified' }
-      throw new CodeError(errResponse.msg ?? 'unspecified', 'ERR_CONNECT_FAILED')
+      throw new OperationFailedError(errResponse.msg ?? 'unspecified')
     }
 
     await sh.unwrap().close()
@@ -115,11 +122,11 @@ class Client implements DaemonClient {
     const response = await sh.read(Response)
 
     if (response.type !== Response.Type.OK) {
-      throw new CodeError(response.error?.msg ?? 'Identify failed', 'ERR_IDENTIFY_FAILED')
+      throw new OperationFailedError(response.error?.msg ?? 'Identify failed')
     }
 
     if (response.identify?.addrs == null) {
-      throw new CodeError('Invalid response', 'ERR_IDENTIFY_FAILED')
+      throw new OperationFailedError('Invalid response')
     }
 
     const peerId = peerIdFromMultihash(Digest.decode(response.identify?.id))
@@ -141,7 +148,7 @@ class Client implements DaemonClient {
     const response = await sh.read(Response)
 
     if (response.type !== Response.Type.OK) {
-      throw new CodeError(response.error?.msg ?? 'List peers failed', 'ERR_LIST_PEERS_FAILED')
+      throw new OperationFailedError(response.error?.msg ?? 'List peers failed')
     }
 
     await sh.unwrap().close()
@@ -154,11 +161,11 @@ class Client implements DaemonClient {
    */
   async openStream (peerId: PeerId, protocol: string): Promise<MultiaddrConnection> {
     if (!isPeerId(peerId)) {
-      throw new CodeError('invalid peer id received', 'ERR_INVALID_PEER_ID')
+      throw new InvalidParametersError('invalid peer id received')
     }
 
     if (typeof protocol !== 'string') {
-      throw new CodeError('invalid protocol received', 'ERR_INVALID_PROTOCOL')
+      throw new InvalidParametersError('invalid protocol received')
     }
 
     const sh = await this.send({
@@ -173,7 +180,7 @@ class Client implements DaemonClient {
 
     if (response.type !== Response.Type.OK) {
       await sh.unwrap().close()
-      throw new CodeError(response.error?.msg ?? 'Open stream failed', 'ERR_OPEN_STREAM_FAILED')
+      throw new OperationFailedError(response.error?.msg ?? 'Open stream failed')
     }
 
     return sh.unwrap()
@@ -184,7 +191,7 @@ class Client implements DaemonClient {
    */
   async registerStreamHandler (protocol: string, handler: StreamHandlerFunction): Promise<void> {
     if (typeof protocol !== 'string') {
-      throw new CodeError('invalid protocol received', 'ERR_INVALID_PROTOCOL')
+      throw new InvalidParametersError('invalid protocol received')
     }
 
     // open a tcp port, pipe any data from it to the handler function
@@ -200,13 +207,13 @@ class Client implements DaemonClient {
             const message = await sh.read()
 
             if (message == null) {
-              throw new CodeError('Could not read open stream response', 'ERR_OPEN_STREAM_FAILED')
+              throw new OperationFailedError('Could not read open stream response')
             }
 
             const response = StreamInfo.decode(message)
 
             if (response.proto !== protocol) {
-              throw new CodeError('Incorrect protocol', 'ERR_OPEN_STREAM_FAILED')
+              throw new OperationFailedError('Incorrect protocol')
             }
 
             // @ts-expect-error because we are using a passthrough upgrader, this is a MultiaddrConnection
@@ -231,7 +238,7 @@ class Client implements DaemonClient {
     const address = listener.getAddrs()[0]
 
     if (address == null) {
-      throw new CodeError('Could not listen on port', 'ERR_REGISTER_STREAM_HANDLER_FAILED')
+      throw new OperationFailedError('Could not listen on port')
     }
 
     const sh = await this.send({
@@ -247,7 +254,7 @@ class Client implements DaemonClient {
     await sh.unwrap().close()
 
     if (response.type !== Response.Type.OK) {
-      throw new CodeError(response.error?.msg ?? 'Register stream handler failed', 'ERR_REGISTER_STREAM_HANDLER_FAILED')
+      throw new OperationFailedError(response.error?.msg ?? 'Register stream handler failed')
     }
   }
 }
