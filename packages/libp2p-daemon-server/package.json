@@ -46,7 +46,8 @@
     "build": "aegir build",
     "pretest": "npm run build",
     "test": "aegir test -t node",
-    "test:node": "aegir test -t node"
+    "test:node": "aegir test -t node",
+    "release": "aegir release"
   },
   "dependencies": {
     "@chainsafe/libp2p-gossipsub": "^13.0.0",

@@ -117,7 +117,7 @@
     "lint": "aegir run lint",
     "dep-check": "aegir run dep-check",
     "release": "run-s build docs:no-publish npm:release docs",
-    "npm:release": "aegir release",
+    "npm:release": "aegir run release --concurrency 1",
     "docs": "aegir docs",
     "docs:no-publish": "aegir docs --publish false",
     "postinstall": "patch-package && rm -rf node_modules/@chainsafe/libp2p-gossipsub/node_modules"
