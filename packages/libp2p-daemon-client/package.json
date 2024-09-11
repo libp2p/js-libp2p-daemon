@@ -46,14 +46,15 @@
     "build": "aegir build",
     "pretest": "npm run build",
     "test": "aegir test -t node",
-    "test:node": "aegir test -t node"
+    "test:node": "aegir test -t node",
+    "release": "aegir release"
   },
   "dependencies": {
     "@libp2p/daemon-protocol": "^6.0.0",
-    "@libp2p/interface": "^1.1.2",
-    "@libp2p/logger": "^4.0.5",
-    "@libp2p/peer-id": "^4.0.5",
-    "@libp2p/tcp": "^9.0.13",
+    "@libp2p/interface": "^2.0.0",
+    "@libp2p/logger": "^5.0.0",
+    "@libp2p/peer-id": "^5.0.0",
+    "@libp2p/tcp": "^10.0.0",
     "@multiformats/multiaddr": "^12.1.14",
     "it-protobuf-stream": "^1.1.2",
     "multiformats": "^13.0.1"
@@ -61,8 +62,8 @@
   "devDependencies": {
     "@chainsafe/libp2p-gossipsub": "^13.0.0",
     "@libp2p/daemon-server": "^7.0.0",
-    "@libp2p/interface-compliance-tests": "^5.2.0",
-    "@libp2p/kad-dht": "^12.0.5",
+    "@libp2p/interface-compliance-tests": "^6.0.0",
+    "@libp2p/kad-dht": "^13.0.0",
     "aegir": "^44.1.0",
     "it-all": "^3.0.4",
     "it-pipe": "^3.0.1",

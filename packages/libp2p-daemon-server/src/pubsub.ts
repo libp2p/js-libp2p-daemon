@@ -1,5 +1,6 @@
 /* eslint max-depth: ["error", 6] */
 
+import { publicKeyToProtobuf } from '@libp2p/crypto/keys'
 import {
   PSMessage
 } from '@libp2p/daemon-protocol'
@@ -52,12 +53,12 @@ export class PubSubOperations {
 
         if (msg.type === 'signed') {
           onMessage.push(PSMessage.encode({
-            from: msg.from.toBytes(),
+            from: msg.from.toMultihash().bytes,
             data: msg.data,
             seqno: msg.sequenceNumber == null ? undefined : uint8ArrayFromString(msg.sequenceNumber.toString(16).padStart(16, '0'), 'base16'),
             topicIDs: [msg.topic],
             signature: msg.signature,
-            key: msg.key
+            key: publicKeyToProtobuf(msg.key)
           }).subarray())
         } else {
           onMessage.push(PSMessage.encode({
@@ -90,7 +91,7 @@ export class PubSubOperations {
       yield OkResponse({
         pubsub: {
           topics: [topic],
-          peerIDs: this.pubsub.getSubscribers(topic).map(peer => peer.toBytes())
+          peerIDs: this.pubsub.getSubscribers(topic).map(peer => peer.toMultihash().bytes)
         }
       })
     } catch (err: any) {

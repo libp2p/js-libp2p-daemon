@@ -10,7 +10,7 @@ import {
 } from '@libp2p/daemon-protocol'
 import { passThroughUpgrader } from '@libp2p/daemon-protocol/upgrader'
 import { defaultLogger, logger } from '@libp2p/logger'
-import { peerIdFromBytes } from '@libp2p/peer-id'
+import { peerIdFromMultihash } from '@libp2p/peer-id'
 import { tcp } from '@libp2p/tcp'
 import { multiaddr, protocols } from '@multiformats/multiaddr'
 import * as lp from 'it-length-prefixed'
@@ -18,6 +18,7 @@ import { lpStream } from 'it-length-prefixed-stream'
 import { pipe } from 'it-pipe'
 import { pbStream } from 'it-protobuf-stream'
 import { CID } from 'multiformats/cid'
+import * as Digest from 'multiformats/hashes/digest'
 import { DHTOperations } from './dht.js'
 import { PubSubOperations } from './pubsub.js'
 import { ErrorResponse, OkResponse } from './responses.js'
@@ -87,7 +88,7 @@ export class Server implements Libp2pServer {
 
     const peer = request.connect.peer
     const addrs = request.connect.addrs.map((a) => multiaddr(a))
-    const peerId = peerIdFromBytes(peer)
+    const peerId = peerIdFromMultihash(Digest.decode(peer))
 
     log('connect - adding multiaddrs %a to peer %p', addrs, peerId)
     await this.libp2p.peerStore.merge(peerId, {
@@ -107,21 +108,19 @@ export class Server implements Libp2pServer {
     }
 
     const { peer, proto } = request.streamOpen
-    const peerId = peerIdFromBytes(peer)
+    const peerId = peerIdFromMultihash(Digest.decode(peer))
 
     log('openStream - dial %p', peerId)
     const connection = await this.libp2p.dial(peerId)
 
     log('openStream - open stream for protocol %s', proto)
     const stream = await connection.newStream(proto, {
-      runOnTransientConnection: true,
-      // @ts-expect-error this has not been released yet
       runOnLimitedConnection: true
     })
 
     return {
       streamInfo: {
-        peer: peerId.toBytes(),
+        peer: peerId.toMultihash().bytes,
         addr: connection.remoteAddr.bytes,
         proto: stream.protocol ?? ''
       },
@@ -155,7 +154,7 @@ export class Server implements Libp2pServer {
           })
 
           const message = StreamInfo.encode({
-            peer: connection.remotePeer.toBytes(),
+            peer: connection.remotePeer.toMultihash().bytes,
             addr: connection.remoteAddr.bytes,
             proto: stream.protocol ?? ''
           })
@@ -194,8 +193,6 @@ export class Server implements Libp2pServer {
           }
         })
     }, {
-      runOnTransientConnection: true,
-      // @ts-expect-error this has not been released yet
       runOnLimitedConnection: true
     })
   }
@@ -257,7 +254,7 @@ export class Server implements Libp2pServer {
             throw new Error('Invalid request')
           }
 
-          const peerId = peerIdFromBytes(request.id) // eslint-disable-line no-case-declarations
+          const peerId = peerIdFromMultihash(Digest.decode(request.id)) // eslint-disable-line no-case-declarations
           const peer = await this.libp2p.peerStore.get(peerId) // eslint-disable-line no-case-declarations
           const protos = peer.protocols // eslint-disable-line no-case-declarations
           yield OkResponse({ peerStore: { protos } })
@@ -331,7 +328,7 @@ export class Server implements Libp2pServer {
             throw new Error('Invalid request')
           }
 
-          yield * this.dhtOperations.findPeer(peerIdFromBytes(request.peer))
+          yield * this.dhtOperations.findPeer(peerIdFromMultihash(Digest.decode(request.peer)))
           return
         case DHTRequest.Type.FIND_PROVIDERS:
           if (request.cid == null) {
@@ -359,7 +356,7 @@ export class Server implements Libp2pServer {
             throw new Error('Invalid request')
           }
 
-          yield * this.dhtOperations.getPublicKey(peerIdFromBytes(request.peer))
+          yield * this.dhtOperations.getPublicKey(peerIdFromMultihash(Digest.decode(request.peer)))
           return
         case DHTRequest.Type.GET_VALUE:
           if (request.key == null) {
@@ -414,7 +411,7 @@ export class Server implements Libp2pServer {
             await pb.write({
               type: Response.Type.OK,
               identify: {
-                id: daemon.libp2p.peerId.toBytes(),
+                id: daemon.libp2p.peerId.toMultihash().bytes,
                 addrs: daemon.libp2p.getMultiaddrs().map(ma => ma.decapsulateCode(protocols('p2p').code)).map(m => m.bytes)
               }
             }, Response)
@@ -436,7 +433,7 @@ export class Server implements Libp2pServer {
               seen.add(peerId)
 
               peers.push({
-                id: connection.remotePeer.toBytes(),
+                id: connection.remotePeer.toMultihash().bytes,
                 addrs: [connection.remoteAddr.bytes]
               })
             }
