@@ -50,7 +50,7 @@
     "release": "aegir release"
   },
   "dependencies": {
-    "@chainsafe/libp2p-gossipsub": "^13.0.0",
+    "@chainsafe/libp2p-gossipsub": "^14.0.0",
     "@libp2p/crypto": "^5.0.0",
     "@libp2p/daemon-protocol": "^6.0.0",
     "@libp2p/interface": "^2.0.0",
