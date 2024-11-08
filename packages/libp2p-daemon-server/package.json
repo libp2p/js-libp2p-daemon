@@ -137,7 +137,7 @@
   "dependencies": {
     "@chainsafe/libp2p-gossipsub": "^14.1.0",
     "@libp2p/crypto": "^5.0.6",
-    "@libp2p/daemon-protocol": "^6.0.0",
+    "@libp2p/daemon-protocol": "^7.0.2",
     "@libp2p/interface": "^2.2.0",
     "@libp2p/kad-dht": "^14.1.0",
     "@libp2p/logger": "^5.1.3",
