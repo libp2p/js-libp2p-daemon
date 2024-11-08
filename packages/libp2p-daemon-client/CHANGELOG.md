@@ -1,3 +1,9 @@
+## [@libp2p/daemon-client-v9.0.4](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-9.0.3...@libp2p/daemon-client-9.0.4) (2024-11-08)
+
+### Bug Fixes
+
+* ts-expect-error masking actual error ([25381fc](https://github.com/libp2p/js-libp2p-daemon/commit/25381fc857c3a1f50c594eaa7d727c908af14796))
+
 ## [@libp2p/daemon-client-v9.0.3](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-9.0.2...@libp2p/daemon-client-9.0.3) (2024-11-08)
 
 ### Bug Fixes
