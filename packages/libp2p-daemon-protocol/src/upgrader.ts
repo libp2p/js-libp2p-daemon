@@ -1,6 +1,6 @@
 import type { Connection, MultiaddrConnection, Upgrader } from '@libp2p/interface'
 
-interface OnConnection {
+export interface OnConnection {
   (conn: MultiaddrConnection): void
 }
 
