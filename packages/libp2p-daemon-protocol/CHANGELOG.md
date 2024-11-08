@@ -1,3 +1,10 @@
+## [@libp2p/daemon-protocol-v7.0.3](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-7.0.2...@libp2p/daemon-protocol-7.0.3) (2024-11-08)
+
+### Bug Fixes
+
+* fix mismatched versions ([c6d619f](https://github.com/libp2p/js-libp2p-daemon/commit/c6d619f9af99a5a28089aeec2f047ca1fca1f2e1))
+* update project config ([4cf3a98](https://github.com/libp2p/js-libp2p-daemon/commit/4cf3a98dd76f8a41ef7f70d9e1696f2a06049f69))
+
 ## @libp2p/daemon-protocol [6.0.2](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-protocol-v6.0.1...@libp2p/daemon-protocol-6.0.2) (2024-02-07)
 
 

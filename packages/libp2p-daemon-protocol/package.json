@@ -1,6 +1,6 @@
 {
   "name": "@libp2p/daemon-protocol",
-  "version": "7.0.2",
+  "version": "7.0.3",
   "description": "Communication protocol between libp2p daemons and clients",
   "author": "",
   "license": "Apache-2.0 OR MIT",
