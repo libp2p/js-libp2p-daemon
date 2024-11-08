@@ -1,3 +1,15 @@
+## [@libp2p/daemon-v5.0.1](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-5.0.0...@libp2p/daemon-5.0.1) (2024-11-08)
+
+### Bug Fixes
+
+* more mismatched versions ([327942a](https://github.com/libp2p/js-libp2p-daemon/commit/327942a44835533ebbc931ad33f03e8c1c9d4b28))
+* update project config ([4cf3a98](https://github.com/libp2p/js-libp2p-daemon/commit/4cf3a98dd76f8a41ef7f70d9e1696f2a06049f69))
+
+### Dependencies
+
+* bump aegir from 44.1.4 to 45.0.1 ([#280](https://github.com/libp2p/js-libp2p-daemon/issues/280)) ([e322ae9](https://github.com/libp2p/js-libp2p-daemon/commit/e322ae99681bfbfdc9680f00694c381ba2ac37fa))
+* **dev:** bump sinon from 18.0.1 to 19.0.2 ([#276](https://github.com/libp2p/js-libp2p-daemon/issues/276)) ([278cb24](https://github.com/libp2p/js-libp2p-daemon/commit/278cb24ff8bc84cb83384ad7f4804eebccf6e445))
+
 ## @libp2p/daemon [4.0.2](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-4.0.1...@libp2p/daemon-4.0.2) (2024-08-01)
 
 
