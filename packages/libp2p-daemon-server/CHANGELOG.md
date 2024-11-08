@@ -1,3 +1,11 @@
+## [@libp2p/daemon-server-v8.0.3](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-8.0.2...@libp2p/daemon-server-8.0.3) (2024-11-08)
+
+### Bug Fixes
+
+* fix mismatched versions ([c6d619f](https://github.com/libp2p/js-libp2p-daemon/commit/c6d619f9af99a5a28089aeec2f047ca1fca1f2e1))
+* mismatched versions ([98500b8](https://github.com/libp2p/js-libp2p-daemon/commit/98500b8a150c1ebb19c1f51efdfa1836136f3726))
+* update project config ([4cf3a98](https://github.com/libp2p/js-libp2p-daemon/commit/4cf3a98dd76f8a41ef7f70d9e1696f2a06049f69))
+
 ## @libp2p/daemon-server [7.0.6](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-7.0.5...@libp2p/daemon-server-7.0.6) (2024-08-01)
 
 
