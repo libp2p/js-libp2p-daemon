@@ -8,7 +8,7 @@ import {
   PSRequest,
   StreamInfo
 } from '@libp2p/daemon-protocol'
-import { passThroughUpgrader } from '@libp2p/daemon-protocol/upgrader'
+import { PassThroughUpgrader } from '@libp2p/daemon-protocol/upgrader'
 import { defaultLogger, logger } from '@libp2p/logger'
 import { peerIdFromMultihash } from '@libp2p/peer-id'
 import { tcp } from '@libp2p/tcp'
@@ -63,9 +63,7 @@ export class Server implements Libp2pServer {
       logger: defaultLogger()
     })
     this.listener = this.tcp.createListener({
-      // @ts-expect-error connection may actually be a maconn?
-      handler: this.handleConnection.bind(this),
-      upgrader: passThroughUpgrader
+      upgrader: new PassThroughUpgrader(this.handleConnection.bind(this))
     })
     this._onExit = this._onExit.bind(this)
 
@@ -150,7 +148,7 @@ export class Server implements Libp2pServer {
           // @ts-expect-error because we use a passthrough upgrader,
           // this is actually a MultiaddrConnection and not a Connection
           conn = await this.tcp.dial(addr, {
-            upgrader: passThroughUpgrader
+            upgrader: new PassThroughUpgrader()
           })
 
           const message = StreamInfo.encode({
