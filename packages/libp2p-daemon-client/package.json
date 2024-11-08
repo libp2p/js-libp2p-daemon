@@ -1,6 +1,6 @@
 {
   "name": "@libp2p/daemon-client",
-  "version": "8.0.6",
+  "version": "9.0.2",
   "description": "libp2p-daemon client implementation",
   "license": "Apache-2.0 OR MIT",
   "homepage": "https://github.com/libp2p/js-libp2p-daemon/tree/main/packages/libp2p-daemon-client#readme",
@@ -146,7 +146,7 @@
   },
   "devDependencies": {
     "@chainsafe/libp2p-gossipsub": "^14.1.0",
-    "@libp2p/daemon-server": "^7.0.0",
+    "@libp2p/daemon-server": "^8.0.2",
     "@libp2p/interface-compliance-tests": "^6.1.8",
     "@libp2p/kad-dht": "^14.1.0",
     "aegir": "^45.0.1",
