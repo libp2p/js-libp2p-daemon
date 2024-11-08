@@ -1,8 +1,24 @@
-import type { Upgrader } from '@libp2p/interface'
+import type { Connection, MultiaddrConnection, Upgrader } from '@libp2p/interface'
 
-export const passThroughUpgrader: Upgrader = {
-  // @ts-expect-error should return a connection
-  upgradeInbound: async maConn => maConn,
-  // @ts-expect-error should return a connection
-  upgradeOutbound: async maConn => maConn
+interface OnConnection {
+  (conn: MultiaddrConnection): void
+}
+
+export class PassThroughUpgrader implements Upgrader {
+  private readonly onConnection?: OnConnection
+
+  constructor (handler?: OnConnection) {
+    this.onConnection = handler
+  }
+
+  async upgradeInbound (maConn: MultiaddrConnection): Promise<Connection> {
+    this.onConnection?.(maConn)
+    // @ts-expect-error should return a connection
+    return maConn
+  }
+
+  async upgradeOutbound (maConn: MultiaddrConnection): Promise<Connection> {
+    // @ts-expect-error should return a connection
+    return maConn
+  }
 }
