@@ -197,7 +197,7 @@ class Client implements DaemonClient {
     // open a tcp port, pipe any data from it to the handler function
     const listener = this.tcp.createListener({
       upgrader: new PassThroughUpgrader((maConn) => {
-        this.onConnection(protocol, listener, maConn)
+        this.onConnection(protocol, listener, handler, maConn)
       })
     })
     await listener.listen(multiaddr('/ip4/127.0.0.1/tcp/0'))
@@ -224,7 +224,7 @@ class Client implements DaemonClient {
     }
   }
 
-  private onConnection (protocol: string, listener: Listener, connection: MultiaddrConnection): void {
+  private onConnection (protocol: string, listener: Listener, handler: StreamHandlerFunction, connection: MultiaddrConnection): void {
     Promise.resolve()
       .then(async () => {
         const sh = new StreamHandler({
