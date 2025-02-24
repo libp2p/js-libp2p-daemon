@@ -148,7 +148,8 @@ export class Server implements Libp2pServer {
           // @ts-expect-error because we use a passthrough upgrader,
           // this is actually a MultiaddrConnection and not a Connection
           conn = await this.tcp.dial(addr, {
-            upgrader: new PassThroughUpgrader()
+            upgrader: new PassThroughUpgrader(),
+            signal: AbortSignal.timeout(10_000)
           })
 
           const message = StreamInfo.encode({
