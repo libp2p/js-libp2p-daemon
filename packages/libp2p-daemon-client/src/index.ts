@@ -45,11 +45,12 @@ class Client implements DaemonClient {
    * @async
    * @returns {MultiaddrConnection}
    */
-  async connectDaemon (): Promise<MultiaddrConnection> {
+  async connectDaemon (signal?: AbortSignal): Promise<MultiaddrConnection> {
     // @ts-expect-error because we use a passthrough upgrader,
     // this is actually a MultiaddrConnection and not a Connection
     return this.tcp.dial(this.multiaddr, {
-      upgrader: new PassThroughUpgrader()
+      upgrader: new PassThroughUpgrader(),
+      signal: signal ?? AbortSignal.timeout(10_000)
     })
   }
 
