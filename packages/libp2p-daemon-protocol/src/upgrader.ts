@@ -11,10 +11,8 @@ export class PassThroughUpgrader implements Upgrader {
     this.onConnection = handler
   }
 
-  async upgradeInbound (maConn: MultiaddrConnection): Promise<Connection> {
+  async upgradeInbound (maConn: MultiaddrConnection): Promise<void> {
     this.onConnection?.(maConn)
-    // @ts-expect-error should return a connection
-    return maConn
   }
 
   async upgradeOutbound (maConn: MultiaddrConnection): Promise<Connection> {
