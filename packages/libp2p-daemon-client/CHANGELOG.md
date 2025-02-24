@@ -1,3 +1,9 @@
+## [@libp2p/daemon-client-v9.0.5](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-9.0.4...@libp2p/daemon-client-9.0.5) (2025-02-24)
+
+### Bug Fixes
+
+* pass abort signal to dial ([#285](https://github.com/libp2p/js-libp2p-daemon/issues/285)) ([a739825](https://github.com/libp2p/js-libp2p-daemon/commit/a7398251d9c77f357ffcacb83fa7ebcd1039b114))
+
 ## [@libp2p/daemon-client-v9.0.4](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-9.0.3...@libp2p/daemon-client-9.0.4) (2024-11-08)
 
 ### Bug Fixes
