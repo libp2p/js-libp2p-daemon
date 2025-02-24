@@ -1,3 +1,13 @@
+## [@libp2p/daemon-server-v8.0.4](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-8.0.3...@libp2p/daemon-server-8.0.4) (2025-02-24)
+
+### Bug Fixes
+
+* pass abort signal to dial ([#285](https://github.com/libp2p/js-libp2p-daemon/issues/285)) ([a739825](https://github.com/libp2p/js-libp2p-daemon/commit/a7398251d9c77f357ffcacb83fa7ebcd1039b114))
+
+### Dependencies
+
+* bump it-length-prefixed from 9.1.1 to 10.0.1 ([#284](https://github.com/libp2p/js-libp2p-daemon/issues/284)) ([48dcb19](https://github.com/libp2p/js-libp2p-daemon/commit/48dcb19cc8db772509cc709298610484c186a142))
+
 ## [@libp2p/daemon-server-v8.0.3](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-server-8.0.2...@libp2p/daemon-server-8.0.3) (2024-11-08)
 
 ### Bug Fixes
