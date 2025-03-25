@@ -145,6 +145,6 @@
   },
   "devDependencies": {
     "aegir": "^45.0.1",
-    "sinon": "^19.0.2"
+    "sinon": "^20.0.0"
   }
 }
