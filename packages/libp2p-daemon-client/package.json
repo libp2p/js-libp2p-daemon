@@ -148,7 +148,7 @@
     "@chainsafe/libp2p-gossipsub": "^14.1.0",
     "@libp2p/daemon-server": "^8.0.2",
     "@libp2p/interface-compliance-tests": "^6.1.8",
-    "@libp2p/kad-dht": "^14.1.0",
+    "@libp2p/kad-dht": "^15.0.2",
     "aegir": "^45.0.1",
     "it-all": "^3.0.6",
     "it-pipe": "^3.0.1",
