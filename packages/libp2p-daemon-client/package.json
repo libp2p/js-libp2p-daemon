@@ -141,7 +141,7 @@
     "@libp2p/peer-id": "^5.0.7",
     "@libp2p/tcp": "^10.0.11",
     "@multiformats/multiaddr": "^12.3.1",
-    "it-protobuf-stream": "^1.1.5",
+    "it-protobuf-stream": "^2.0.2",
     "multiformats": "^13.3.1"
   },
   "devDependencies": {
