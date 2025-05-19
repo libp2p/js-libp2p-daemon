@@ -1,3 +1,9 @@
+## [@libp2p/daemon-v5.0.2](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-5.0.1...@libp2p/daemon-5.0.2) (2025-05-19)
+
+### Dependencies
+
+* bump aegir from 45.2.1 to 46.0.2 ([#297](https://github.com/libp2p/js-libp2p-daemon/issues/297)) ([09c1457](https://github.com/libp2p/js-libp2p-daemon/commit/09c1457ce93a45cab43869892cd9174617a34c29))
+
 ## [@libp2p/daemon-v5.0.1](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-5.0.0...@libp2p/daemon-5.0.1) (2024-11-08)
 
 ### Bug Fixes
