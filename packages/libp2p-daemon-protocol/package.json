@@ -165,6 +165,7 @@
   "dependencies": {
     "@libp2p/interface": "^2.10.0",
     "@libp2p/logger": "^5.1.16",
+    "any-signal": "^4.1.1",
     "it-length-prefixed-stream": "^2.0.2",
     "protons-runtime": "^5.5.0",
     "uint8arraylist": "^2.4.8"
