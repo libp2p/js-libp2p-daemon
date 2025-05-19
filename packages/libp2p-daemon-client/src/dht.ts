@@ -4,14 +4,15 @@ import {
   DHTRequest,
   DHTResponse
 } from '@libp2p/daemon-protocol'
-import { InvalidMessageError, InvalidParametersError, ProtocolError } from '@libp2p/interface'
-import { isPeerId, type PeerId, type PeerInfo } from '@libp2p/interface'
+import { InvalidMessageError, InvalidParametersError, ProtocolError, isPeerId } from '@libp2p/interface'
 import { logger } from '@libp2p/logger'
 import { peerIdFromMultihash } from '@libp2p/peer-id'
 import { multiaddr } from '@multiformats/multiaddr'
 import { CID } from 'multiformats/cid'
 import * as Digest from 'multiformats/hashes/digest'
-import { OperationFailedError, type DaemonClient } from './index.js'
+import { OperationFailedError } from './index.js'
+import type { DaemonClient } from './index.js'
+import type { PeerId, PeerInfo } from '@libp2p/interface'
 
 const log = logger('libp2p:daemon-client:dht')
 

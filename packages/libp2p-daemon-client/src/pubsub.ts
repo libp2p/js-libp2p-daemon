@@ -7,7 +7,8 @@ import {
 import { InvalidParametersError } from '@libp2p/interface'
 import { peerIdFromMultihash } from '@libp2p/peer-id'
 import * as Digest from 'multiformats/hashes/digest'
-import { OperationFailedError, type DaemonClient, type Subscription } from './index.js'
+import { OperationFailedError } from './index.js'
+import type { DaemonClient, Subscription } from './index.js'
 import type { PeerId } from '@libp2p/interface'
 
 export class Pubsub {
