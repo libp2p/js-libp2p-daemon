@@ -1,4 +1,5 @@
-import type { Connection, MultiaddrConnection, Upgrader } from '@libp2p/interface'
+import { anySignal } from 'any-signal'
+import type { ClearableSignal, Connection, ConnectionEncrypter, MultiaddrConnection, StreamMuxerFactory, Upgrader } from '@libp2p/interface'
 
 export interface OnConnection {
   (conn: MultiaddrConnection): void
@@ -18,5 +19,17 @@ export class PassThroughUpgrader implements Upgrader {
   async upgradeOutbound (maConn: MultiaddrConnection): Promise<Connection> {
     // @ts-expect-error should return a connection
     return maConn
+  }
+
+  createInboundAbortSignal (signal: AbortSignal): ClearableSignal {
+    return anySignal([signal])
+  }
+
+  getStreamMuxers (): Map<string, StreamMuxerFactory> {
+    return new Map()
+  }
+
+  getConnectionEncrypters (): Map<string, ConnectionEncrypter<unknown>> {
+    return new Map()
   }
 }

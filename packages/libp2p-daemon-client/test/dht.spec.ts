@@ -1,19 +1,23 @@
 /* eslint-env mocha */
 
-import { createServer, type Libp2pServer } from '@libp2p/daemon-server'
-import { type ValueEvent, type FinalPeerEvent, type PeerResponseEvent, MessageType, EventTypes, type KadDHT } from '@libp2p/kad-dht'
+import { createServer } from '@libp2p/daemon-server'
+import { MessageType, EventTypes } from '@libp2p/kad-dht'
 import { peerIdFromString } from '@libp2p/peer-id'
 import { multiaddr } from '@multiformats/multiaddr'
 import { expect } from 'aegir/chai'
 import all from 'it-all'
 import { CID } from 'multiformats/cid'
 import sinon from 'sinon'
-import { type StubbedInstance, stubInterface } from 'sinon-ts'
+import { stubInterface } from 'sinon-ts'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
-import { createClient, type DaemonClient } from '../src/index.js'
+import { createClient } from '../src/index.js'
 import { matchBytes } from './fixtures/match-bytes.js'
+import type { DaemonClient } from '../src/index.js'
 import type { GossipSub } from '@chainsafe/libp2p-gossipsub'
+import type { Libp2pServer } from '@libp2p/daemon-server'
 import type { Libp2p } from '@libp2p/interface'
+import type { ValueEvent, FinalPeerEvent, PeerResponseEvent, KadDHT } from '@libp2p/kad-dht'
+import type { StubbedInstance } from 'sinon-ts'
 
 const defaultMultiaddr = multiaddr('/ip4/0.0.0.0/tcp/12345')
 
@@ -80,7 +84,13 @@ describe('daemon dht client', function () {
           name: 'VALUE',
           type: EventTypes.VALUE,
           value,
-          from: peerIdFromString('12D3KooWJKCJW8Y26pRFNv78TCMGLNTfyN8oKaFswMRYXTzSbSsa')
+          from: peerIdFromString('12D3KooWJKCJW8Y26pRFNv78TCMGLNTfyN8oKaFswMRYXTzSbSsa'),
+          path: {
+            index: 0,
+            running: 0,
+            queued: 0,
+            total: 0
+          }
         }
 
         yield event
@@ -114,7 +124,13 @@ describe('daemon dht client', function () {
             id,
             multiaddrs: []
           },
-          from: peerIdFromString('12D3KooWJKCJW8Y26pRFNv78TCMGLNTfyN8oKaFswMRYXTzSbSsa')
+          from: peerIdFromString('12D3KooWJKCJW8Y26pRFNv78TCMGLNTfyN8oKaFswMRYXTzSbSsa'),
+          path: {
+            index: 0,
+            running: 0,
+            queued: 0,
+            total: 0
+          }
         }
 
         yield event
@@ -174,7 +190,13 @@ describe('daemon dht client', function () {
           closer: [],
           from: id,
           messageName: 'GET_PROVIDERS',
-          messageType: MessageType.GET_PROVIDERS
+          messageType: MessageType.GET_PROVIDERS,
+          path: {
+            index: 0,
+            running: 0,
+            queued: 0,
+            total: 0
+          }
         }
 
         yield event
@@ -214,7 +236,13 @@ describe('daemon dht client', function () {
           }],
           from: id,
           messageName: 'GET_PROVIDERS',
-          messageType: MessageType.GET_PROVIDERS
+          messageType: MessageType.GET_PROVIDERS,
+          path: {
+            index: 0,
+            running: 0,
+            queued: 0,
+            total: 0
+          }
         }
 
         yield event

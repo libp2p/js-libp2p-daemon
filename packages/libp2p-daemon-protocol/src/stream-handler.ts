@@ -1,6 +1,7 @@
 import { logger } from '@libp2p/logger'
-import { lpStream, type LengthPrefixedStream } from 'it-length-prefixed-stream'
+import { lpStream } from 'it-length-prefixed-stream'
 import type { MultiaddrConnection } from '@libp2p/interface'
+import type { LengthPrefixedStream } from 'it-length-prefixed-stream'
 import type { Uint8ArrayList } from 'uint8arraylist'
 
 const log = logger('libp2p:daemon-protocol:stream-handler')
