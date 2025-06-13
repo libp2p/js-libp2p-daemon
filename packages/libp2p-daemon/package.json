@@ -153,6 +153,6 @@
   },
   "devDependencies": {
     "aegir": "^46.0.3",
-    "sinon": "^20.0.0"
+    "sinon": "^21.0.0"
   }
 }
