@@ -1,3 +1,9 @@
+## [@libp2p/daemon-client-v9.0.8](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-9.0.7...@libp2p/daemon-client-9.0.8) (2025-08-13)
+
+### Bug Fixes
+
+* update all deps ([#348](https://github.com/libp2p/js-libp2p-daemon/issues/348)) ([44bf148](https://github.com/libp2p/js-libp2p-daemon/commit/44bf148f37b9f4091dc8ed26cf343e196607ebbc))
+
 ## [@libp2p/daemon-client-v9.0.7](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-client-9.0.6...@libp2p/daemon-client-9.0.7) (2025-08-13)
 
 ### Dependencies
