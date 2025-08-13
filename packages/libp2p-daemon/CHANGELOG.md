@@ -1,3 +1,9 @@
+## [@libp2p/daemon-v5.0.4](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-5.0.3...@libp2p/daemon-5.0.4) (2025-08-13)
+
+### Bug Fixes
+
+* update all deps ([#348](https://github.com/libp2p/js-libp2p-daemon/issues/348)) ([44bf148](https://github.com/libp2p/js-libp2p-daemon/commit/44bf148f37b9f4091dc8ed26cf343e196607ebbc))
+
 ## [@libp2p/daemon-v5.0.3](https://github.com/libp2p/js-libp2p-daemon/compare/@libp2p/daemon-5.0.2...@libp2p/daemon-5.0.3) (2025-08-13)
 
 ### Dependencies
