@@ -97,7 +97,6 @@ export default async function main (processArgs: string[]): Promise<void> {
       }
 
       if (args.length > 0) {
-        // eslint-disable-next-line
         log(msg)
       }
 
@@ -108,7 +107,7 @@ export default async function main (processArgs: string[]): Promise<void> {
 
   if (data != null) {
     // Log help and exit
-    // eslint-disable-next-line
+
     log(data)
     process.exit(0)
   }
@@ -117,7 +116,6 @@ export default async function main (processArgs: string[]): Promise<void> {
   await daemon.start()
 
   if (argv.quiet !== true) {
-    // eslint-disable-next-line
     log('daemon has started')
   }
 }

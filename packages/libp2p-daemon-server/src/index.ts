@@ -385,7 +385,7 @@ export class Server implements Libp2pServer {
    */
   handleConnection (maConn: MultiaddrConnection): void {
     void Promise.resolve().then(async () => {
-      const daemon = this // eslint-disable-line @typescript-eslint/no-this-alias
+      const daemon = this
 
       const pb = pbStream(maConn, {
         maxDataLength: LIMIT

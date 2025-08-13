@@ -1,0 +1,9 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "name": "js-libp2p-daemon",
+  "readme": "./README.md",
+  "headings": {
+    "readme": false,
+    "document": false
+  }
+}
