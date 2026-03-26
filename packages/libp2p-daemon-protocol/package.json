@@ -165,6 +165,6 @@
   },
   "devDependencies": {
     "aegir": "^47.0.21",
-    "protons": "^7.7.0"
+    "protons": "^8.1.0"
   }
 }
