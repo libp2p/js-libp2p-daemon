@@ -146,7 +146,7 @@
     "@libp2p/tcp": "^10.1.18",
     "@multiformats/multiaddr": "^12.5.1",
     "it-drain": "^3.0.10",
-    "it-length-prefixed": "^10.0.1",
+    "it-length-prefixed": "^11.0.1",
     "it-length-prefixed-stream": "^2.0.3",
     "it-pipe": "^3.0.1",
     "it-protobuf-stream": "^2.0.3",
