@@ -164,7 +164,7 @@
     "uint8arraylist": "^2.4.8"
   },
   "devDependencies": {
-    "aegir": "^47.0.21",
+    "aegir": "^48.0.13",
     "protons": "^7.7.0"
   }
 }
